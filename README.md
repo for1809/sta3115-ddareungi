@@ -1,43 +1,116 @@
-# 따릉이 적정 규모 (STA3115 기말 프로젝트, 1조)
+# 줄이기 전에 볼 것: 따릉이가 모자라는 곳은 언덕 위다
 
-이용이 줄고 민간 전기자전거가 늘어난 지금, 따릉이 자전거와 대여소는 어디서 남고 어디서 모자라는가를 탐색한다.
-발표 2026-11-26(목), 최종 제출 12/08~12/14 주(데이터 포함 Shiny 앱 압축 파일).
+서울 공공자전거 따릉이 대여소 2,713곳의 2025년 1년치 이용 기록과 시간별 재고 기록을 결합해,
+**출근 시간에 자전거가 없는 대여소가 어디이며 무엇과 관련되는지** 탐색한 프로젝트입니다.
+
+연세대학교 STA3115 탐색적자료분석 기말 프로젝트(2026년 2학기, 1조).
+
+| 보고서 | 분석 노트 | 코드 |
+| --- | --- | --- |
+| [report/report.pdf](report/report.pdf) (A4 8쪽) | [analysis/eda_analysis.Rmd](analysis/eda_analysis.Rmd) | [scripts/](scripts/) (수집, 집계), [report/report_figures.R](report/report_figures.R) |
+
+## 왜 이 질문인가
+
+따릉이 이용은 2년 연속 줄었고(2023년 4,491만 건에서 2025년 3,737만 건), 서울시는 서울연구원과 함께
+적정 규모와 운영 효율화를 다시 연구하고 있습니다. 규모를 줄이는 논의에서는 이용이 적은 대여소부터
+통합하자는 안이 먼저 나오기 쉽습니다. 그런데 **이용 건수는 공급에도 좌우됩니다.** 자전거가 없어서
+빌리지 못한 수요는 기록에 남지 않습니다. 그래서 줄이기 전에 실제로 모자라는 곳부터 확인했습니다.
+
+## 핵심 결과
+
+1. **품절은 고지대에 몰려 있다.** 평일 7~9시에 자전거가 0대였던 비율은 고도 20m 미만 4.9%, 20~40m 9.4%,
+   40m 이상 24.6%였습니다.
+2. **품절과 가장 크게 관련된 것은 고도다.** 로지스틱 회귀에서 고도가 10m 높아질 때마다 품절이 잦은
+   대여소일 오즈는 2.07배(95% 신뢰구간 1.89~2.28)였습니다. 지하철역과 대학까지의 거리는 단독으로는 관련이
+   없었고, 거치대가 많을수록 품절이 적었습니다.
+3. **이용이 적은 대여소 중 상당수는 공급 부족이다.** 통합 후보 427곳 중 127곳(30%)이 출근 시간에 자주 비는
+   대여소였고, 그중 93곳이 고도 40m 이상이었습니다.
+4. **1년 내내 같았다.** 달마다 따로 추정한 고도 오즈비가 12개월 모두 1.75~2.18이었고, 품절 기준을
+   20%나 40%로 바꿔도 결론이 같았습니다.
+
+<p align="center"><img src="report/figures/f1_map.png" width="560" alt="서울 전역의 출근 시간 품절 비율"></p>
+<p align="center"><sub>출근 시간 품절 비율의 level plot(대여소 좌표에 대한 LOESS 곡면). 북쪽 산자락과 동남쪽 끝이 높다.</sub></p>
+
+<p align="center"><img src="report/figures/f5_monthly_or.png" width="620" alt="월별 고도 오즈비"></p>
+<p align="center"><sub>달마다 따로 적합한 로지스틱 회귀의 고도 10m당 오즈비와 95% 신뢰구간.</sub></p>
+
+## 데이터
+
+모두 공개 데이터입니다. 분석 기간은 2025년 평일 244일(공휴일 17일 제외)입니다.
+
+| 데이터 | 단위 | 쓰임 |
+| --- | --- | --- |
+| 따릉이 대여소별 대여/반납 승객수 (서울 열린데이터광장 OA-21229) | 대여소 간 이동, 5분 | 이용량, 순변화 |
+| 대여소별 대여가능 수량 (OA-22382) | 대여소 재고, 1시간 | 출근 품절 |
+| 공공자전거 이용정보 월별 (OA-15248) | 월 x 연령대 | 이용 추이(2022-01~2026-06) |
+| 실시간 대여정보 API (OA-15493), 대여소 정보 (OA-13252) | 대여소 | 좌표, 거치대 수, 자치구, ID 연결 |
+| 서울시 지하철역 정보 API (784곳), 서울시 대학 목록 (53곳) | 지점 | 역과 대학까지 거리 |
+| Open-Meteo Elevation API (Copernicus DEM 90m) | 지점 | 대여소 고도 |
+
+까다로웠던 점:
+- 이동 데이터에는 같은 이용이 출발 기준과 도착 기준으로 두 번 들어 있습니다. 대여는 출발 기준 행만, 반납은 도착 기준 행만 셉니다.
+- 이동 데이터(ST-xxx)와 재고 데이터(5자리 번호)의 대여소 ID 체계가 달라 실시간 대여정보 API로 연결했습니다.
+- 2025년 7월 파일만 영어 열 이름이고, 파일마다 인코딩(cp949, utf-8)이 섞여 있어 파일별로 판별합니다.
+
+## 방법
+
+수업에서 다룬 탐색적 자료분석(Cleveland, *Visualizing Data*) 방법을 연구 질문마다 썼습니다.
+
+| 질문 | 방법 |
+| --- | --- |
+| 어디에 몰려 있나 | 대여소 좌표에 대한 LOESS 곡면과 level plot, 고도 구간별 비교 |
+| 무엇과 함께 움직이나 | LOESS 산점도와 잔차 그림, 지하철역 거리 사분위별 coplot, 상호작용을 넣은 로지스틱 회귀 |
+| 이용이 적은 곳 중 공급 부족은 | 이용량 로그 변환과 분포 비교, 대여소 역할 분류, 모자이크 그림과 카이제곱 검정 |
+| 1년 내내 같은가 | 월별 상관, 월별 로지스틱 회귀, 품절 기준값(20%, 30%, 40%) 민감도 |
 
 ## 폴더
 
 | 폴더 | 내용 |
 | --- | --- |
-| `scripts/` | 데이터 수집과 집계 Python 스크립트(01~05 순서대로 실행) |
-| `data/` | 앱과 분석이 읽는 작은 집계 파일, 각 단계 로그 |
-| `analysis/` | R Markdown 분석(3단계) |
-| `app/` | R Shiny 앱(4단계) |
-| `report/` | 논문형 보고서(HTML, PDF)와 보고서용 그림 코드 |
-| `raw/` | 서울 열린데이터광장에서 받은 원천 파일(약 2.2GB, 아래 표) |
+| `scripts/` | 데이터 수집과 집계 Python 스크립트(표준 라이브러리만 사용, 01~06 순서) |
+| `data/` | 분석이 읽는 집계 파일과 각 단계 로그. 처음 만든 2025년 10월 한 달 결과는 `data/oct2025/`에 보관 |
+| `analysis/` | R Markdown 탐색 분석과 그림 |
+| `report/` | 논문형 보고서(HTML, PDF), 보고서용 그림 코드, PDF 생성 스크립트 |
+| `raw/` | 원천 파일(약 2.2GB). 저장소에는 올리지 않음(`.gitignore`) |
 
-## 원천 파일 (`raw/`)
+진행 중: R Shiny 앱 5개 탭(현황, 규모, 흐름, 품절, 대여소)을 만들어 shinyapps.io에 배포할 예정입니다(`app/`).
 
-| 폴더 | 내용 | 원천 |
-| --- | --- | --- |
-| `od_5min/` | 202501.zip ~ 202512.zip, 대여소 간 이동 5분 단위 | OA-21229 |
-| `inv_1h/` | 2025Q1.zip ~ 2025Q4.zip, 대여소별 재고 1시간 단위 | OA-22382 |
-| `usage_monthly/` | 22_01.csv ~ 26_1-6.csv, 월별 이용(연령대) | OA-15248 |
-| `stations/csv/` | info_2606__대여소현황.csv, 대여소 자치구와 거치대 | OA-13252 |
-| `map/` | bikelist_map.csv, 실시간 대여정보 API의 대여소 ID와 번호 연결 | OA-15493 |
+## 재현 방법
 
-스크립트는 원천 파일 경로를 인자로 받는다. 프로젝트 폴더에서 1년 집계를 다시 만들려면:
+필요한 것: Python 3, R 4.x(tidyverse, broom, vcd, rmarkdown), 서울 열린데이터광장 인증키(텍스트 파일 하나에 저장).
 
-```
-python scripts/04_station_features.py data "raw/stations/csv/info_2606__대여소현황.csv"
-python scripts/06_aggregate_year.py data raw/od_5min raw/inv_1h
-```
+1. 원천 파일을 받아 `raw/`에 둡니다.
 
-## 분석 기준
+   | 폴더 | 파일 | 원천 |
+   | --- | --- | --- |
+   | `raw/od_5min/` | 202501.zip ~ 202512.zip | OA-21229 |
+   | `raw/inv_1h/` | 2025Q1.zip ~ 2025Q4.zip | OA-22382 |
+   | `raw/usage_monthly/` | 월별 이용 CSV | OA-15248 |
+   | `raw/stations/csv/` | info_2606__대여소현황.csv | OA-13252 |
+   | `raw/map/` | bikelist_map.csv(실시간 대여정보 API의 대여소 ID와 번호) | OA-15493 |
 
-- 기간: 2025년 1년 전체의 평일 244일(공휴일 17일 제외, `scripts/06_aggregate_year.py`). 이용 추이만 2022-01~2026-06 월별.
-  월별 결과는 `data/station_month.csv`, 월별 수집 범위는 `data/coverage_2025.csv`. 처음 만든 2025년 10월 한 달 결과는 `data/oct2025/`에 보관.
-- 재고 데이터는 1월에 이틀이 비어 있고 몇몇 날은 일부 시간이 빠져 있다. 품절 비율은 있는 기록 안에서 계산한다.
-- 단위: 대여소 2,736곳(실시간 대여정보 API 기준, 좌표 있는 곳). 2025년에 이용이 한 번도 없었던 23곳은 분석에서 뺀다.
-- 이동 데이터는 같은 이용이 출발 기준과 도착 기준으로 두 번 들어 있어, 대여는 출발시간 행, 반납은 도착시간 행만 센다.
+2. 대여소 특성을 만들고 집계합니다. 인증키는 파일 경로로만 넘기고 화면에 출력하지 않습니다.
+
+   ```
+   python scripts/01_fetch_features.py raw/map/bikelist_map.csv <인증키 파일> data
+   python scripts/02_universities.py <인증키 파일> data/universities.csv
+   python scripts/03_clean_universities.py data/universities.csv data/universities_clean.csv
+   python scripts/04_station_features.py data "raw/stations/csv/info_2606__대여소현황.csv"
+   python scripts/05_aggregate.py data raw/od_5min/202510.zip raw/inv_1h/2025Q4.zip raw/usage_monthly
+   python scripts/06_aggregate_year.py data raw/od_5min raw/inv_1h
+   ```
+
+   05는 10월 한 달 집계와 연령대 추이(`monthly_age.csv`)를 만들고, 06이 대여소 집계를 1년 기준으로 덮어씁니다.
+
+3. 분석과 보고서를 만듭니다.
+
+   ```
+   Rscript -e "rmarkdown::render('analysis/eda_analysis.Rmd')"
+   cd report && Rscript report_figures.R
+   powershell -File report/make_pdf.ps1
+   ```
+
+   PDF는 Microsoft Edge의 headless 인쇄로 만들고, Noto Serif KR과 Noto Sans KR 글꼴이 설치돼 있어야 합니다.
 
 ## 변수 정의 (`data/stations.csv`)
 
@@ -49,28 +122,26 @@ python scripts/06_aggregate_year.py data raw/od_5min raw/inv_1h
 | `dep_day`, `arr_day` | 평일 하루 평균 대여, 반납 |
 | `commute_share` | 평일 대여 중 7~9시, 17~19시 비율 |
 | `parked_08` | 평일 8시 평균 재고 |
-| `elev_m` | 고도(m). Open-Meteo, Copernicus DEM 90m |
-| `subway_m`, `subway_name` | 가장 가까운 지하철역까지 거리(m)와 역 이름(서울시 subwayStationMaster, 784곳) |
-| `univ_m`, `univ_name` | 가장 가까운 대학 캠퍼스까지 거리(m)와 이름(서울시 대학 목록 53곳, OpenStreetMap으로 좌표 확인) |
+| `elev_m` | 고도(m) |
+| `subway_m`, `subway_name` | 가장 가까운 지하철역까지 거리(m)와 역 이름 |
+| `univ_m`, `univ_name` | 가장 가까운 대학 캠퍼스까지 거리(m)와 이름 |
 | `nearest_station_m` | 가장 가까운 다른 대여소까지 거리(m) |
 | `docks` | 거치대 수 |
 | `gu`, `gu_filled` | 자치구. 신설 13곳은 가장 가까운 대여소의 자치구로 채우고 `gu_filled = 1` |
+| `months_active` | 2025년 중 이용이 있었던 달 수. 0인 23곳은 분석에서 제외 |
 | `role` | 아래 기준의 대여소 역할 |
 
-역할 기준(서울 전체 분포 기준): 이용 하위 20%(`use_day` 24.2건 이하, 2025년 기준)이고 300m 안에 다른 대여소가 있으면 통합 후보,
+역할 기준(서울 전체 분포 기준): 이용 하위 20%(`use_day` 24.2건 이하)이고 300m 안에 다른 대여소가 있으면 통합 후보,
 그중 `am_empty` 0.3 이상이면 `supply_gap_suspect`(공급 부족 의심), 나머지는 `consolidate`(통합 검토).
 통합 후보가 아니면서 `am_empty` 0.3 이상이면 `morning_gap`, 이용이 중앙값(58.4건) 이상이고 `commute_share` 0.5 이상이면 `commute_core`.
 
-## 다른 집계 파일
+다른 집계 파일: `station_month.csv`(대여소 x 월), `station_hour.csv`(대여소 x 평일/주말 x 시간),
+`district_hour.csv`(자치구 x 시간의 서 있는 자전거와 타는 자전거), `monthly_age.csv`(월 x 연령대), `coverage_2025.csv`(월별 수집 범위).
 
-| 파일 | 한 행 |
-| --- | --- |
-| `station_hour.csv` | 대여소 × 평일/주말 × 시간: 대여, 반납, 순변화(하루 평균) |
-| `district_hour.csv` | 자치구 × 시간(평일): 서 있는 자전거, 타는 자전거 |
-| `monthly_age.csv` | 월 × 연령대: 이용 건수 |
+## 한계
 
-## 알려진 한계
-
-- 재고는 한 시간에 한 번 찍힌 값이라 한 시간 안의 품절은 놓친다.
-- 자전거가 없어서 못 빌린 수요는 데이터에 없다. 이용량(Y1)은 공급의 영향을 받는다.
-- 대학 목록은 2013년 기준 서울시 자료다. 원격 대학, 통합된 학교, 위치를 확인하지 못한 3곳은 뺐다(`data/03_universities_log.txt`).
+- 인과를 주장하지 않습니다. 고지대는 주거지가 많아 아침에 자전거가 빠져나가는 동네일 수 있습니다.
+- 자전거가 없어서 못 빌린 수요는 관측되지 않습니다. 이용량은 공급의 영향을 받습니다.
+- 재고는 한 시간에 한 번 찍힌 값이라 한 시간 안의 품절은 놓치고, 2025년 1월은 이틀치가 비어 있습니다.
+- 대학 목록은 2013년 기준 서울시 자료입니다. 원격 대학, 통합된 학교, 위치를 확인하지 못한 곳은 뺐습니다(`data/03_universities_log.txt`).
+- 적정 대수 자체는 추정하지 않았습니다.
