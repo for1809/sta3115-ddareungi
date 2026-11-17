@@ -1,0 +1,34 @@
+OD 202501.zip: done
+OD 202502.zip: done
+OD 202503.zip: done
+OD 202504.zip: done
+OD 202505.zip: done
+OD 202506.zip: done
+OD 202507.zip: done
+OD 202508.zip: done
+OD 202509.zip: done
+OD 202510.zip: done
+OD 202511.zip: done
+OD 202512.zip: done
+inventory 2025Q1.zip: done
+inventory 2025Q2.zip: done
+inventory 2025Q3.zip: done
+inventory 2025Q4.zip: done
+month,od_days,od_weekdays,inv_days,inv_weekdays,inv_stations,inv_days_with_24_hours
+1,31,18,29,16,2766,28
+2,28,20,28,20,2766,27
+3,31,20,31,20,2766,31
+4,30,22,30,22,2774,30
+5,31,20,31,20,2778,31
+6,30,19,30,19,2780,30
+7,31,23,31,23,2784,31
+8,31,20,31,20,2792,31
+9,30,22,30,22,2798,29
+10,31,18,31,18,2799,30
+11,30,20,30,20,2802,29
+12,31,22,31,22,2799,30
+
+weekdays 244, weekend/holiday days 121, inventory weekdays 242
+stations.csv: low-use threshold 24.2, median 58.4; roles {'other': 1739, 'morning_gap': 133, 'commute_core': 418, 'supply_gap_suspect': 128, 'consolidate': 318}
+stations active all 12 months: 2618, never active: 23
+done

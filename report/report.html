@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>줄이기 전에 볼 것: 따릉이가 모자라는 곳은 언덕 위다</title>
+<style>
+  @page {
+    size: A4;
+    margin: 22mm 21mm 22mm 21mm;
+    @bottom-center {
+      content: counter(page);
+      font-family: "Noto Sans KR", sans-serif;
+      font-size: 8pt;
+      color: #8a9096;
+    }
+    @top-right {
+      content: "줄이기 전에 볼 것: 따릉이가 모자라는 곳은 언덕 위다";
+      font-family: "Noto Sans KR", sans-serif;
+      font-size: 7.5pt;
+      color: #a3a8ad;
+    }
+  }
+  @page :first {
+    @top-right { content: none; }
+  }
+
+  :root {
+    --ink: #1f2328;
+    --soft: #4a5057;
+    --muted: #7b8188;
+    --rule: #d9dcdf;
+    --accent: #b23a2b;
+    --tint: #f6f3ee;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    margin: 0;
+    background: #fff;
+    color: var(--ink);
+    font-family: "Noto Serif KR", serif;
+    font-weight: 400;
+    font-size: 10pt;
+    line-height: 1.78;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    text-align: left;
+    font-kerning: normal;
+  }
+  .sans, h1, h2, h3, .meta, table, figcaption, .abstract .label, .refs, .kicker {
+    font-family: "Noto Sans KR", sans-serif;
+  }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* title block */
+  header.title { margin: 2mm 0 7mm; }
+  .kicker {
+    font-size: 8.5pt; font-weight: 500; letter-spacing: 0.08em;
+    color: var(--accent); margin-bottom: 4mm;
+  }
+  h1 {
+    font-size: 21pt; line-height: 1.38; font-weight: 700; letter-spacing: -0.02em;
+    margin: 0 0 3mm; text-align: left;
+  }
+  h1 .sub { display: block; font-size: 13pt; font-weight: 400; color: var(--soft); letter-spacing: -0.01em; margin-top: 1.5mm; }
+  .meta {
+    font-size: 8.5pt; color: var(--muted); line-height: 1.6;
+    border-top: 1.2pt solid var(--ink); padding-top: 2.5mm; margin-top: 6mm;
+    display: flex; justify-content: space-between;
+  }
+
+  .abstract {
+    background: var(--tint); padding: 5mm 6mm 4.5mm; margin: 0 0 8mm;
+    border-left: 2.4pt solid var(--accent);
+  }
+  .abstract .label { font-size: 8.5pt; font-weight: 700; letter-spacing: 0.12em; color: var(--accent); margin-bottom: 1.5mm; }
+  .abstract p { margin: 0; font-size: 9.6pt; line-height: 1.75; }
+
+  h2 {
+    font-size: 12.5pt; font-weight: 700; letter-spacing: -0.01em;
+    margin: 8mm 0 3mm; padding-bottom: 1.2mm; border-bottom: 0.6pt solid var(--rule);
+    break-after: avoid; text-align: left;
+  }
+  h2 .n { color: var(--accent); margin-right: 2.2mm; font-weight: 700; }
+  h3 { font-size: 10.4pt; font-weight: 700; margin: 5mm 0 1.5mm; break-after: avoid; text-align: left; }
+  h3 .n { color: var(--accent); margin-right: 1.8mm; }
+  p { margin: 0 0 2.6mm; orphans: 3; widows: 3; }
+  strong { font-weight: 700; }
+
+  ol.rq { margin: 1mm 0 3mm; padding-left: 0; list-style: none; counter-reset: rq; }
+  ol.rq li { counter-increment: rq; position: relative; padding-left: 9mm; margin-bottom: 1.2mm; }
+  ol.rq li::before {
+    content: "RQ" counter(rq); position: absolute; left: 0; top: 0.35em;
+    font-family: "Noto Sans KR", sans-serif; font-size: 7.5pt; font-weight: 700; color: var(--accent);
+  }
+
+  /* tables */
+  table {
+    width: 100%; border-collapse: collapse; margin: 3mm 0 2mm;
+    font-size: 8.6pt; line-height: 1.55; text-align: left; break-inside: avoid;
+  }
+  thead th {
+    font-weight: 700; color: var(--ink); padding: 1.6mm 2.4mm;
+    border-top: 1pt solid var(--ink); border-bottom: 0.6pt solid var(--ink);
+  }
+  tbody td { padding: 1.5mm 2.4mm; border-bottom: 0.4pt solid var(--rule); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: 1pt solid var(--ink); }
+  td.r, th.r { text-align: right; font-variant-numeric: tabular-nums; }
+  td.k { color: var(--soft); white-space: nowrap; }
+  tr.hl td { background: #fbf1ee; }
+  tr.hl td:first-child { font-weight: 700; }
+  .tcap {
+    font-family: "Noto Sans KR", sans-serif; font-size: 8.3pt; color: var(--soft);
+    margin: 4mm 0 0; break-after: avoid; text-align: left;
+  }
+  .tcap b, figcaption b { color: var(--ink); font-weight: 700; margin-right: 1.5mm; }
+  .tnote { font-family: "Noto Sans KR", sans-serif; font-size: 7.8pt; color: var(--muted); margin: 0 0 3mm; text-align: left; }
+
+  figure { margin: 4mm 0 4mm; break-inside: avoid; }
+  figure img { display: block; width: 100%; height: auto; }
+  figure.w90 img { width: 90%; margin: 0 auto; }
+  figure.w85 img { width: 85%; margin: 0 auto; }
+  figure.w80 img { width: 80%; margin: 0 auto; }
+  figure.w75 img { width: 75%; margin: 0 auto; }
+  figure.w70 img { width: 70%; margin: 0 auto; }
+  figure.w60 img { width: 60%; margin: 0 auto; }
+  figcaption { font-size: 8.3pt; line-height: 1.6; color: var(--soft); margin-top: 1.8mm; text-align: left; }
+
+  .stat {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin: 3mm 0 4mm;
+    border-top: 1pt solid var(--ink); border-bottom: 0.6pt solid var(--rule); break-inside: avoid;
+  }
+  .stat div { padding: 2.4mm 3mm 2mm; font-family: "Noto Sans KR", sans-serif; }
+  .stat div + div { border-left: 0.4pt solid var(--rule); }
+  .stat .v { font-size: 17pt; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .stat .v small { font-size: 9pt; font-weight: 500; color: var(--muted); margin-left: 0.8mm; }
+  .stat .l { font-size: 7.8pt; color: var(--muted); }
+  .stat .hot .v { color: var(--accent); }
+
+  ul.lim { list-style: none; padding: 0; margin: 1mm 0 3mm; }
+  ul.lim li { position: relative; padding-left: 5mm; margin-bottom: 1.6mm; }
+  ul.lim li::before { content: ""; position: absolute; left: 0.6mm; top: 0.78em; width: 1.6mm; height: 1.6mm; background: var(--accent); }
+
+  .conclusion { break-inside: avoid; border-top: 1pt solid var(--ink); border-bottom: 1pt solid var(--ink); padding: 3.5mm 0 1mm; margin-top: 2mm; }
+
+  ol.refs { font-size: 8.2pt; line-height: 1.6; padding-left: 6mm; margin: 1mm 0 0; color: var(--soft); text-align: left; }
+  ol.refs li { margin-bottom: 1.2mm; padding-left: 1mm; }
+  ol.refs a { color: var(--soft); text-decoration: none; }
+  ol.refs .u { color: var(--muted); font-size: 7.4pt; word-break: break-all; display: block; }
+
+  .appendix { break-before: page; }
+  .appendix p { font-size: 9.4pt; }
+</style>
+</head>
+<body>
+
+<header class="title">
+  <div class="kicker">STA3115 탐색적자료분석 기말 프로젝트</div>
+  <h1>줄이기 전에 볼 것<span class="sub">따릉이가 모자라는 곳은 언덕 위다</span></h1>
+  <div class="meta"><span>1조</span><span>2026년 11월</span></div>
+</header>
+
+<section class="abstract">
+  <div class="label">초록</div>
+  <p>서울 따릉이는 이용이 2년 연속 줄고 민간 공유 전기자전거가 늘면서 적정 규모를 다시 따지는 단계에 있다. 본 프로젝트는 2025년 평일 244일의 서울 대여소 2,713곳 이용 기록과 시간별 재고 기록을 결합해, 출근 시간에 자전거가 없는 대여소가 어디이며 무엇과 관련되는지 탐색했다. 고도가 10m 높아질 때마다 출근 시간 품절이 잦은 대여소일 오즈는 약 2배였고, 이 관계는 12개월 모두에서 같은 크기였다. 지하철역과 대학까지의 거리는 단독으로는 관련이 없었고, 거치대가 많을수록 품절이 적었다. 이용이 적어 통합 후보로 보이는 대여소 중 상당수는 고지대의 공급 부족 대여소였으며, 이는 이용 건수만으로 규모를 줄이면 고지대부터 잘릴 수 있음을 보여준다.</p>
+</section>
+
+<h2><span class="n">1</span>배경</h2>
+<p>따릉이 연간 이용은 2023년 4,491만 건에서 2024년 4,385만 건, 2025년 3,737만 건으로 2년 연속 줄었다. 같은 기간 20대 이용 비중은 약 40%에서 27%로 낮아졌고(그림 1), 서울의 민간 공유 전기자전거는 2025년 45,283대로 따릉이(약 45,000대)를 넘어섰다고 보도됐다. 운영 적자는 2024년 127억 원에서 2025년 176억 원으로 늘었고, 인건비가 운영비의 53%를 차지한다는 보도가 있다.</p>
+<p>서울시는 따릉이 감축 검토는 부인했지만, 2020년 연구에서 적정 규모를 45,000대로 산출했고 2026년 현재 서울연구원이 적정 규모와 운영 효율화를 다시 연구하고 있다고 밝혔다. 규모를 줄이는 논의에서는 이용이 적은 대여소를 통합하는 방안이 먼저 거론되기 쉽다. 그러나 이용 건수는 수요뿐 아니라 공급에도 좌우된다. 자전거가 없어 빌리지 못한 수요는 기록에 남지 않기 때문이다.</p>
+<p>따라서 규모를 줄이기 전에, 자전거가 실제로 모자라는 곳이 어디인지부터 확인할 필요가 있다.</p>
+
+<figure class="w70">
+  <img src="figures/f6_age.png" alt="연령대별 따릉이 이용 비중, 2022년 1월부터 2026년 6월까지">
+  <figcaption><b>그림 1</b>연령대별 이용 비중(월별, 연령이 확인된 이용 기준). 20대 비중이 2022년 약 40%에서 2025년 이후 27% 안팎으로 낮아졌고 30대 이상이 늘었다.</figcaption>
+</figure>
+
+<h2><span class="n">2</span>연구 목적과 연구 질문</h2>
+<p>본 프로젝트의 목적은 따릉이가 출근 시간에 모자라는 대여소의 분포와 관련 요인을 탐색하고, 이용 건수만으로 대여소를 평가할 때 무엇을 놓치는지 보이는 것이다. 적정 대수 자체를 추정하는 것은 범위에서 제외한다.</p>
+<ol class="rq">
+  <li>출근 시간에 자전거가 없는 대여소는 어디에 몰려 있는가?</li>
+  <li>고도, 지하철역 거리, 대학 거리, 거치대 수 중 무엇이 품절과 함께 움직이는가?</li>
+  <li>이용이 적은 대여소 중 공급이 부족해서 이용이 적은 곳은 얼마나 되는가?</li>
+  <li>이 패턴은 계절과 관계없이 1년 내내 같은가?</li>
+</ol>
+
+<h2><span class="n">3</span>데이터</h2>
+<p>분석 단위는 서울 25개 구의 따릉이 대여소 2,713곳이고, 기간은 2025년 평일 244일(공휴일 17일 제외)이다. 이용 추이만 2022년 1월부터 2026년 6월까지의 월별 자료를 쓴다.</p>
+
+<div class="tcap"><b>표 1</b>사용 데이터</div>
+<table>
+  <thead><tr><th style="width:64%">데이터</th><th>쓰임</th></tr></thead>
+  <tbody>
+    <tr><td>따릉이 대여소별 대여/반납 승객수(서울 열린데이터광장 OA-21229, 5분 단위)</td><td>이용량, 순변화</td></tr>
+    <tr><td>대여소별 대여가능 수량(OA-22382, 1시간 단위)</td><td>출근 품절</td></tr>
+    <tr><td>공공자전거 이용정보 월별(OA-15248)</td><td>연령대별 이용 추이</td></tr>
+    <tr><td>실시간 대여정보(OA-15493), 대여소 정보(OA-13252)</td><td>대여소 위치, 거치대 수, 자치구</td></tr>
+    <tr><td>서울시 지하철역 784곳, 대학 53곳</td><td>역과 대학까지의 거리</td></tr>
+    <tr><td>Open-Meteo 고도(Copernicus DEM 90m)</td><td>대여소 고도</td></tr>
+  </tbody>
+</table>
+
+<div class="tcap"><b>표 2</b>변수</div>
+<table>
+  <thead><tr><th style="width:12%">구분</th><th style="width:30%">변수</th><th>정의</th></tr></thead>
+  <tbody>
+    <tr><td class="k">종속</td><td>Y1 이용량</td><td>평일 하루 평균 대여+반납 건수</td></tr>
+    <tr><td class="k">종속</td><td>Y2 순변화</td><td>평일 하루 평균 반납 − 대여(음수면 자전거가 빠져나감)</td></tr>
+    <tr class="hl"><td class="k">종속</td><td>Y3 출근 품절</td><td>평일 7~9시 재고 기록 중 0대였던 비율</td></tr>
+    <tr><td class="k">설명</td><td>고도, 지하철역 거리, 대학 거리, 거치대 수</td><td>대여소별 값</td></tr>
+  </tbody>
+</table>
+<p>이동 데이터는 같은 이용이 출발 기준과 도착 기준으로 두 번 집계돼 있어, 대여는 출발 기준, 반납은 도착 기준만 센다. 두 데이터의 대여소 ID 체계가 달라 실시간 대여정보 API로 연결했다.</p>
+
+<h2><span class="n">4</span>분석 방법</h2>
+<p>수업에서 다룬 탐색적 방법을 연구 질문마다 하나씩 썼다.</p>
+<div class="tcap"><b>표 3</b>연구 질문별 분석 방법</div>
+<table>
+  <thead><tr><th style="width:30%">연구 질문</th><th>방법</th></tr></thead>
+  <tbody>
+    <tr><td>1. 어디에 몰려 있나</td><td>대여소 좌표에 대한 LOESS 곡면과 level plot, 고도 구간(20m, 40m)별 비교</td></tr>
+    <tr><td>2. 무엇과 함께 움직이나</td><td>고도와 Y2, Y3의 LOESS 산점도와 잔차 그림, 지하철역 거리 사분위별 coplot, 로지스틱 회귀</td></tr>
+    <tr><td>3. 이용이 적은 곳 중 공급 부족</td><td>이용량의 로그 변환과 분포 비교, 대여소 역할 분류, 고도 구간과의 모자이크 그림과 카이제곱 검정</td></tr>
+    <tr><td>4. 1년 내내 같은가</td><td>월별 상관과 월별 로지스틱 회귀, 품절 기준값(20%, 30%, 40%) 바꾸기</td></tr>
+  </tbody>
+</table>
+<p>로지스틱 회귀의 결과 변수는 출근 품절 비율이 30% 이상인 대여소(전체의 9.6%)이고, 설명변수는 고도(10m 단위), 지하철역과 대학까지 거리(로그), 거치대 수다. 고도와 지하철역 거리의 상호작용도 확인했다.</p>
+<p>대여소 역할은 서울 전체 분포를 기준으로 나눴다. 이용 하위 20%이고 300m 안에 다른 대여소가 있으면 통합 후보이고, 그중 Y3이 30% 이상이면 공급 부족 의심으로 분류했다. 이용이 중앙값 이상이고 대여의 절반 이상이 출퇴근 시간이면 출퇴근 핵심으로 분류했다.</p>
+
+<h2><span class="n">5</span>결과</h2>
+<h3><span class="n">5.1</span>품절은 고지대에 몰려 있다</h3>
+<div class="stat">
+  <div><div class="v">4.9<small>%</small></div><div class="l">고도 20m 미만 출근 품절 비율</div></div>
+  <div><div class="v">9.4<small>%</small></div><div class="l">20~40m</div></div>
+  <div class="hot"><div class="v">24.6<small>%</small></div><div class="l">40m 이상</div></div>
+</div>
+<p>출근 시간 품절 비율은 고도 20m 미만 4.9%, 20~40m 9.4%, 40m 이상 24.6%였다. 위치 지도에서는 북쪽 산자락(은평, 종로, 성북)과 남쪽 일부, 동남쪽 끝에 몰려 있었다(그림 2). 같은 고도 구간에서 순변화는 20m 미만 하루 +1.3대(쌓임), 40m 이상 −3.7대(빠져나감)였다.</p>
+<figure class="w75">
+  <img src="figures/f1_map.png" alt="서울 전역의 출근 시간 품절 비율 level plot">
+  <figcaption><b>그림 2</b>출근 시간 품절 비율의 level plot. 대여소 좌표에 LOESS 곡면(span 0.05)을 적합했고, 가장 가까운 대여소에서 800m보다 먼 곳은 비웠다. 흰 선은 15%, 30% 등고선이고 글자는 자치구 대여소의 중앙 위치다.</figcaption>
+</figure>
+
+<h3><span class="n">5.2</span>품절과 가장 크게 관련된 것은 고도다</h3>
+<p>지하철역 거리 사분위로 대여소를 나눠도 네 묶음 모두에서 고도가 높을수록 품절이 늘었다(그림 3). 다른 변수를 함께 넣은 로지스틱 회귀에서도 고도의 오즈비가 가장 컸다(표 4).</p>
+<figure>
+  <img src="figures/f3_coplot.png" alt="지하철역 거리 사분위별 고도와 출근 품절 비율 coplot">
+  <figcaption><b>그림 3</b>지하철역 거리 사분위별 고도와 출근 품절 비율(coplot). 점은 대여소, 선은 LOESS. 고도 100m 이상인 소수 대여소는 축 밖에 있다.</figcaption>
+</figure>
+
+<div class="tcap"><b>표 4</b>출근 품절이 잦은 대여소(Y3 ≥ 30%)의 로지스틱 회귀</div>
+<table>
+  <thead><tr><th style="width:40%">설명변수</th><th class="r">오즈비</th><th class="r">95% 신뢰구간</th><th class="r">p</th></tr></thead>
+  <tbody>
+    <tr class="hl"><td>고도(10m)</td><td class="r">2.07</td><td class="r">1.89~2.28</td><td class="r">&lt; 0.001</td></tr>
+    <tr><td>지하철역 거리(두 배)</td><td class="r">0.94</td><td class="r">0.86~1.04</td><td class="r">0.21</td></tr>
+    <tr><td>대학 거리(두 배)</td><td class="r">1.02</td><td class="r">0.90~1.16</td><td class="r">0.77</td></tr>
+    <tr><td>거치대 수(1개)</td><td class="r">0.94</td><td class="r">0.91~0.98</td><td class="r">0.001</td></tr>
+  </tbody>
+</table>
+<p class="tnote">대여소 2,713곳, 상호작용이 없는 모형.</p>
+<p>지하철역 거리는 단독으로는 관련이 없었지만 고도와의 상호작용은 유의했다(p &lt; 0.001). 고지대일수록 역에 가까운 대여소의 품절 위험이 더 컸다(그림 4).</p>
+<figure class="w60">
+  <img src="figures/f4_logit.png" alt="고도에 따른 출근 품절 예측 확률, 역까지 200m와 800m">
+  <figcaption><b>그림 4</b>상호작용 모형의 예측 확률. 대학 거리와 거치대 수는 중앙값에 고정했다. 고도 40m를 넘으면 역에 가까운 대여소(200m)의 품절 확률이 먼 대여소(800m)보다 빠르게 오른다.</figcaption>
+</figure>
+
+<h3><span class="n">5.3</span>통합 후보 중 상당수는 공급 부족이다</h3>
+<p>통합 후보 427곳 중 127곳(30%)이 출근 시간에 자주 비는 공급 부족 의심 대여소였고, 그중 93곳이 고도 40m 이상이었다. 반대로 출퇴근 핵심 대여소 418곳은 대부분 20m 미만이었다(카이제곱 708, p &lt; 0.001).</p>
+<div class="stat">
+  <div><div class="v">427<small>곳</small></div><div class="l">통합 후보(이용 하위 20%, 300m 안 다른 대여소)</div></div>
+  <div class="hot"><div class="v">127<small>곳</small></div><div class="l">그중 공급 부족 의심(30%)</div></div>
+  <div><div class="v">93<small>곳</small></div><div class="l">공급 부족 의심 중 고도 40m 이상</div></div>
+</div>
+
+<h3><span class="n">5.4</span>이 패턴은 1년 내내 같았다</h3>
+<p>고도와 출근 품절의 상관은 12개월 모두 0.40~0.55였고, 월별 로지스틱 회귀의 고도 오즈비는 1.75~2.18로 매달 유의했다(그림 6). 고도 구간별 품절 비율도 매달 같은 순서를 유지했다(그림 5). 품절 기준을 20%, 40%로 바꿔도 오즈비는 2.09~2.28이었다.</p>
+<figure class="w85">
+  <img src="figures/f2_bands.png" alt="고도 구간별 월별 출근 품절 비율">
+  <figcaption><b>그림 5</b>고도 구간별 출근 품절 비율의 월별 평균(2025년 평일). 40m 이상 구간은 모든 달에서 20m 미만 구간의 4배 이상이다.</figcaption>
+</figure>
+<figure class="w85">
+  <img src="figures/f5_monthly_or.png" alt="월별 로지스틱 회귀의 고도 10m당 오즈비">
+  <figcaption><b>그림 6</b>달마다 따로 적합한 로지스틱 회귀(상호작용 없음)의 고도 10m당 오즈비와 95% 신뢰구간. 가로선은 오즈비 1이다.</figcaption>
+</figure>
+
+<h2><span class="n">6</span>논의</h2>
+<p><strong>첫째, 이용 건수는 대여소의 필요성을 재는 지표로 불충분하다.</strong> 이용이 적은 대여소의 약 3분의 1은 자전거가 없어서 이용이 적을 가능성이 있고, 이들은 고지대에 몰려 있다. 이용 건수만으로 대여소를 통합하면 이미 공급이 부족한 고지대가 먼저 줄어든다.</p>
+<p><strong>둘째, 접근성보다 지형이 중요했다.</strong> 지하철역과 대학까지의 거리는 단독으로는 품절과 관련이 없었다. 다만 고지대에서는 역에 가까울수록 품절이 잦아, 언덕 위 역세권이 아침 공급의 우선순위가 될 수 있다.</p>
+<p><strong>셋째, 거치대 수가 많을수록 품절이 적었다.</strong> 규모를 조정한다면 고지대 대여소의 거치대와 아침 재고는 유지하거나 늘리고, 자전거가 늘 쌓이는 저지대에서 줄이는 방향을 검토할 수 있다.</p>
+
+<h2><span class="n">7</span>한계</h2>
+<ul class="lim">
+  <li><strong>인과를 주장하지 않는다.</strong> 고지대는 주거지가 많아 아침에 빠져나가는 동네일 수도 있다. 본 분석은 고지대에서 일관되게 나타나는 관계를 보인다.</li>
+  <li><strong>못 빌린 수요는 관측되지 않는다.</strong> 이용량은 공급에 의해 과소 집계될 수 있다.</li>
+  <li><strong>재고는 한 시간 단위 기록이다.</strong> 한 시간 안의 품절은 놓치며, 2025년 1월은 이틀치가 비어 있다.</li>
+  <li><strong>적정 대수는 추정하지 않았다.</strong> 필요 대수 계산과 감축 시뮬레이션은 후속 과제로 둔다.</li>
+</ul>
+
+<h2><span class="n">8</span>결론</h2>
+<div class="conclusion">
+<p>따릉이가 출근 시간에 모자라는 곳은 언덕 위다. 고도 10m마다 품절이 잦은 대여소일 오즈는 약 2배였고, 이 관계는 서울 전역에서 1년 내내 같았다. 따라서 따릉이 규모를 조정할 때는 이용 건수뿐 아니라 출근 시간 품절과 지형을 함께 봐야 하며, 줄이더라도 고지대의 아침 공급은 지켜야 한다.</p>
+</div>
+
+<h2>참고문헌</h2>
+<ol class="refs">
+  <li>서울특별시(2026.10.6). 서울시 팩트브리핑: 서울시는 ‘따릉이 감축’에 대해 검토한 바 없습니다. <span class="u">https://mediahub.seoul.go.kr/archives/2019581</span></li>
+  <li>조선일보(2026.10.6). 전기자전거 씩씩 달리자 서울 따릉이는 감축 검토. <span class="u">https://www.chosun.com/national/national_general/2026/10/07/Y3CRLCQ2L5AHTN7X5WJ4DJH54A/</span></li>
+  <li>서울 열린데이터광장. 따릉이 관련 데이터셋(OA-21229, OA-22382, OA-15248, OA-15493, OA-13252). <span class="u">https://data.seoul.go.kr</span></li>
+  <li>Open-Meteo. Elevation API(Copernicus DEM GLO-90). <span class="u">https://open-meteo.com/en/docs/elevation-api</span></li>
+  <li>Cleveland, W. S. (1993). <i>Visualizing Data</i>. Hobart Press.</li>
+</ol>
+
+<section class="appendix">
+<h2>부록: 앱 구성과 진행 계획</h2>
+<p>STA3115 기말 프로젝트 1조. 발표 2026년 11월 26일(목, 15분), 발표 전 게시판에 shinyapps.io 주소 게시, 12/08~12/14 주에 데이터를 포함한 앱 압축 파일과 슬라이드 제출.</p>
+<div class="tcap"><b>표 5</b>Shiny 앱 탭 구성</div>
+<table>
+  <thead><tr><th style="width:12%">탭</th><th style="width:52%">보여줄 것</th><th>위젯</th></tr></thead>
+  <tbody>
+    <tr><td>현황</td><td>연도별, 월별 이용과 연령대 비중</td><td>기간 슬라이더, 연령대 선택</td></tr>
+    <tr><td>규모</td><td>시간대별 서 있는 자전거와 타는 자전거</td><td>자치구 선택</td></tr>
+    <tr><td>흐름</td><td>고도와 순변화, 지하철역 거리별 비교, 시간대별 순변화 지도</td><td>자치구 선택, 시간 슬라이더, 평일/주말</td></tr>
+    <tr><td>품절</td><td>품절 지도와 고도별 예측 확률</td><td>고도, 역 거리 입력</td></tr>
+    <tr><td>대여소</td><td>역할 지도와 표, 자치구별 이용량 분포</td><td>통합 기준 슬라이더</td></tr>
+  </tbody>
+</table>
+<div class="tcap"><b>표 6</b>진행 계획</div>
+<table>
+  <thead><tr><th style="width:24%">기간</th><th>할 일</th></tr></thead>
+  <tbody>
+    <tr><td class="num">11/17~11/19</td><td>Shiny 탭 구현</td></tr>
+    <tr><td class="num">11/20~11/23</td><td>앱 완성과 배포, 슬라이드 초안</td></tr>
+    <tr><td class="num">11/24~11/25</td><td>앱 주소 게시, 발표 연습</td></tr>
+    <tr><td class="num">11/26</td><td>발표</td></tr>
+    <tr><td class="num">12/08~12/14</td><td>최종 제출</td></tr>
+  </tbody>
+</table>
+</section>
+
+</body>
+</html>

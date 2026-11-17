@@ -1,0 +1,3 @@
+stations: 2,736; with gu: 2,736; with elevation: 2,736
+median distance to subway 418 m, to university 1728 m, to nearest bike station 171 m, median elevation 24.0 m
+within 300 m of a subway station: 988; within 500 m of a campus: 175

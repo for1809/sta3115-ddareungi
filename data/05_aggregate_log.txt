@@ -1,0 +1,5 @@
+days: {'weekend': 13, 'weekday': 18}; inventory weekdays: 18
+stations.csv: 2,736 rows; low-use threshold 26.6 trips/day, median 65.2
+roles: {'other': 1750, 'morning_gap': 155, 'commute_core': 405, 'supply_gap_suspect': 141, 'consolidate': 285}
+district_hour.csv written
+monthly_age: 54 months

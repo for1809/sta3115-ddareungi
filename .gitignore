@@ -1,0 +1,23 @@
+# 원천 파일(약 2.2GB): 서울 열린데이터광장에서 다시 받을 수 있다. README의 원천 파일 표 참고
+raw/
+
+# 인증키는 프로젝트 밖 파일에서 읽는다. 혹시 들어와도 올리지 않는다
+*api_key*
+*.key
+.env
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+*_cache/
+*_files/
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store

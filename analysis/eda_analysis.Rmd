@@ -1,0 +1,327 @@
+---
+title: "Seoul Ddareungi: where bikes run short and where they pile up"
+subtitle: "STA3115 Final Project, Group 1 (exploratory analysis)"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    df_print: paged
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 8, fig.height = 5, dpi = 110,
+                      fig.path = "figures/")
+library(tidyverse)
+library(viridis)
+library(broom)
+library(vcd)
+theme_set(theme_minimal(base_size = 12))
+```
+
+분석 기준: 2025년 1년 전체의 평일(공휴일 제외), 서울 25개 구 대여소 단위. 변수 정의는 `README.md` 참고.
+2025년에 이용이 한 번도 없었던 대여소는 뺀다. 계절에 따라 결과가 달라지는지는 마지막 절에서 월별로 확인한다.
+
+```{r load}
+stations <- read_csv("../data/stations.csv", col_types = cols(station_no = col_character())) %>%
+  filter(use_day > 0) %>%
+  mutate(log_use = log(use_day),
+         elev_band = cut(elev_m, c(0, 20, 40, Inf), labels = c("<20 m", "20-40 m", ">=40 m"), right = FALSE),
+         gap = as.integer(am_empty >= 0.3),
+         role = factor(role, levels = c("commute_core", "consolidate", "supply_gap_suspect", "morning_gap", "other")))
+monthly <- read_csv("../data/monthly_age.csv")
+district_hour <- read_csv("../data/district_hour.csv") %>% filter(gu != "(미상)")
+station_month <- read_csv("../data/station_month.csv", col_types = cols(station_no = col_character())) %>%
+  inner_join(stations %>% select(station_no, elev_m, subway_m, univ_m, docks, gu), by = "station_no") %>%
+  filter(use_day > 0)
+coverage <- read_csv("../data/coverage_2025.csv")
+coverage
+nrow(stations)
+```
+
+# 1. Current state: who is riding
+
+```{r monthly-total, fig.height = 4}
+monthly %>%
+  group_by(month) %>% summarise(trips = sum(trips)) %>%
+  mutate(date = as.Date(paste0(month, "-01"))) %>%
+  ggplot(aes(date, trips / 1e6)) +
+  geom_line() + geom_point(size = 1) +
+  labs(x = NULL, y = "Trips per month (millions)", title = "Monthly Ddareungi trips, 2022-2026")
+```
+
+```{r age-share, fig.height = 4.5}
+monthly %>%
+  filter(age %in% c("20대", "30대", "40대", "50대", "60대", "70대이상")) %>%
+  mutate(age = recode(age, "20대" = "20s", "30대" = "30s", "40대" = "40s", "50대" = "50s",
+                      "60대" = "60s", "70대이상" = "70+")) %>%
+  group_by(month) %>% mutate(share = trips / sum(trips)) %>% ungroup() %>%
+  mutate(date = as.Date(paste0(month, "-01"))) %>%
+  ggplot(aes(date, share, colour = age)) +
+  geom_line() +
+  scale_y_continuous(labels = scales::percent) +
+  scale_colour_viridis_d(end = 0.9) +
+  labs(x = NULL, y = "Share of trips (known ages)", colour = "Age",
+       title = "Riders in their 20s are a shrinking share")
+```
+
+```{r yearly}
+monthly %>%
+  mutate(year = substr(month, 1, 4)) %>%
+  filter(year %in% c("2023", "2024", "2025")) %>%
+  group_by(year) %>% summarise(trips = sum(trips))
+```
+
+# 2. Scale: bikes parked vs bikes in use (Unit 1, 3)
+
+```{r scale, fig.height = 4}
+district_hour %>%
+  group_by(hour) %>% summarise(parked = sum(parked), riding = sum(riding)) %>%
+  pivot_longer(-hour) %>%
+  ggplot(aes(hour, value, fill = name)) +
+  geom_area() +
+  scale_fill_manual(values = c(parked = "grey70", riding = "#1f7a52")) +
+  labs(x = "Hour (weekday)", y = "Bikes", fill = NULL,
+       title = "Even at the busiest hour, fewer than 5,000 bikes are on the road")
+```
+
+# 3. Distribution of use and transformation (Units 3-5)
+
+이용량은 오른쪽으로 길게 치우쳐 있어 로그 변환 후 비교한다.
+
+```{r use-dist, fig.height = 4}
+p1 <- ggplot(stations, aes(use_day)) + geom_histogram(bins = 50) + labs(x = "Trips per weekday", title = "Raw")
+p2 <- ggplot(stations, aes(log_use)) + geom_histogram(bins = 50) + labs(x = "log(trips per weekday)", title = "Log")
+patchwork::wrap_plots(p1, p2)
+```
+
+```{r use-qq, fig.height = 4}
+ggplot(stations, aes(sample = log_use)) + stat_qq(size = 0.6) + stat_qq_line() +
+  labs(title = "Normal Q-Q plot of log use")
+```
+
+```{r use-by-gu, fig.height = 6}
+stations %>%
+  mutate(gu = fct_reorder(gu, log_use, median)) %>%
+  ggplot(aes(log_use, gu)) +
+  geom_boxplot(outlier.size = 0.6) +
+  labs(x = "log(trips per weekday)", y = NULL, title = "Station use by district")
+```
+
+# 4. Elevation and drift: LOESS (Units 7-8)
+
+Y2 `net_day` = 반납 − 대여. 음수면 자전거가 빠져나가는 대여소.
+
+```{r loess-net}
+fit_net <- loess(net_day ~ elev_m, data = stations, span = 0.75)
+ggplot(stations, aes(elev_m, net_day)) +
+  geom_hline(yintercept = 0, colour = "grey60") +
+  geom_point(alpha = 0.25, size = 0.8) +
+  geom_smooth(method = "loess", span = 0.75, se = FALSE, colour = "#d2601a") +
+  coord_cartesian(ylim = c(-40, 40)) +
+  labs(x = "Elevation (m)", y = "Weekday net change (returns - rentals)",
+       title = "Higher stations lose bikes during the day")
+```
+
+```{r loess-net-resid, fig.height = 4}
+stations %>% mutate(fitted = fitted(fit_net), resid = residuals(fit_net)) %>%
+  ggplot(aes(fitted, resid)) + geom_point(alpha = 0.25, size = 0.8) +
+  geom_smooth(method = "loess", se = FALSE) +
+  coord_cartesian(ylim = c(-40, 40)) +
+  labs(x = "Fitted", y = "Residual", title = "Residuals of the LOESS fit")
+```
+
+Y3 `am_empty` = 평일 7~9시 재고 기록 중 0대 비율.
+
+```{r loess-empty}
+ggplot(stations, aes(elev_m, am_empty)) +
+  geom_point(alpha = 0.25, size = 0.8) +
+  geom_smooth(method = "loess", span = 0.75, se = FALSE, colour = "#c23b4a") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(x = "Elevation (m)", y = "Share of 7-9am snapshots with 0 bikes",
+       title = "Higher stations are more often empty in the morning")
+stations %>% group_by(elev_band) %>%
+  summarise(stations = n(), mean_am_empty = mean(am_empty, na.rm = TRUE), mean_net = mean(net_day))
+```
+
+# 5. Conditioning on subway access: coplot (Units 9-10)
+
+```{r subway-groups}
+q_sub <- quantile(stations$subway_m, c(0, 0.25, 0.5, 0.75, 1))
+sub_labels <- c(sprintf("Subway <= %d m", round(q_sub[2])),
+                sprintf("%d-%d m", round(q_sub[2]), round(q_sub[3])),
+                sprintf("%d-%d m", round(q_sub[3]), round(q_sub[4])),
+                sprintf("> %d m", round(q_sub[4])))
+stations <- stations %>%
+  mutate(subway_group = cut(subway_m, q_sub, labels = sub_labels, include.lowest = TRUE))
+```
+
+```{r coplot-empty, fig.height = 4.5}
+stations %>%
+  ggplot(aes(elev_m, am_empty)) +
+  geom_point(alpha = 0.2, size = 0.7) +
+  geom_smooth(method = "loess", se = FALSE, colour = "#c23b4a") +
+  facet_wrap(~ subway_group, nrow = 1) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(x = "Elevation (m)", y = "Morning empty share",
+       title = "Elevation effect given distance to the nearest subway station (m)")
+```
+
+```{r coplot-net, fig.height = 4.5}
+stations %>%
+  ggplot(aes(elev_m, net_day)) +
+  geom_hline(yintercept = 0, colour = "grey60") +
+  geom_point(alpha = 0.2, size = 0.7) +
+  geom_smooth(method = "loess", se = FALSE, colour = "#d2601a") +
+  facet_wrap(~ subway_group, nrow = 1) +
+  coord_cartesian(ylim = c(-30, 30)) +
+  labs(x = "Elevation (m)", y = "Weekday net change",
+       title = "Net change vs elevation, given distance to subway (m)")
+```
+
+# 6. Where on the map: level plot (Unit 11)
+
+정류소 좌표에 LOESS 곡면을 맞춰 격자 위에 그린다. 대여소에서 1km 넘게 떨어진 격자는 지운다.
+
+```{r level-plot, fig.height = 6.5}
+fit_map <- loess(am_empty ~ lon * lat, data = stations, span = 0.05, degree = 2)
+grid <- expand_grid(lon = seq(min(stations$lon), max(stations$lon), length.out = 140),
+                    lat = seq(min(stations$lat), max(stations$lat), length.out = 110))
+km <- function(lat1, lon1, lat2, lon2) {
+  6371 * 2 * asin(sqrt(sin((lat2 - lat1) * pi / 360)^2 +
+                       cos(lat1 * pi / 180) * cos(lat2 * pi / 180) * sin((lon2 - lon1) * pi / 360)^2))
+}
+grid$near <- map2_dbl(grid$lat, grid$lon, ~ min(km(.x, .y, stations$lat, stations$lon)))
+grid <- grid %>% filter(near <= 1) %>%
+  mutate(fit = pmin(pmax(predict(fit_map, newdata = .), 0), 1))
+ggplot(grid, aes(lon, lat)) +
+  geom_raster(aes(fill = fit)) +
+  geom_contour(aes(z = fit), breaks = c(0.1, 0.2, 0.3), colour = "white", linewidth = 0.3) +
+  scale_fill_viridis(option = "magma", direction = -1, labels = scales::percent, na.value = NA) +
+  coord_quickmap() +
+  labs(x = NULL, y = NULL, fill = "Morning\nempty share",
+       title = "Where stations run out of bikes before work (smoothed)")
+```
+
+# 7. Which stations run empty: logistic regression (Units 12-13)
+
+결과 변수: 출근 시간 품절이 잦은 대여소(`gap` = `am_empty` 0.3 이상). 설명변수: 고도(10m 단위), 지하철역과 대학까지 거리(로그), 거치대 수.
+
+```{r logit}
+stations_lr <- stations %>% filter(!is.na(gap)) %>%
+  mutate(elev10 = elev_m / 10, log2_subway = log2(subway_m), log2_univ = log2(univ_m))
+fit_lr <- glm(gap ~ elev10 + log2_subway + log2_univ + docks, family = binomial, data = stations_lr)
+tidy(fit_lr, exponentiate = TRUE, conf.int = TRUE) %>% mutate(across(where(is.numeric), ~ round(.x, 3)))
+mean(stations_lr$gap)
+```
+
+고도의 효과가 지하철역과의 거리에 따라 달라지는지(상호작용) 확인한다. coplot에서 역 가까운 구간의 곡선이 더 가팔랐다.
+
+```{r logit-interaction}
+fit_lr2 <- glm(gap ~ elev10 * log2_subway + log2_univ + docks, family = binomial, data = stations_lr)
+anova(fit_lr, fit_lr2, test = "Chisq")
+tidy(fit_lr2, exponentiate = TRUE, conf.int = TRUE) %>% mutate(across(where(is.numeric), ~ round(.x, 3)))
+```
+
+```{r logit-pred, fig.height = 4.5}
+newd <- expand_grid(elev10 = seq(0.5, 8, by = 0.25), log2_subway = log2(c(200, 800)),
+                    log2_univ = median(stations_lr$log2_univ), docks = median(stations_lr$docks))
+newd$p <- predict(fit_lr2, newdata = newd, type = "response")
+ggplot(newd, aes(elev10 * 10, p, colour = factor(round(2^log2_subway)))) +
+  geom_jitter(data = stations_lr, aes(elev_m, gap), inherit.aes = FALSE,
+              height = 0.03, width = 0, alpha = 0.1, size = 0.6) +
+  geom_line(linewidth = 1) +
+  scale_y_continuous(labels = scales::percent) +
+  coord_cartesian(xlim = c(0, 85)) +
+  labs(x = "Elevation (m)", y = "P(often empty at 7-9am)", colour = "Subway distance (m)",
+       title = "Predicted chance of a morning shortage (model with interaction)")
+```
+
+로지스틱 모형 점검: 예측 확률 구간별로 실제 비율을 비교한다(binned plot).
+
+```{r logit-binned, fig.height = 4}
+stations_lr %>% mutate(p = fitted(fit_lr), bin = ntile(p, 20)) %>%
+  group_by(bin) %>% summarise(p = mean(p), observed = mean(gap), n = n()) %>%
+  ggplot(aes(p, observed)) + geom_abline(colour = "grey60") + geom_point() +
+  labs(x = "Mean predicted probability", y = "Observed share", title = "Binned check of the logistic fit")
+```
+
+기준값(품절 비율 30%)을 바꿔도 결론이 같은지 확인한다.
+
+```{r logit-threshold}
+map_dfr(c(0.2, 0.3, 0.4), function(cut) {
+  dat <- stations_lr %>% mutate(gap = as.integer(am_empty >= cut))
+  glm(gap ~ elev10 + log2_subway + log2_univ + docks, family = binomial, data = dat) %>%
+    tidy(exponentiate = TRUE, conf.int = TRUE) %>%
+    filter(term != "(Intercept)") %>%
+    mutate(threshold = cut, share_gap = mean(dat$gap))
+}) %>%
+  select(threshold, share_gap, term, estimate, conf.low, conf.high, p.value) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 3)))
+```
+
+# 8. Station roles and elevation: mosaic plot (Unit 14, optional)
+
+```{r mosaic, fig.height = 6, fig.width = 9}
+roles_short <- c(commute_core = "Commute core", consolidate = "Consolidate",
+                 supply_gap_suspect = "Supply gap?", morning_gap = "Morning gap", other = "Other")
+tab <- with(stations, table(Role = factor(roles_short[as.character(role)], levels = roles_short),
+                            `Elevation (m)` = factor(elev_band, labels = c("<20", "20-40", "40+"))))
+tab
+chisq.test(tab)
+mosaic(tab, shade = TRUE, legend = TRUE,
+       labeling_args = list(rot_labels = c(left = 0, top = 90), just_labels = c(left = "right", top = "left"),
+                            offset_labels = c(left = 1.2, top = 0.3), offset_varnames = c(left = 3.2, top = 1.4)),
+       margins = c(left = 6, top = 4))
+```
+
+# 9. Does the pattern hold all year?
+
+한 달만 보면 계절의 영향을 구분할 수 없으므로, 월별로 같은 관계를 다시 계산한다.
+
+```{r monthly-corr, fig.height = 4}
+station_month %>%
+  group_by(month) %>%
+  summarise(stations = n(),
+            elev_vs_empty = cor(elev_m, am_empty, use = "complete.obs"),
+            elev_vs_net = cor(elev_m, net_day),
+            subway_vs_empty = cor(log(subway_m), am_empty, use = "complete.obs")) %>%
+  pivot_longer(-c(month, stations)) %>%
+  ggplot(aes(month, value, colour = name)) +
+  geom_hline(yintercept = 0, colour = "grey60") +
+  geom_line() + geom_point() +
+  scale_x_continuous(breaks = 1:12) +
+  labs(x = "Month of 2025", y = "Correlation across stations", colour = NULL,
+       title = "Station-level correlations by month")
+```
+
+```{r monthly-logit, fig.height = 4}
+station_month %>%
+  filter(!is.na(am_empty)) %>%
+  mutate(gap = as.integer(am_empty >= 0.3), elev10 = elev_m / 10,
+         log2_subway = log2(subway_m), log2_univ = log2(univ_m)) %>%
+  group_by(month) %>%
+  group_modify(~ glm(gap ~ elev10 + log2_subway + log2_univ + docks, family = binomial, data = .x) %>%
+                 tidy(exponentiate = TRUE, conf.int = TRUE)) %>%
+  filter(term == "elev10") %>%
+  ggplot(aes(month, estimate)) +
+  geom_hline(yintercept = 1, colour = "grey60") +
+  geom_pointrange(aes(ymin = conf.low, ymax = conf.high)) +
+  scale_x_continuous(breaks = 1:12) +
+  labs(x = "Month of 2025", y = "Odds ratio per 10 m of elevation",
+       title = "The elevation effect on morning shortages, month by month")
+```
+
+```{r monthly-bands, fig.height = 4}
+station_month %>%
+  mutate(elev_band = cut(elev_m, c(0, 20, 40, Inf), labels = c("<20 m", "20-40 m", ">=40 m"), right = FALSE)) %>%
+  group_by(month, elev_band) %>%
+  summarise(am_empty = mean(am_empty, na.rm = TRUE), .groups = "drop") %>%
+  ggplot(aes(month, am_empty, colour = elev_band)) +
+  geom_line() + geom_point() +
+  scale_x_continuous(breaks = 1:12) +
+  scale_y_continuous(labels = scales::percent) +
+  scale_colour_viridis_d(end = 0.85, direction = -1) +
+  labs(x = "Month of 2025", y = "Mean morning empty share", colour = "Elevation",
+       title = "Morning shortages by elevation band through the year")
+```
