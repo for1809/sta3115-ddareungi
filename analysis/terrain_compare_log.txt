@@ -1,0 +1,63 @@
+n = 2713 
+
+steepest at the station point (check for building artifacts):
+# A tibble: 12 × 8
+   name                          gu     elev_m elev30_m slope_pt slope_r100
+   <chr>                         <chr>   <dbl>    <dbl>    <dbl>      <dbl>
+ 1 삼성화재서초타워              서초구     24     22.4     24.2      12.6 
+ 2 보광동 삼성리버빌아파트 앞    용산구     43     28.5     22.5      12.9 
+ 3 우성아파트사거리 (기업은행앞) 서초구     23     31.8     22.1      11.5 
+ 4 래미안신공덕3차아파트         마포구     34     40.5     22.0      14.5 
+ 5 구파발역 환승센터             은평구     37     42.5     21.2      15.4 
+ 6 돈암삼성풍림아파트            성북구     80     90.3     21.1      16.1 
+ 7 CJ제일제당 앞                 중구       24     25       20.4       7.51
+ 8 삼청공원 앞                   종로구     67     67.5     20.0       8.66
+ 9 광진정보도서관                광진구     29     11.6     19.7      11.1 
+10 종로타워빌딩                  종로구     23     32.7     19.4      10.3 
+11 둔촌오륜역 2번출구            송파구     30     41.3     19.2      10.7 
+12 MCM 본사 직영점 앞            강남구     21     23.4     18.7       9.82
+   slope_r300 am_empty
+        <dbl>    <dbl>
+ 1       6.81    0.013
+ 2       6.36    0.011
+ 3       6.81    0.012
+ 4       7.92    0.187
+ 5      10.4     0    
+ 6      11.9     0.338
+ 7       4.62    0.025
+ 8       9.55    0.411
+ 9       8.62    0.003
+10       6.78    0.12 
+11       7.66    0.101
+12       5.53    0.017
+
+largest |elev30 - elev90| (DEM disagreement):
+# A tibble: 8 × 5
+  name                      gu     elev_m elev30_m     d
+  <chr>                     <chr>   <dbl>    <dbl> <dbl>
+1 목동아파트2단지 222동 앞  양천구     42     13.3 -28.7
+2 서울AI허브 앞             서초구     46     22.2 -23.8
+3 상명대입구                종로구     83     59.9 -23.1
+4 남산타운아파트 버스정류장 중구       97     74.1 -22.9
+5 인왕산 아이파크 정문      종로구     87     64.2 -22.8
+6 꿈의숲 롯데캐슬           강북구     69     47.2 -21.8
+7 서울교육청 교육연수원 앞  서초구     87     65.8 -21.2
+8 HID 유족동지회 앞         용산구     68     47.4 -20.6
+
+spearman with am_empty:
+    elev_m   elev30_m   slope_pt slope_r100 slope_r300    tpi_500 
+     0.491      0.497      0.142      0.243      0.307     -0.032 
+
+logistic, one terrain variable + l_sub + l_uni + docks (lower AIC = better):
+elev_m      AIC 1368.3  OR per 1 SD 2.86
+elev30_m    AIC 1350.3  OR per 1 SD 3.02
+slope_pt    AIC 1628.3  OR per 1 SD 1.41
+slope_r100  AIC 1570.6  OR per 1 SD 1.74
+slope_r300  AIC 1549.5  OR per 1 SD 1.84
+tpi_500     AIC 1661.7  OR per 1 SD 0.91
+
+elev_m and slope_r300 together (OR per 1 SD):
+                    OR 2.5 % 97.5 %
+scale(elev_m)     3.01  2.53   3.58
+scale(slope_r300) 0.93  0.79   1.09
+AIC 1369.5 

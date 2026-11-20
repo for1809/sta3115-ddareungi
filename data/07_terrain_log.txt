@@ -1,0 +1,30 @@
+Warning message:
+package 'terra' was built under R version 4.6.2 
+stations: 2736  missing per column:
+station_no   elev30_m   slope_pt slope_r100 slope_r300    tpi_500 
+         0          0          0          0          0          0 
+
+summary:
+    elev30_m         slope_pt        slope_r100       slope_r300    
+ Min.   :  4.00   Min.   : 0.000   Min.   : 0.000   Min.   : 0.710  
+ 1st Qu.: 16.90   1st Qu.: 2.658   1st Qu.: 3.420   1st Qu.: 3.790  
+ Median : 23.20   Median : 4.080   Median : 4.460   Median : 4.630  
+ Mean   : 26.62   Mean   : 4.750   Mean   : 4.908   Mean   : 5.188  
+ 3rd Qu.: 33.60   3rd Qu.: 6.090   3rd Qu.: 5.880   3rd Qu.: 6.060  
+ Max.   :110.00   Max.   :24.210   Max.   :16.200   Max.   :17.090  
+    tpi_500       
+ Min.   :-46.300  
+ 1st Qu.: -7.300  
+ Median : -3.300  
+ Mean   : -4.526  
+ 3rd Qu.: -0.400  
+ Max.   : 30.900  
+
+correlation with the 90 m elevation (elev_m):
+           elev_m elev30_m slope_pt slope_r100 slope_r300 tpi_500
+elev_m       1.00     0.96     0.29       0.49       0.64   -0.39
+elev30_m     0.96     1.00     0.31       0.47       0.61   -0.31
+slope_pt     0.29     0.31     1.00       0.69       0.43   -0.05
+slope_r100   0.49     0.47     0.69       1.00       0.77   -0.27
+slope_r300   0.64     0.61     0.43       0.77       1.00   -0.59
+tpi_500     -0.39    -0.31    -0.05      -0.27      -0.59    1.00

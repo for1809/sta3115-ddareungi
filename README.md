@@ -46,6 +46,7 @@
 | 실시간 대여정보 API (OA-15493), 대여소 정보 (OA-13252) | 대여소 | 좌표, 거치대 수, 자치구, ID 연결 |
 | 서울시 지하철역 정보 API (784곳), 서울시 대학 목록 (53곳) | 지점 | 역과 대학까지 거리 |
 | Open-Meteo Elevation API (Copernicus DEM 90m) | 지점 | 대여소 고도 |
+| Copernicus DEM GLO-30 (30m, AWS 공개 저장소) | 30m 격자 | 대여소 주변 경사, 주변 대비 상대 고도 |
 
 까다로웠던 점:
 - 이동 데이터에는 같은 이용이 출발 기준과 도착 기준으로 두 번 들어 있습니다. 대여는 출발 기준 행만, 반납은 도착 기준 행만 셉니다.
@@ -73,11 +74,15 @@
 | `report/` | 논문형 보고서(HTML, PDF), 보고서용 그림 코드, PDF 생성 스크립트 |
 | `raw/` | 원천 파일(약 2.2GB). 저장소에는 올리지 않음(`.gitignore`) |
 
-진행 중: R Shiny 앱 5개 탭(현황, 규모, 흐름, 품절, 대여소)을 만들어 shinyapps.io에 배포할 예정입니다(`app/`).
+진행 중:
+- 분석 보강: 평일 출퇴근 시간 중심, 비 오는 날 제외(기상청 방재기상관측 시간 강수), 고도와 경사와 오르막 비교.
+  첫 비교(비 제외 전)에서는 대여소 주변 300m 평균 경사가 고도보다 품절을 덜 설명했고(AIC 1550 대 1368),
+  둘을 함께 넣으면 경사의 효과가 사라졌습니다(`analysis/terrain_compare.R`, 결과는 `analysis/terrain_compare_log.txt`).
+- R Shiny 앱 5개 탭(현황, 규모, 흐름, 품절, 대여소)을 만들어 shinyapps.io에 배포할 예정입니다(`app/`).
 
 ## 재현 방법
 
-필요한 것: Python 3, R 4.x(tidyverse, broom, vcd, rmarkdown), 서울 열린데이터광장 인증키(텍스트 파일 하나에 저장).
+필요한 것: Python 3, R 4.x(tidyverse, broom, vcd, rmarkdown, terra), 서울 열린데이터광장 인증키(텍스트 파일 하나에 저장).
 
 1. 원천 파일을 받아 `raw/`에 둡니다.
 
@@ -88,6 +93,7 @@
    | `raw/usage_monthly/` | 월별 이용 CSV | OA-15248 |
    | `raw/stations/csv/` | info_2606__대여소현황.csv | OA-13252 |
    | `raw/map/` | bikelist_map.csv(실시간 대여정보 API의 대여소 ID와 번호) | OA-15493 |
+   | `raw/dem/` | cop30_N37_00_E126_00.tif, cop30_N37_00_E127_00.tif | Copernicus DEM GLO-30 |
 
 2. 대여소 특성을 만들고 집계합니다. 인증키는 파일 경로로만 넘기고 화면에 출력하지 않습니다.
 
@@ -98,6 +104,7 @@
    python scripts/04_station_features.py data "raw/stations/csv/info_2606__대여소현황.csv"
    python scripts/05_aggregate.py data raw/od_5min/202510.zip raw/inv_1h/2025Q4.zip raw/usage_monthly
    python scripts/06_aggregate_year.py data raw/od_5min raw/inv_1h
+   Rscript scripts/07_terrain.R
    ```
 
    05는 10월 한 달 집계와 연령대 추이(`monthly_age.csv`)를 만들고, 06이 대여소 집계를 1년 기준으로 덮어씁니다.
