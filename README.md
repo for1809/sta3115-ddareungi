@@ -48,6 +48,8 @@
 | Open-Meteo Elevation API (Copernicus DEM 90m) | 지점 | 대여소 고도 |
 | Copernicus DEM GLO-30 (30m, AWS 공개 저장소) | 30m 격자 | 대여소 주변 경사, 주변 대비 상대 고도 |
 | 기상청 방재기상관측(AWS) 시간 자료 (기상자료개방포털, 서울 27곳) | 관측소, 1시간 | 비 오는 출퇴근 시간 제외, 기온, 풍속 |
+| 서울 생활인구(내국인, 행정동 단위 OpenAPI), 행정동 경계(vuski/admdongkor) | 행정동, 1시간 | 주거 지수(새벽 인구 ÷ 낮 인구) |
+| 서울시 1:5000 수치지도 등고선, 표고점 | 선, 점 | 건물을 뺀 지표면 고도, 경사 |
 
 까다로웠던 점:
 - 이동 데이터에는 같은 이용이 출발 기준과 도착 기준으로 두 번 들어 있습니다. 대여는 출발 기준 행만, 반납은 도착 기준 행만 셉니다.
@@ -98,6 +100,14 @@
   중앙값 2.2m 높았고 경사는 두 배로 부풀어 있었지만, 지표면 경사도 고도를 대신하지 못했고(함께 넣으면 오즈비 0.94,
   95% 구간 0.80~1.11), 지표면 고도로 계산한 오르막이 여전히 가장 잘 설명했습니다(AIC 1335). 지표면 고도 10m당
   오즈비는 2.30(2.08~2.54)입니다.
+- **"언덕 위가 주거지라서"가 아닙니다.** 서울 생활인구(행정동별, 2026년 6~7월 평일 10일)로 동마다
+  새벽 인구 ÷ 낮 인구(주거 지수)를 만들어 대여소에 붙였습니다(`scripts/14_living_population.py`,
+  `analysis/residential_check_log.txt`). 고지대가 조금 더 주거지이긴 하지만(순위상관 0.17), 주거 지수를 넣어도
+  고도 효과는 그대로이고(1 표준편차당 오즈비 3.03에서 3.01) 주거 지수 자체의 효과는 사라집니다(1.08, 0.94~1.25).
+  업무지구에 가까운 동에서도 고도 10m당 오즈비가 2.67로, 언덕 위는 주거지든 아니든 빕니다.
+- **구 단위로는 평평한 구일수록 많이 탑니다.** 대여소 평균 경사가 1도 높은 구일수록 대여소당 대여가 17.5% 적고
+  (25개 구, R2 0.45), 이용 상위 3개 구(강서, 송파, 영등포)의 평균 경사는 1.6도로 나머지(3.7도)의 절반 아래입니다
+  (`analysis/gu_terrain_log.txt`). 경사는 이용 수준과, 고도와 오르막은 품절(불균형)과 관련됩니다.
 - 날씨와 이용: 아침 기온 0도 미만이면 아침 대여가 24% 줄고 25~30도면 14% 늘며, 풍속 4m/s 이상이면 21% 줄었습니다.
 
 진행 중:
@@ -118,6 +128,7 @@
    | `raw/map/` | bikelist_map.csv(실시간 대여정보 API의 대여소 ID와 번호) | OA-15493 |
    | `raw/dem/` | cop30_N37_00_E126_00.tif, cop30_N37_00_E127_00.tif | Copernicus DEM GLO-30 |
    | `raw/contour/` | 서울시 1:5000 수치지도 등고선(N3L_F001), 표고점(N3P_F002) 셰이프파일 | 서울 열린데이터광장 "서울시 경사도"(현재 서비스 종료) |
+   | `raw/admdong/` | HangJeongDong_ver20250701.geojson(행정동 경계) | github.com/vuski/admdongkor |
    | `raw/weather/` | aws_202501.csv ~ aws_202512.csv(`scripts/08_fetch_kma_aws.mjs`로 받음) | 기상청 방재기상관측 |
 
 2. 대여소 특성을 만들고 집계합니다. 인증키는 파일 경로로만 넘기고 화면에 출력하지 않습니다.
@@ -140,6 +151,9 @@
    Rscript scripts/12_dem_contour.R > data/12_dem_contour_log.txt
    python scripts/13_od_pairs.py data raw/od_5min raw/derived
    Rscript analysis/bare_compare.R > analysis/bare_compare_log.txt
+   python scripts/14_living_population.py <인증키 파일> data
+   Rscript analysis/residential_check.R > analysis/residential_check_log.txt
+   Rscript analysis/gu_terrain.R > analysis/gu_terrain_log.txt
    ```
 
    05는 10월 한 달 집계와 연령대 추이(`monthly_age.csv`)를 만들고, 06이 대여소 집계를 1년 기준으로 덮어씁니다.

@@ -1,0 +1,70 @@
+Warning message:
+package 'terra' was built under R version 4.6.2 
+Seoul dongs in boundary file: 427 
+Warning message:
+The following named parsers don't match the column names: adm_cd 
+stations placed in a dong: 2709 of 2713 
+Warning message:
+The following named parsers don't match the column names: station_no 
+dong codes matched to living population: 404 of 417 
+Warning messages:
+1: The following named parsers don't match the column names: adm_cd 
+2: The following named parsers don't match the column names: adm_cd 
+3: The following named parsers don't match the column names: adm_cd 
+stations analysed: 2635 
+
+res_index of stations' dongs:
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.0899  0.6782  1.0475  0.9712  1.2516  1.9537 
+most and least residential dongs with stations:
+# A tibble: 6 × 2
+  adm_nm                    res_index
+  <chr>                         <dbl>
+1 서울특별시 중구 소공동       0.0899
+2 서울특별시 중구 명동         0.114 
+3 서울특별시 중구 회현동       0.119 
+4 서울특별시 송파구 마천1동    1.84  
+5 서울특별시 관악구 서림동     1.86  
+6 서울특별시 종로구 창신3동    1.95  
+
+== are hills more residential? ==
+spearman elevation vs res_index: 0.168 
+# A tibble: 3 × 4
+  band          n res_index am_empty
+  <fct>     <int>     <dbl>    <dbl>
+1 [-Inf,20)  1204     0.976    0.049
+2 [20,40)    1095     1.09     0.118
+3 [40, Inf)   336     1.13     0.282
+spearman res_index vs dry-morning shortage: 0.037 
+
+== logistic models (controls: subway, university, docks) ==
+
+scale(l_res): AIC 1661.9
+               OR 2.5 % 97.5 %
+scale(l_res) 1.22  1.05   1.42
+
+scale(elev_bare_m): AIC 1344.3
+                     OR 2.5 % 97.5 %
+scale(elev_bare_m) 3.03  2.65   3.47
+
+scale(elev_bare_m) + scale(l_res): AIC 1345.1
+                     OR 2.5 % 97.5 %
+scale(elev_bare_m) 3.01  2.62   3.45
+scale(l_res)       1.08  0.94   1.25
+
+scale(elev_bare_m) * scale(l_res): AIC 1341.0
+                                  OR 2.5 % 97.5 %
+scale(elev_bare_m)              3.20  2.76   3.71
+scale(l_res)                    1.27  1.04   1.56
+scale(elev_bare_m):scale(l_res) 0.80  0.67   0.96
+
+scale(elev_bare_m) + scale(climb_bare_all) + scale(l_res): AIC 1313.0
+                        OR 2.5 % 97.5 %
+scale(elev_bare_m)    1.61  1.25   2.06
+scale(climb_bare_all) 1.99  1.57   2.53
+scale(l_res)          1.03  0.89   1.20
+
+== elevation effect within residential and non-residential dongs ==
+  least residential n  886  res_index 0.09-0.84  shortage share 0.077  elevation OR per 10 m 2.67 (2.13-3.33)
+  middle            n  880  res_index 0.84-1.18  shortage share 0.111  elevation OR per 10 m 2.37 (1.98-2.83)
+  most residential  n  869  res_index 1.18-1.95  shortage share 0.115  elevation OR per 10 m 2.13 (1.82-2.49)
