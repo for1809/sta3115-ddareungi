@@ -1,0 +1,295 @@
+<title>서울 구별 따릉이 대여 시간표</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
+<style>
+  /* layout: header and controls, then map with a ranked list beside it, then a 24-hour strip that doubles as the hour picker */
+  :root {
+    --bg: #f5f7f5;
+    --panel: #ffffff;
+    --ink: #17201c;
+    --muted: #5d6a64;
+    --rule: #dde3df;
+    --accent: #0f6b4f;
+    --seq0: #eef3ea; --seq1: #bfe0c7; --seq2: #6dbb98; --seq3: #23866a; --seq4: #0b4a3a;
+    --border: rgba(255, 255, 255, 0.95);
+    --label: #13201b;
+    --label-halo: rgba(255, 255, 255, 0.85);
+    --font-head: "IBM Plex Sans KR", "Noto Sans KR", "Malgun Gothic", sans-serif;
+    --font-body: "IBM Plex Sans KR", "Noto Sans KR", "Malgun Gothic", sans-serif;
+    --font-num: "IBM Plex Mono", ui-monospace, "Cascadia Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1412; --panel: #161d1a; --ink: #e6ece8; --muted: #97a59e; --rule: #28322e; --accent: #5fd0a2;
+      --seq0: #1d2824; --seq1: #1f4a3b; --seq2: #23775a; --seq3: #3fae83; --seq4: #a6efc9;
+      --border: rgba(15, 20, 18, 0.95); --label: #f1f6f3; --label-halo: rgba(10, 14, 12, 0.8);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1412; --panel: #161d1a; --ink: #e6ece8; --muted: #97a59e; --rule: #28322e; --accent: #5fd0a2;
+    --seq0: #1d2824; --seq1: #1f4a3b; --seq2: #23775a; --seq3: #3fae83; --seq4: #a6efc9;
+    --border: rgba(15, 20, 18, 0.95); --label: #f1f6f3; --label-halo: rgba(10, 14, 12, 0.8);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+    padding-block: 20px 28px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 16px; }
+  header { display: grid; gap: 4px; }
+  h1 { font-family: var(--font-head); font-size: clamp(22px, 3.2vw, 30px); font-weight: 700; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+  .sub { color: var(--muted); margin: 0; max-width: 72ch; }
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+  .clock { font-family: var(--font-num); font-size: 34px; font-weight: 500; letter-spacing: -0.02em; min-width: 6.5ch; font-variant-numeric: tabular-nums; }
+  .clock small { font-size: 14px; color: var(--muted); margin-left: 6px; letter-spacing: 0; font-family: var(--font-body); }
+  .seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; background: var(--panel); }
+  .seg button { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 14px; padding: 7px 12px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--panel); }
+  .btn { border: 1px solid var(--rule); background: var(--panel); color: var(--ink); font: inherit; font-size: 14px; padding: 7px 14px; border-radius: 8px; cursor: pointer; }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .main { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 16px; align-items: start; }
+  @media (max-width: 820px) { .main { grid-template-columns: minmax(0, 1fr); } }
+  .mapbox { position: relative; background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; min-width: 0; }
+  canvas#map { display: block; width: 100%; aspect-ratio: 1.22; max-width: 100%; touch-action: manipulation; }
+  .legend { position: absolute; left: 14px; bottom: 12px; display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+  .legend .bar { width: 180px; max-width: 40vw; height: 8px; border-radius: 4px; }
+  @media (max-width: 820px) { .legend { position: static; padding: 0 14px 12px; } }
+  .legend .ticks { display: flex; justify-content: space-between; font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+  .tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 8px 10px; font-size: 13px; box-shadow: 0 4px 14px rgba(0,0,0,.12); min-width: 150px; }
+  .tip b { display: block; font-size: 14px; }
+  .tip .n { font-family: var(--font-num); }
+  aside { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+  aside h2 { font-size: 13px; font-weight: 500; color: var(--muted); margin: 0 0 8px; letter-spacing: 0.02em; }
+  ol.rank { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+  ol.rank li { display: grid; grid-template-columns: 22px 54px minmax(0, 1fr) 62px; align-items: center; gap: 6px; font-size: 13px; padding: 1px 4px; border-radius: 5px; }
+  ol.rank li.hl { background: var(--seq0); }
+  ol.rank .i { color: var(--muted); font-family: var(--font-num); font-size: 11px; text-align: right; }
+  ol.rank .b { height: 8px; border-radius: 2px; background: var(--seq3); }
+  ol.rank .v { font-family: var(--font-num); font-variant-numeric: tabular-nums; text-align: right; font-size: 12px; }
+  .strip { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 12px 14px 8px; }
+  .strip-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline; margin-bottom: 6px; }
+  .strip-head span { font-size: 13px; color: var(--muted); }
+  .hours { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 3px; align-items: end; height: 96px; }
+  .hours button { border: 0; padding: 0; background: var(--seq1); border-radius: 3px 3px 0 0; cursor: pointer; min-height: 2px; }
+  .hours button[aria-pressed="true"] { background: var(--accent); }
+  .hlabels { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 3px; font-family: var(--font-num); font-size: 10px; color: var(--muted); text-align: center; margin-top: 3px; }
+  .note { font-size: 12.5px; color: var(--muted); margin: 0; max-width: 90ch; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>서울 구별 따릉이 대여 시간표</h1>
+    <p class="sub">2025년 평일 244일(공휴일 제외)의 하루 평균 대여 건수를 구별로, 시간대마다 보여줍니다. 아래 막대를 누르거나 재생하면 하루의 흐름이 보입니다.</p>
+  </header>
+
+  <div class="controls">
+    <div class="clock" id="clock" aria-live="polite">08시<small>8:00~8:59</small></div>
+    <div class="seg" role="group" aria-label="표시 기준">
+      <button id="m-total" aria-pressed="true">구 전체 대여</button>
+      <button id="m-per" aria-pressed="false">대여소당 대여</button>
+    </div>
+    <button class="btn" id="play">▶ 하루 재생</button>
+    <button class="btn" id="allday">하루 전체</button>
+  </div>
+
+  <div class="main">
+    <div class="mapbox">
+      <canvas id="map" aria-label="서울 구별 대여 건수 지도"></canvas>
+      <div class="legend" aria-hidden="true">
+        <span id="legend-title">평일 하루 평균 대여 건수</span>
+        <div class="bar" id="legend-bar"></div>
+        <div class="ticks"><span id="t0">0</span><span id="t1"></span><span id="t2"></span></div>
+      </div>
+      <div class="tip" id="tip" hidden></div>
+    </div>
+    <aside>
+      <h2 id="rank-title">구별 순위</h2>
+      <ol class="rank" id="rank"></ol>
+    </aside>
+  </div>
+
+  <div class="strip">
+    <div class="strip-head"><strong>서울 전체, 시간대별</strong><span id="strip-note">막대를 누르면 그 시간으로 바뀝니다</span></div>
+    <div class="hours" id="hours" role="group" aria-label="시간 선택"></div>
+    <div class="hlabels" id="hlabels"></div>
+  </div>
+
+  <p class="note">대여는 대여소에서 자전거를 빌린 건수(출발 기준)입니다. 구 경계는 따로 쓰지 않고, 대여소마다 가장 가까운 영역(반경 650m까지)을 그 대여소의 구로 칠했습니다. 산과 한강처럼 대여소가 없는 곳은 비어 있습니다. 출처: 서울 열린데이터광장 따릉이 대여소별 대여/반납 승객수(OA-21229).</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const DATA = /*__DATA__*/null;
+const G = DATA.gus, P = DATA.pts;
+const state = { hour: 8, metric: "total" };   // hour -1 = whole day
+
+const css = () => getComputedStyle(document.documentElement);
+let palette = [];
+function readPalette() {
+  const s = css();
+  palette = [0, 1, 2, 3, 4].map(i => d3.color(s.getPropertyValue("--seq" + i).trim()));
+  document.getElementById("legend-bar").style.background =
+    `linear-gradient(90deg, ${palette.map(c => c.formatHex()).join(",")})`;
+}
+const interp = t => d3.piecewise(d3.interpolateRgb, palette.map(c => c.formatHex()))(Math.max(0, Math.min(1, t)));
+
+function value(g, hour, metric) {
+  const v = hour < 0 ? d3.sum(g.dep) : g.dep[hour];
+  return metric === "per" ? v / g.stations : v;
+}
+function domainMax(metric, hour) {
+  if (hour < 0) return d3.max(G, g => value(g, -1, metric));
+  return d3.max(G, g => d3.max(d3.range(24), h => value(g, h, metric)));   // fixed over hours so playback compares
+}
+const fmt = (v, metric) => metric === "per" ? (v < 10 ? v.toFixed(1) : Math.round(v).toLocaleString("ko-KR"))
+                                             : Math.round(v).toLocaleString("ko-KR");
+const unit = () => state.metric === "per" ? "건/대여소" : "건";
+
+// ---------- map geometry: Voronoi cells of the stations, clipped to 450 m, rasterised to a district-id grid
+const canvas = document.getElementById("map"), ctx = canvas.getContext("2d");
+let W = 0, H = 0, dpr = 1, ids = null, edge = null, proj = null, labelPos = [];
+function layout() {
+  dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  const r = canvas.getBoundingClientRect();
+  W = Math.max(200, Math.round(r.width * dpr)); H = Math.max(160, Math.round(r.height * dpr));
+  canvas.width = W; canvas.height = H;
+  const lat0 = d3.mean(P, p => p[1]), k = Math.cos(lat0 * Math.PI / 180);
+  const xs = P.map(p => p[0] * k), ys = P.map(p => -p[1]);
+  const [x0, x1] = d3.extent(xs), [y0, y1] = d3.extent(ys);
+  const pad = 14 * dpr, s = Math.min((W - 2 * pad) / (x1 - x0), (H - 2 * pad) / (y1 - y0));
+  const ox = (W - s * (x1 - x0)) / 2, oy = (H - s * (y1 - y0)) / 2;
+  proj = p => [ox + (p[0] * k - x0) * s, oy + (-p[1] - y0) * s];
+  const pts = P.map(proj);
+  const del = d3.Delaunay.from(pts);
+  const rad = 650 / 111320 * s, rad2 = rad * rad;
+  ids = new Int16Array(W * H).fill(-1);
+  let hint = 0;
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const i = del.find(x, y, hint); hint = i;
+      const dx = pts[i][0] - x, dy = pts[i][1] - y;
+      if (dx * dx + dy * dy <= rad2) ids[y * W + x] = P[i][2];
+    }
+  }
+  edge = new Uint8Array(W * H);
+  for (let y = 0; y < H - 1; y++) for (let x = 0; x < W - 1; x++) {
+    const a = ids[y * W + x], b = ids[y * W + x + 1], c = ids[(y + 1) * W + x];
+    if (a >= 0 && ((b >= 0 && b !== a) || (c >= 0 && c !== a))) edge[y * W + x] = 1;
+  }
+  labelPos = G.map((g, gi) => {
+    const mine = P.filter(p => p[2] === gi);
+    return proj([d3.median(mine, p => p[0]), d3.median(mine, p => p[1])]);
+  });
+}
+
+function draw() {
+  if (!ids) return;
+  const max = domainMax(state.metric, state.hour);
+  const cols = G.map(g => d3.color(interp(value(g, state.hour, state.metric) / max)));
+  const bd = d3.color(css().getPropertyValue("--border").trim());
+  const img = ctx.createImageData(W, H), px = img.data;
+  for (let i = 0; i < ids.length; i++) {
+    const id = ids[i];
+    if (id < 0) continue;
+    const c = edge[i] ? bd : cols[id], o = i * 4;
+    px[o] = c.r; px[o + 1] = c.g; px[o + 2] = c.b; px[o + 3] = edge[i] ? Math.round((bd.opacity ?? 1) * 255) : 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  const s = css();
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.lineJoin = "round";
+  G.forEach((g, gi) => {
+    const [x, y] = labelPos[gi];
+    ctx.font = `500 ${12 * dpr}px ${s.getPropertyValue("--font-body")}`;
+    ctx.lineWidth = 3 * dpr; ctx.strokeStyle = s.getPropertyValue("--label-halo").trim();
+    ctx.fillStyle = s.getPropertyValue("--label").trim();
+    ctx.strokeText(g.short, x, y - 6 * dpr); ctx.fillText(g.short, x, y - 6 * dpr);
+    ctx.font = `400 ${11 * dpr}px ${s.getPropertyValue("--font-num")}`;
+    const t = fmt(value(g, state.hour, state.metric), state.metric);
+    ctx.strokeText(t, x, y + 8 * dpr); ctx.fillText(t, x, y + 8 * dpr);
+  });
+  // legend
+  document.getElementById("t1").textContent = fmt(max / 2, state.metric);
+  document.getElementById("t2").textContent = fmt(max, state.metric) + " " + unit();
+  document.getElementById("legend-title").textContent =
+    (state.metric === "per" ? "대여소 한 곳당 " : "") + (state.hour < 0 ? "평일 하루 대여 건수" : "평일 하루 평균, 이 시간의 대여 건수");
+}
+
+// ---------- side ranking, hour strip, clock
+function rank(hl) {
+  const rows = G.map((g, gi) => ({ g, gi, v: value(g, state.hour, state.metric) })).sort((a, b) => b.v - a.v);
+  const max = rows[0].v || 1;
+  document.getElementById("rank").innerHTML = rows.map((r, i) =>
+    `<li class="${r.gi === hl ? "hl" : ""}"><span class="i">${i + 1}</span><span>${r.g.name}</span>` +
+    `<span class="b" style="width:${(r.v / max * 100).toFixed(1)}%"></span><span class="v">${fmt(r.v, state.metric)}</span></li>`).join("");
+  document.getElementById("rank-title").textContent =
+    (state.hour < 0 ? "하루 전체" : String(state.hour).padStart(2, "0") + "시") + " 구별 순위 (" + unit() + ")";
+}
+const hoursEl = document.getElementById("hours");
+function strip() {
+  const city = d3.range(24).map(h => state.metric === "per"
+    ? d3.sum(G, g => g.dep[h]) / d3.sum(G, g => g.stations) : d3.sum(G, g => g.dep[h]));
+  const max = d3.max(city);
+  hoursEl.innerHTML = city.map((v, h) =>
+    `<button style="height:${Math.max(2, v / max * 100)}%" aria-pressed="${h === state.hour}" ` +
+    `title="${String(h).padStart(2, "0")}시: 서울 전체 ${fmt(v, state.metric)}${unit()}" aria-label="${h}시 선택"></button>`).join("");
+  [...hoursEl.children].forEach((b, h) => b.addEventListener("click", () => { stop(); setHour(h); }));
+  document.getElementById("hlabels").innerHTML = d3.range(24).map(h => `<span>${h % 3 === 0 ? h : ""}</span>`).join("");
+}
+function clock() {
+  const el = document.getElementById("clock");
+  el.innerHTML = state.hour < 0 ? "하루 전체<small>0시~24시</small>"
+    : `${String(state.hour).padStart(2, "0")}시<small>${state.hour}:00~${state.hour}:59</small>`;
+}
+function render(hl = -1) { draw(); rank(hl); strip(); clock(); }
+function setHour(h) { state.hour = h; render(); }
+
+// ---------- controls
+const mt = document.getElementById("m-total"), mp = document.getElementById("m-per");
+function setMetric(m) { state.metric = m; mt.setAttribute("aria-pressed", m === "total"); mp.setAttribute("aria-pressed", m === "per"); render(); }
+mt.addEventListener("click", () => setMetric("total"));
+mp.addEventListener("click", () => setMetric("per"));
+document.getElementById("allday").addEventListener("click", () => { stop(); setHour(-1); });
+let timer = null;
+const playBtn = document.getElementById("play");
+function stop() { if (timer) { clearInterval(timer); timer = null; playBtn.textContent = "▶ 하루 재생"; } }
+playBtn.addEventListener("click", () => {
+  if (timer) return stop();
+  let h = 0; setHour(h); playBtn.textContent = "■ 멈춤";
+  timer = setInterval(() => { h++; if (h > 23) return stop(); setHour(h); }, 650);
+});
+
+// ---------- hover
+const tip = document.getElementById("tip");
+canvas.addEventListener("mousemove", e => {
+  const r = canvas.getBoundingClientRect();
+  const x = Math.round((e.clientX - r.left) * dpr), y = Math.round((e.clientY - r.top) * dpr);
+  const id = ids && x >= 0 && y >= 0 && x < W && y < H ? ids[y * W + x] : -1;
+  if (id < 0) { tip.hidden = true; rank(); return; }
+  const g = G[id], v = value(g, state.hour, state.metric);
+  const all = d3.sum(G, q => state.hour < 0 ? d3.sum(q.dep) : q.dep[state.hour]);
+  const raw = state.hour < 0 ? d3.sum(g.dep) : g.dep[state.hour];
+  tip.innerHTML = `<b>${g.name}</b><span class="n">${fmt(v, state.metric)}</span> ${unit()}<br>` +
+    `대여소 ${g.stations}곳, 서울 전체의 <span class="n">${(raw / all * 100).toFixed(1)}%</span>`;
+  tip.hidden = false;
+  const tx = Math.min(e.clientX - r.left + 14, r.width - 170), ty = Math.max(8, e.clientY - r.top - 60);
+  tip.style.left = tx + "px"; tip.style.top = ty + "px";
+  rank(id);
+});
+canvas.addEventListener("mouseleave", () => { tip.hidden = true; rank(); });
+
+// ---------- boot, resize, theme
+function boot() { readPalette(); layout(); render(); }
+let rt = null;
+new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => { layout(); draw(); }, 150); }).observe(canvas);
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { readPalette(); draw(); });
+new MutationObserver(() => { readPalette(); draw(); }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+document.fonts && document.fonts.ready.then(() => draw());
+boot();
+</script>
