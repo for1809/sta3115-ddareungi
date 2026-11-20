@@ -79,8 +79,14 @@
   .hint { font-size: 12.5px; color: var(--muted); margin-left: auto; }
   .btn[aria-pressed="true"] { background: var(--accent); color: var(--panel); border-color: var(--accent); }
   .hours { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 3px; align-items: end; height: 52px; }
-  .hours button { border: 0; padding: 0; background: var(--seq1); border-radius: 3px 3px 0 0; cursor: pointer; min-height: 2px; }
-  .hours button[aria-pressed="true"] { background: var(--accent); }
+  /* each hour is a full-height button, so short bars are as easy to hit as tall ones */
+  .hours button { border: 0; padding: 0; height: 100%; background: transparent; border-radius: 4px 4px 0 0;
+                  cursor: pointer; display: flex; align-items: flex-end; }
+  .hours button:hover { background: var(--seq0); }
+  .hours button .bar { display: block; width: 100%; min-height: 3px; background: var(--seq1); border-radius: 3px 3px 0 0; }
+  .hours button:hover .bar { background: var(--seq2); }
+  .hours button[aria-pressed="true"] .bar { background: var(--accent); }
+  .hlabels span[data-on="true"] { color: var(--accent); font-weight: 500; }
   .hlabels { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 3px; font-family: var(--font-num); font-size: 10px; color: var(--muted); text-align: center; margin-top: 3px; }
   .note { font-size: 12.5px; color: var(--muted); margin: 0; max-width: 90ch; }
 </style>
@@ -238,10 +244,13 @@ function strip() {
     ? d3.sum(G, g => g.dep[h]) / d3.sum(G, g => g.stations) : d3.sum(G, g => g.dep[h]));
   const max = d3.max(city);
   hoursEl.innerHTML = city.map((v, h) =>
-    `<button style="height:${Math.max(2, v / max * 100)}%" aria-pressed="${h === state.hour}" ` +
-    `title="${String(h).padStart(2, "0")}시: 서울 전체 ${fmt(v, state.metric)}${unit()}" aria-label="${h}시 선택"></button>`).join("");
+    `<button aria-pressed="${h === state.hour}" title="${String(h).padStart(2, "0")}시: 서울 전체 ${fmt(v, state.metric)}${unit()}" ` +
+    `aria-label="${h}시 선택"><span class="bar" style="height:${Math.max(4, v / max * 100)}%"></span></button>`).join("");
   [...hoursEl.children].forEach((b, h) => b.addEventListener("click", () => setHour(h)));
-  document.getElementById("hlabels").innerHTML = d3.range(24).map(h => `<span>${h % 3 === 0 ? h : ""}</span>`).join("");
+  const lab = document.getElementById("hlabels");
+  lab.innerHTML = d3.range(24).map(h =>
+    `<span data-on="${h === state.hour}">${h % 3 === 0 || h === state.hour ? h : ""}</span>`).join("");
+  [...lab.children].forEach((sp, h) => { sp.style.cursor = "pointer"; sp.addEventListener("click", () => setHour(h)); });
 }
 function clock() {
   const el = document.getElementById("clock");
