@@ -56,7 +56,7 @@
   .main { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 16px; align-items: start; }
   @media (max-width: 820px) { .main { grid-template-columns: minmax(0, 1fr); } }
   .mapbox { position: relative; background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; min-width: 0; }
-  canvas#map { display: block; width: 100%; aspect-ratio: 1.22; max-width: 100%; touch-action: manipulation; }
+  canvas#map { display: block; width: 100%; aspect-ratio: 1.3; max-width: 100%; touch-action: manipulation; }
   .legend { position: absolute; left: 14px; bottom: 12px; display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
   .legend .bar { width: 180px; max-width: 40vw; height: 8px; border-radius: 4px; }
   @media (max-width: 820px) { .legend { position: static; padding: 0 14px 12px; } }
@@ -72,10 +72,13 @@
   ol.rank .i { color: var(--muted); font-family: var(--font-num); font-size: 11px; text-align: right; }
   ol.rank .b { height: 8px; border-radius: 2px; background: var(--seq3); }
   ol.rank .v { font-family: var(--font-num); font-variant-numeric: tabular-nums; text-align: right; font-size: 12px; }
-  .strip { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 12px 14px 8px; }
-  .strip-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline; margin-bottom: 6px; }
-  .strip-head span { font-size: 13px; color: var(--muted); }
-  .hours { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 3px; align-items: end; height: 96px; }
+  .strip { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 10px 14px 8px;
+           position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; display: grid; gap: 8px;
+           box-shadow: 0 6px 16px -12px rgba(0, 0, 0, .35); }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+  .hint { font-size: 12.5px; color: var(--muted); margin-left: auto; }
+  .btn[aria-pressed="true"] { background: var(--accent); color: var(--panel); border-color: var(--accent); }
+  .hours { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 3px; align-items: end; height: 52px; }
   .hours button { border: 0; padding: 0; background: var(--seq1); border-radius: 3px 3px 0 0; cursor: pointer; min-height: 2px; }
   .hours button[aria-pressed="true"] { background: var(--accent); }
   .hlabels { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 3px; font-family: var(--font-num); font-size: 10px; color: var(--muted); text-align: center; margin-top: 3px; }
@@ -85,17 +88,21 @@
 <div class="wrap">
   <header>
     <h1>서울 구별 따릉이 대여 시간표</h1>
-    <p class="sub">2025년 평일 244일(공휴일 제외)의 하루 평균 대여 건수를 구별로, 시간대마다 보여줍니다. 아래 막대를 누르거나 재생하면 하루의 흐름이 보입니다.</p>
+    <p class="sub">2025년 평일 244일(공휴일 제외)의 하루 평균 대여 건수를 구별로, 시간대마다 보여줍니다. 막대에서 시간을 고르세요.</p>
   </header>
 
-  <div class="controls">
-    <div class="clock" id="clock" aria-live="polite">08시<small>8:00~8:59</small></div>
-    <div class="seg" role="group" aria-label="표시 기준">
-      <button id="m-total" aria-pressed="true">구 전체 대여</button>
-      <button id="m-per" aria-pressed="false">대여소당 대여</button>
+  <div class="strip">
+    <div class="controls">
+      <div class="clock" id="clock" aria-live="polite">08시<small>8:00~8:59</small></div>
+      <div class="seg" role="group" aria-label="표시 기준">
+        <button id="m-total" aria-pressed="true">구 전체 대여</button>
+        <button id="m-per" aria-pressed="false">대여소당 대여</button>
+      </div>
+      <button class="btn" id="allday" aria-pressed="false">하루 전체</button>
+      <span class="hint" id="strip-note">막대 높이: 서울 전체의 시간대별 대여</span>
     </div>
-    <button class="btn" id="play">▶ 하루 재생</button>
-    <button class="btn" id="allday">하루 전체</button>
+    <div class="hours" id="hours" role="group" aria-label="시간 선택"></div>
+    <div class="hlabels" id="hlabels"></div>
   </div>
 
   <div class="main">
@@ -112,12 +119,6 @@
       <h2 id="rank-title">구별 순위</h2>
       <ol class="rank" id="rank"></ol>
     </aside>
-  </div>
-
-  <div class="strip">
-    <div class="strip-head"><strong>서울 전체, 시간대별</strong><span id="strip-note">막대를 누르면 그 시간으로 바뀝니다</span></div>
-    <div class="hours" id="hours" role="group" aria-label="시간 선택"></div>
-    <div class="hlabels" id="hlabels"></div>
   </div>
 
   <p class="note">대여는 대여소에서 자전거를 빌린 건수(출발 기준)입니다. 구 경계는 따로 쓰지 않고, 대여소마다 가장 가까운 영역(반경 650m까지)을 그 대여소의 구로 칠했습니다. 산과 한강처럼 대여소가 없는 곳은 비어 있습니다. 출처: 서울 열린데이터광장 따릉이 대여소별 대여/반납 승객수(OA-21229).</p>
@@ -145,7 +146,7 @@ function value(g, hour, metric) {
 }
 function domainMax(metric, hour) {
   if (hour < 0) return d3.max(G, g => value(g, -1, metric));
-  return d3.max(G, g => d3.max(d3.range(24), h => value(g, h, metric)));   // fixed over hours so playback compares
+  return d3.max(G, g => d3.max(d3.range(24), h => value(g, h, metric)));   // fixed over hours so colors compare across hours
 }
 const fmt = (v, metric) => metric === "per" ? (v < 10 ? v.toFixed(1) : Math.round(v).toLocaleString("ko-KR"))
                                              : Math.round(v).toLocaleString("ko-KR");
@@ -239,7 +240,7 @@ function strip() {
   hoursEl.innerHTML = city.map((v, h) =>
     `<button style="height:${Math.max(2, v / max * 100)}%" aria-pressed="${h === state.hour}" ` +
     `title="${String(h).padStart(2, "0")}시: 서울 전체 ${fmt(v, state.metric)}${unit()}" aria-label="${h}시 선택"></button>`).join("");
-  [...hoursEl.children].forEach((b, h) => b.addEventListener("click", () => { stop(); setHour(h); }));
+  [...hoursEl.children].forEach((b, h) => b.addEventListener("click", () => setHour(h)));
   document.getElementById("hlabels").innerHTML = d3.range(24).map(h => `<span>${h % 3 === 0 ? h : ""}</span>`).join("");
 }
 function clock() {
@@ -247,7 +248,7 @@ function clock() {
   el.innerHTML = state.hour < 0 ? "하루 전체<small>0시~24시</small>"
     : `${String(state.hour).padStart(2, "0")}시<small>${state.hour}:00~${state.hour}:59</small>`;
 }
-function render(hl = -1) { draw(); rank(hl); strip(); clock(); }
+function render(hl = -1) { draw(); rank(hl); strip(); clock(); allBtn.setAttribute("aria-pressed", state.hour < 0); }
 function setHour(h) { state.hour = h; render(); }
 
 // ---------- controls
@@ -255,14 +256,15 @@ const mt = document.getElementById("m-total"), mp = document.getElementById("m-p
 function setMetric(m) { state.metric = m; mt.setAttribute("aria-pressed", m === "total"); mp.setAttribute("aria-pressed", m === "per"); render(); }
 mt.addEventListener("click", () => setMetric("total"));
 mp.addEventListener("click", () => setMetric("per"));
-document.getElementById("allday").addEventListener("click", () => { stop(); setHour(-1); });
-let timer = null;
-const playBtn = document.getElementById("play");
-function stop() { if (timer) { clearInterval(timer); timer = null; playBtn.textContent = "▶ 하루 재생"; } }
-playBtn.addEventListener("click", () => {
-  if (timer) return stop();
-  let h = 0; setHour(h); playBtn.textContent = "■ 멈춤";
-  timer = setInterval(() => { h++; if (h > 23) return stop(); setHour(h); }, 650);
+const allBtn = document.getElementById("allday");
+allBtn.addEventListener("click", () => setHour(state.hour < 0 ? 8 : -1));
+// left and right arrow keys step through the hours
+document.addEventListener("keydown", e => {
+  if (e.target.closest && e.target.closest("input, textarea")) return;
+  if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+    const h = state.hour < 0 ? 8 : state.hour;
+    setHour((h + (e.key === "ArrowRight" ? 1 : 23)) % 24); e.preventDefault();
+  }
 });
 
 // ---------- hover
