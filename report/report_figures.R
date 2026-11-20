@@ -3,6 +3,7 @@
 suppressPackageStartupMessages({
   library(tidyverse)
   library(broom)
+  library(patchwork)
 })
 
 dir.create("figures", showWarnings = FALSE)
@@ -25,8 +26,13 @@ save_fig <- function(p, name, w = 6.6, h = 3.6) {
   ggsave(file.path("figures", paste0(name, ".png")), p, width = w, height = h, dpi = 300, bg = "white")
 }
 
+# station-level figures use the morning shortage on days without rain 06-10 h (scripts/10_aggregate_dry.py);
+# the monthly figures (F2, F5) stay on all weekdays
+dry <- read_csv("../data/stations_dry.csv", col_types = cols(station_no = col_character()), show_col_types = FALSE)
 stations <- read_csv("../data/stations.csv", col_types = cols(station_no = col_character()), show_col_types = FALSE) %>%
   filter(use_day > 0) %>%
+  select(-am_empty) %>%
+  inner_join(dry %>% select(station_no, am_empty = am_empty_dry, climb_in_m), by = "station_no") %>%
   mutate(elev_band = cut(elev_m, c(0, 20, 40, Inf), labels = names(band_cols), right = FALSE))
 station_month <- read_csv("../data/station_month.csv", col_types = cols(station_no = col_character()), show_col_types = FALSE) %>%
   inner_join(stations %>% select(station_no, elev_m, subway_m, univ_m, docks), by = "station_no") %>%
@@ -128,3 +134,57 @@ p6 <- monthly %>% filter(age %in% names(age_lab)) %>%
 save_fig(p6, "f6_age", w = 6.6, h = 2.5)
 
 cat("figures written\n")
+
+# F7. terrain variables compared: AIC of a logistic model with one terrain variable (dry mornings)
+terr <- read_csv("../data/station_terrain.csv", col_types = cols(station_no = col_character()), show_col_types = FALSE)
+d7 <- stations %>% inner_join(terr %>% select(station_no, elev30_m, slope_r300), by = "station_no") %>%
+  filter(!is.na(am_empty), !is.na(climb_in_m)) %>%
+  mutate(gap = as.integer(am_empty >= 0.3), l_sub = log2(subway_m), l_uni = log2(univ_m))
+terms7 <- c("지형 변수 없음" = "1", "경사(주변 300m)" = "slope_r300", "고도(90m 격자)" = "elev_m",
+            "고도(30m 격자)" = "elev30_m", "오르막" = "climb_in_m", "고도 + 오르막" = "elev30_m + climb_in_m")
+aic7 <- tibble(model = names(terms7), aic = map_dbl(terms7, function(v)
+  AIC(glm(as.formula(paste("gap ~ l_sub + l_uni + docks +", v)), family = binomial, data = d7)))) %>%
+  mutate(model = fct_reorder(model, -aic), best = aic == min(aic))
+p7 <- ggplot(aic7, aes(aic, model)) +
+  geom_segment(aes(x = min(aic) - 40, xend = aic, yend = model), colour = grid_col, linewidth = 2.2) +
+  geom_point(aes(colour = best), size = 3) +
+  geom_text(aes(label = round(aic)), nudge_x = 18, hjust = 0, family = "Noto", size = 3.2, colour = ink) +
+  scale_colour_manual(values = c(`TRUE` = "#c0392b", `FALSE` = "#4f7ea8"), guide = "none") +
+  scale_x_continuous(expand = expansion(mult = c(0, 0.08))) +
+  labs(x = "AIC (낮을수록 품절을 잘 설명)", y = NULL) + theme_report() + theme(panel.grid.major.y = element_blank())
+save_fig(p7, "f7_terrain", w = 5.6, h = 2.8)
+cat("F7 AIC:\n"); print(aic7)
+
+# F8. morning rain: rentals fall a lot (left), hill-station shortage barely moves (right)
+w8 <- read_csv("../data/weather_daily.csv", col_types = cols(aws_id = col_character(), date = col_date()), show_col_types = FALSE)
+r8 <- read_csv("../data/daily_aws_rentals.csv", col_types = cols(aws_id = col_character(), date = col_date()), show_col_types = FALSE) %>%
+  inner_join(w8, by = c("aws_id", "date")) %>%
+  mutate(month = factor(lubridate::month(date)), wday = factor(lubridate::wday(date)),
+         rain = cut(rain_am, c(-Inf, 0, 1, 5, Inf), labels = c("없음", "1mm 이하", "1~5mm", "5mm 초과")),
+         temp = relevel(cut(temp_am, c(-Inf, 0, 10, 20, 25, 30, Inf)), "(20,25]"),
+         wind = cut(wind_am, c(-Inf, 2, 4, Inf)))
+f8 <- lm(log(rentals_am + 1) ~ rain + temp + wind + aws_id + month + wday, data = r8)
+co <- summary(f8)$coefficients[grep("^rain", rownames(summary(f8)$coefficients)), ]
+left <- tibble(rain = factor(sub("^rain", "", rownames(co)), levels = c("1mm 이하", "1~5mm", "5mm 초과")),
+               pct = (exp(co[, 1]) - 1), lo = exp(co[, 1] - 1.96 * co[, 2]) - 1, hi = exp(co[, 1] + 1.96 * co[, 2]) - 1)
+pa <- ggplot(left, aes(rain, pct)) +
+  geom_col(fill = "#4f7ea8", width = 0.6) +
+  geom_errorbar(aes(ymin = lo, ymax = hi), width = 0.15, colour = ink) +
+  geom_text(aes(y = pct / 2, label = scales::percent(pct, accuracy = 1)), colour = "white", family = "Noto", size = 3.6, fontface = "bold") +
+  scale_y_continuous(labels = scales::percent, limits = c(-1, 0)) +
+  labs(x = "출근 시간(6~10시) 강수량", y = "아침(7~9시) 대여 변화") + theme_report()
+wet8 <- read_csv("../data/stations_wet.csv", col_types = cols(station_no = col_character()), show_col_types = FALSE) %>%
+  inner_join(stations %>% select(station_no, elev_band), by = "station_no") %>%
+  group_by(elev_band) %>%
+  summarise(`비 없음` = mean(am_empty_dry, na.rm = TRUE), `비 옴` = mean(am_empty_wet, na.rm = TRUE)) %>%
+  pivot_longer(-elev_band, names_to = "cond", values_to = "v") %>%
+  mutate(cond = factor(cond, levels = c("비 없음", "비 옴")))
+pb <- ggplot(wet8, aes(elev_band, v, fill = cond)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.62) +
+  geom_text(aes(label = scales::percent(v, accuracy = 0.1)), position = position_dodge(width = 0.7),
+            vjust = -0.5, family = "Noto", size = 3, colour = ink) +
+  scale_fill_manual(values = c("비 없음" = "#c0392b", "비 옴" = "#9fb7c9"), name = "출근 시간") +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 0.3)) +
+  labs(x = "대여소 고도", y = "출근 시간 품절 비율") + theme_report()
+save_fig(pa + pb + patchwork::plot_layout(widths = c(1, 1.15)), "f8_rain", w = 6.8, h = 3.2)
+print(left); print(wet8)

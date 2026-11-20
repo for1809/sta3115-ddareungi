@@ -14,7 +14,7 @@ cat("am_empty_all vs the yearly am_empty in stations.csv: max abs diff",
 cat("missing per column:\n"); print(colSums(is.na(s[c("am_empty_dry", "pm_empty_dry", "climb_in_m", "drop_am_out_m", "use_commute_dry")])))
 cat("dry-morning snapshots per station:\n"); print(summary(s$am_snapshots_dry))
 cat("stations with fewer than 300 dry-morning snapshots:\n")
-print(s %>% filter(am_snapshots_dry < 300) %>% select(name, gu, am_snapshots_dry, dry_days_used), n = 30)
+print(s %>% filter(am_snapshots_dry < 300) %>% select(name, gu, am_snapshots_dry, dry_am_days), n = 30)
 cat("distance to the nearest AWS station (m):\n"); print(summary(s$aws_m))
 cat("summary of new variables:\n")
 print(summary(s %>% select(am_empty_all, am_empty_dry, pm_empty_all, pm_empty_dry, use_commute_dry, climb_in_m, drop_am_out_m)))

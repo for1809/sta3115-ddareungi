@@ -1,0 +1,51 @@
+stations 2713 ; shortage share (dry mornings) 0.0984 
+
+mean dry-morning shortage by band:
+# A tibble: 3 × 3
+  band      n am_dry
+  <fct> <int>  <dbl>
+1 <20     944 0.0478
+2 20-40  1290 0.0953
+3 >=40    479 0.251 
+
+logistic, no interaction (OR, 95% CI, p):
+# A tibble: 5 × 7
+  term        estimate std.error statistic p.value conf.low conf.high
+  <chr>          <dbl>     <dbl>     <dbl>   <dbl>    <dbl>     <dbl>
+1 (Intercept)    0.016     0.81     -5.08    0        0.003     0.079
+2 elev10         2.10      0.047    15.6     0        1.91      2.31 
+3 l_sub          0.968     0.049    -0.663   0.508    0.88      1.07 
+4 l_uni          1.04      0.065     0.547   0.585    0.914     1.18 
+5 docks          0.939     0.019    -3.29    0.001    0.904     0.974
+Wald CI:
+            2.5 % 97.5 %
+(Intercept)  0.00   0.08
+elev10       1.91   2.30
+l_sub        0.88   1.07
+l_uni        0.91   1.18
+docks        0.90   0.97
+
+interaction elev10:l_sub p = 2.52e-06  coef = -0.152 
+
+thresholds: low use 24.2  median 58.4 
+roles (dry mornings):
+
+      commute_core        consolidate        morning_gap              other 
+               417                299                139               1730 
+supply_gap_suspect 
+               128 
+consolidation candidates 427 ; supply-gap suspects 128 (30.0%) ; of which elevation >= 40 m 95 
+commute core 417 ; of which elevation < 20 m 291 
+chi-square role x band:
+
+	Pearson's Chi-squared test
+
+data:  tab
+X-squared = 720.06, df = 8, p-value < 2.2e-16
+
+
+threshold and rain-definition checks, OR per 10 m (90 m elevation):
+  dry mornings, threshold 0.2: OR 2.30
+  dry mornings, threshold 0.3: OR 2.10
+  dry mornings, threshold 0.4: OR 2.08
+  dry = whole-day rain < 1 mm, threshold 0.3: OR 2.08
