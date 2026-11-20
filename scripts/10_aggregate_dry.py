@@ -16,7 +16,9 @@ Rules
     wet in the evening if any rain 16-20 h; a day with missing rain data in that window counts as wet
     (dropped), so "dry" always means observed dry
   - am_* uses the 07, 08, 09 h inventory snapshots, pm_* the 17, 18, 19 h snapshots
-  - use_commute_dry: rentals + returns in 07-09 h and 17-19 h per dry weekday (dry = dry morning and evening)
+  - use_am_dry / use_pm_dry: rentals + returns in 07-09 h per weekday whose morning (06-10 h) was dry, and in
+    17-19 h per weekday whose evening (16-20 h) was dry; use_commute_dry is their sum. Rain outside the commute
+    windows does not drop a day.
   - climb_in_m: mean of (elevation here - elevation at the origin) over all weekday trips that end here;
     drop_am_out_m: mean of (elevation here - elevation at the destination) over weekday trips leaving here 07-09 h
 """
@@ -137,7 +139,7 @@ def main(data_dir, od_dir, inv_dir):
     use = defaultdict(float)                     # station -> commute rentals + returns on dry weekdays
     climb = defaultdict(lambda: [0.0, 0])        # station -> [sum of elevation gain, trips] for trips ending here
     drop = defaultdict(lambda: [0.0, 0])         # station -> [sum of drop, trips] for 07-09 h trips leaving here
-    dry_days = defaultdict(set)
+    od_days = set()                              # weekdays present in the trip files
     for z in sorted(Path(od_dir).glob("2025??.zip")):
         for r in members(z):
             ix = {EN.get(h, h): i for i, h in enumerate(next(r))}
@@ -146,6 +148,7 @@ def main(data_dir, od_dir, inv_dir):
                 day = date(int(s[:4]), int(s[4:6]), int(s[6:8]))
                 if day.year != 2025 or not weekday(day):
                     continue
+                od_days.add(day)
                 h, n = int(row[ix["기준_시간대"]][:2]), int(row[ix["전체_건수"]])
                 a, b = id2no.get(row[ix["시작_대여소_ID"]]), id2no.get(row[ix["종료_대여소_ID"]])
                 if row[ix["집계_기준"]] == "출발시간":
@@ -158,9 +161,10 @@ def main(data_dir, od_dir, inv_dir):
                     st = a
                 else:
                     st = b
-                if st and st in near and (h in AM or h in PM) and dry(st, day, "am") and dry(st, day, "pm"):
-                    use[st] += n
-                    dry_days[st].add(day)
+                # each commute window is judged by the rain in that window only
+                part = "am" if h in AM else "pm" if h in PM else None
+                if st and st in near and part and dry(st, day, part):
+                    use[(st, part)] += n
         print(f"OD {z.name}: done", flush=True)
 
     out = []
@@ -168,12 +172,19 @@ def main(data_dir, od_dir, inv_dir):
         st = f["station_no"]
         iv = inv[st]
         rate = lambda k: round(iv[k][0] / iv[k][1], 3) if iv[k][1] else ""
-        nd = len(dry_days[st])
+        # denominators count every dry weekday, including those with no trips at this station
+        na = sum(1 for day in od_days if dry(st, day, "am"))
+        npm = sum(1 for day in od_days if dry(st, day, "pm"))
+        u_am = use[(st, "am")] / na if na else None
+        u_pm = use[(st, "pm")] / npm if npm else None
         out.append({"station_no": st, "aws_id": near[st][0], "aws_m": near[st][1],
                     "am_empty_all": rate("am_all"), "am_empty_dry": rate("am_dry"), "am_empty_dryday": rate("am_dryday"),
                     "pm_empty_all": rate("pm_all"), "pm_empty_dry": rate("pm_dry"), "pm_empty_dryday": rate("pm_dryday"),
                     "am_snapshots_dry": iv["am_dry"][1], "pm_snapshots_dry": iv["pm_dry"][1],
-                    "dry_days_used": nd, "use_commute_dry": round(use[st] / nd, 1) if nd else "",
+                    "dry_am_days": na, "dry_pm_days": npm,
+                    "use_am_dry": round(u_am, 1) if u_am is not None else "",
+                    "use_pm_dry": round(u_pm, 1) if u_pm is not None else "",
+                    "use_commute_dry": round(u_am + u_pm, 1) if u_am is not None and u_pm is not None else "",
                     "climb_in_m": round(climb[st][0] / climb[st][1], 2) if climb[st][1] else "",
                     "trips_in": climb[st][1],
                     "drop_am_out_m": round(drop[st][0] / drop[st][1], 2) if drop[st][1] else "",
