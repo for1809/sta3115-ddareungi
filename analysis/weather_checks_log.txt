@@ -1,0 +1,56 @@
+== A. wet vs dry mornings (07-09 h snapshots) ==
+stations: 2713 ; wet-morning snapshots per station:
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   0.00   78.00   81.00   81.53   90.00  105.00 
+
+mean shortage by elevation band:
+# A tibble: 3 × 7
+  band         n    dry    wet ratio_wet_dry after_wet after_dry
+  <fct>    <int>  <dbl>  <dbl>         <dbl>     <dbl>     <dbl>
+1 20m 미만   944 0.0478 0.0544         1.14     0.0529    0.0469
+2 20~40m    1290 0.0953 0.0829         0.870    0.101     0.0943
+3 40m 이상   479 0.251  0.208          0.831    0.253     0.251 
+
+paired difference wet - dry per station (mean, 95% CI) by band:
+  20m 미만 n= 924  mean +0.0068  (+0.0032 to +0.0105)
+  20~40m   n=1283  mean -0.0124  (-0.0167 to -0.0080)
+  40m 이상 n= 477  mean -0.0427  (-0.0514 to -0.0339)
+
+elevation odds ratio per 10 m (shortage >= 30%), wet vs dry mornings, stations with >= 30 wet snapshots:
+  dry            share 0.098  OR 2.10 (1.91-2.31)
+  wet            share 0.082  OR 1.87 (1.71-2.05)
+  dry_after_wet  share 0.110  OR 2.10 (1.92-2.30)
+  dry_after_dry  share 0.099  OR 2.09 (1.91-2.30)
+correlation of station shortage, wet vs dry mornings: 0.833 
+
+== B. weather and weekday rentals (zone = bike stations sharing the nearest AWS station) ==
+zone-days: 6584  weekdays: 244  zones: 27 
+
+morning (07-09 h) rentals, % change vs no rain / 20-25 C / calm, with zone, month and weekday fixed effects:
+# A tibble: 10 × 4
+   term              change_pct    lo    hi
+   <chr>                  <dbl> <dbl> <dbl>
+ 1 rain_am_c1mm 이하      -51.3 -52.9 -49.5
+ 2 rain_am_c1~5mm         -70.4 -71.5 -69.2
+ 3 rain_am_c5mm 초과      -88.6 -89   -88  
+ 4 temp_c0도 미만         -24   -28.3 -19.5
+ 5 temp_c0~10도            -8.2 -12.7  -3.6
+ 6 temp_c10~20도           -1.2  -4.9   2.7
+ 7 temp_c25~30도           14.3  10.1  18.7
+ 8 temp_c30도 이상         -6.9 -14.3   1.1
+ 9 wind_c2~4m/s            -8.5 -10.4  -6.6
+10 wind_c4m/s 이상        -20.5 -25.6 -14.9
+
+whole-day rentals, % change by daily rain (same controls):
+# A tibble: 4 × 4
+  term                change_pct    lo    hi
+  <chr>                    <dbl> <dbl> <dbl>
+1 rain_day_c1mm 미만       -23.7 -25.8 -21.5
+2 rain_day_c1~5mm          -29.4 -31.2 -27.5
+3 rain_day_c5~20mm         -48.2 -49.4 -46.9
+4 rain_day_c20mm 초과      -72.4 -73.2 -71.6
+
+share of zone-days by morning rain:
+
+    없음 1mm 이하    1~5mm 5mm 초과 
+   0.884    0.047    0.036    0.033 

@@ -90,6 +90,10 @@
   고도와 오르막을 함께 넣으면 둘 다 남습니다(AIC 1336, 1 표준편차당 오즈비 1.71과 1.91).
   대여소가 높은 곳에 있는지와, 실제 이용이 그곳까지 얼마나 올라와야 하는지가 각각 품절과 관련됩니다.
 - **저녁(17~19시)에도 같은 곳이 빕니다.** 퇴근 품절도 고도와 상관이 높습니다(스피어만 0.52).
+- **비 오는 아침에도 언덕 위는 거의 그대로 빕니다.** 출근 시간에 비가 오면 아침 대여는 51~89% 줄지만
+  (`analysis/weather_checks_log.txt`, 구역, 월, 요일 통제), 고도 40m 이상 대여소의 품절은 25.1%에서 20.8%로만 줄고
+  고도 오즈비도 1.87로 남습니다. 품절은 그날 수요보다 아침 전에 언덕 위로 자전거가 다시 채워지지 않는 구조에서 생깁니다.
+- 날씨와 이용: 아침 기온 0도 미만이면 아침 대여가 24% 줄고 25~30도면 14% 늘며, 풍속 4m/s 이상이면 21% 줄었습니다.
 
 진행 중:
 - R Shiny 앱 5개 탭(현황, 규모, 흐름, 품절, 대여소)을 만들어 shinyapps.io에 배포할 예정입니다(`app/`).
@@ -124,6 +128,9 @@
    python scripts/09_weather_daily.py raw/weather data
    python scripts/10_aggregate_dry.py data raw/od_5min raw/inv_1h
    Rscript analysis/dry_compare.R > analysis/dry_compare_log.txt
+   python scripts/11_weather_checks.py inv data raw/inv_1h
+   python scripts/11_weather_checks.py od data raw/od_5min
+   Rscript analysis/weather_checks.R > analysis/weather_checks_log.txt
    ```
 
    05는 10월 한 달 집계와 연령대 추이(`monthly_age.csv`)를 만들고, 06이 대여소 집계를 1년 기준으로 덮어씁니다.
