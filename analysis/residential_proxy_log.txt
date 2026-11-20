@@ -1,0 +1,46 @@
+stations 2684 
+home_share (evening 17-20 h share of returns):
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.0354  0.2657  0.3279  0.3200  0.3794  0.7000 
+work_share (morning 07-09 h share of returns):
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+0.00000 0.09374 0.14901 0.18361 0.23677 0.76801 
+
+spearman: elevation vs home_share -0.006 ; elevation vs work_share -0.183 
+by bare elevation band:
+# A tibble: 3 × 5
+  band          n home_share work_share am_empty
+  <fct>     <int>      <dbl>      <dbl>    <dbl>
+1 [-Inf,20)  1218      0.319      0.206    0.049
+2 [20,40)    1143      0.317      0.173    0.115
+3 [40, Inf)   323      0.336      0.137    0.277
+
+scale(home_share): AIC 1594.4
+                    OR 2.5 % 97.5 %
+scale(home_share) 1.57  1.36   1.81
+
+scale(elev_bare_m): AIC 1319.1
+                     OR 2.5 % 97.5 %
+scale(elev_bare_m) 3.03  2.64   3.47
+
+scale(elev_bare_m) + scale(home_share): AIC 1289.8
+                     OR 2.5 % 97.5 %
+scale(elev_bare_m) 3.00  2.62   3.44
+scale(home_share)  1.53  1.31   1.79
+
+scale(elev_bare_m) + scale(home_share) + scale(work_share): AIC 1281.1
+                     OR 2.5 % 97.5 %
+scale(elev_bare_m) 2.91  2.54   3.34
+scale(home_share)  1.20  0.97   1.48
+scale(work_share)  0.62  0.46   0.83
+
+scale(elev_bare_m) + scale(climb_bare_all) + scale(home_share) + scale(work_share): AIC 1250.7
+                        OR 2.5 % 97.5 %
+scale(elev_bare_m)    1.56  1.21   2.02
+scale(climb_bare_all) 1.95  1.54   2.48
+scale(home_share)     1.06  0.85   1.33
+scale(work_share)     0.59  0.43   0.79
+
+within the most residential third of stations (home_share top tercile):
+  n 895, elevation OR per 10 m 2.45 (2.08-2.89)
+  least residential third: n 895, elevation OR per 10 m 2.22 (1.80-2.73)
