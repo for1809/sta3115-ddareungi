@@ -1,0 +1,35 @@
+Warning message:
+package 'terra' was built under R version 4.6.2 
+contours 8570  spot heights 45870 
+contour heights: 5 to 770  spot heights: -0.54 to 740.2 
+interpolation points: 4528609 
+DEM cells 4967180  filled 2819435  time 1.3 min
+
+stations 2736  missing:
+     station_no     elev_bare_m slope_bare_r100 slope_bare_r300 
+              0               0               0               0 
+  elev_bare_m     slope_bare_r100  slope_bare_r300 
+ Min.   :  5.00   Min.   : 0.020   Min.   : 0.100  
+ 1st Qu.: 14.90   1st Qu.: 0.890   1st Qu.: 1.337  
+ Median : 20.00   Median : 1.930   Median : 2.265  
+ Mean   : 24.18   Mean   : 2.615   Mean   : 3.177  
+ 3rd Qu.: 30.00   3rd Qu.: 3.460   3rd Qu.: 4.143  
+ Max.   :106.20   Max.   :14.530   Max.   :19.020  
+
+correlation bare vs Copernicus 30 m elevation: 0.972 ; vs 90 m: 0.961 
+Copernicus 30 m minus bare elevation (m):
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-21.300   0.500   2.200   2.441   4.100  27.000 
+largest differences:
+     station_no elev_bare_m elev30_m elev90
+1472      02349        55.0     82.0     82
+2559      04972        25.3      4.0      4
+457       00726        11.9     32.2     18
+2735      06191         9.4     28.2     21
+1455      02328        35.2     53.1     48
+2088      04098        24.3     41.8     30
+1541      02505        14.4     31.8     23
+2533      04931        13.8     31.1     30
+363       00565        10.7     27.3     24
+340       00536        25.5     41.9     40
+slope r300 bare vs Copernicus: correlation 0.903 

@@ -93,6 +93,11 @@
 - **비 오는 아침에도 언덕 위는 거의 그대로 빕니다.** 출근 시간에 비가 오면 아침 대여는 51~89% 줄지만
   (`analysis/weather_checks_log.txt`, 구역, 월, 요일 통제), 고도 40m 이상 대여소의 품절은 25.1%에서 20.8%로만 줄고
   고도 오즈비도 1.87로 남습니다. 품절은 그날 수요보다 아침 전에 언덕 위로 자전거가 다시 채워지지 않는 구조에서 생깁니다.
+- **건물을 뺀 지형으로도 같습니다.** 서울시 1:5000 수치지도의 등고선과 표고점으로 지표면 고도를 만들어
+  다시 계산했습니다(`scripts/12_dem_contour.R`, `analysis/bare_compare_log.txt`). 건물이 섞인 Copernicus 고도는
+  중앙값 2.2m 높았고 경사는 두 배로 부풀어 있었지만, 지표면 경사도 고도를 대신하지 못했고(함께 넣으면 오즈비 0.94,
+  95% 구간 0.80~1.11), 지표면 고도로 계산한 오르막이 여전히 가장 잘 설명했습니다(AIC 1335). 지표면 고도 10m당
+  오즈비는 2.30(2.08~2.54)입니다.
 - 날씨와 이용: 아침 기온 0도 미만이면 아침 대여가 24% 줄고 25~30도면 14% 늘며, 풍속 4m/s 이상이면 21% 줄었습니다.
 
 진행 중:
@@ -112,6 +117,7 @@
    | `raw/stations/csv/` | info_2606__대여소현황.csv | OA-13252 |
    | `raw/map/` | bikelist_map.csv(실시간 대여정보 API의 대여소 ID와 번호) | OA-15493 |
    | `raw/dem/` | cop30_N37_00_E126_00.tif, cop30_N37_00_E127_00.tif | Copernicus DEM GLO-30 |
+   | `raw/contour/` | 서울시 1:5000 수치지도 등고선(N3L_F001), 표고점(N3P_F002) 셰이프파일 | 서울 열린데이터광장 "서울시 경사도"(현재 서비스 종료) |
    | `raw/weather/` | aws_202501.csv ~ aws_202512.csv(`scripts/08_fetch_kma_aws.mjs`로 받음) | 기상청 방재기상관측 |
 
 2. 대여소 특성을 만들고 집계합니다. 인증키는 파일 경로로만 넘기고 화면에 출력하지 않습니다.
@@ -131,6 +137,9 @@
    python scripts/11_weather_checks.py inv data raw/inv_1h
    python scripts/11_weather_checks.py od data raw/od_5min
    Rscript analysis/weather_checks.R > analysis/weather_checks_log.txt
+   Rscript scripts/12_dem_contour.R > data/12_dem_contour_log.txt
+   python scripts/13_od_pairs.py data raw/od_5min raw/derived
+   Rscript analysis/bare_compare.R > analysis/bare_compare_log.txt
    ```
 
    05는 10월 한 달 집계와 연령대 추이(`monthly_age.csv`)를 만들고, 06이 대여소 집계를 1년 기준으로 덮어씁니다.

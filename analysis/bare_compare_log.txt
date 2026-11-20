@@ -1,0 +1,82 @@
+Warning messages:
+1: The following named parsers don't match the column names: origin, dest 
+2: The following named parsers don't match the column names: origin, dest 
+3: The following named parsers don't match the column names: origin, dest 
+4: The following named parsers don't match the column names: origin, dest 
+Warning message:
+The following named parsers don't match the column names: station_no 
+pairs 800121  trips 25462585  round trips share 0.0634 
+stations used 2713 
+check: climb from pairs with round trips (Copernicus) vs climb_in_m from 10_aggregate_dry: 1 
+
+== elevation by source ==
+     elev_m          elev30_m       elev_bare_m       slope_r300    
+ Min.   :  4.00   Min.   :  5.60   Min.   :  5.00   Min.   : 1.250  
+ 1st Qu.: 17.00   1st Qu.: 16.90   1st Qu.: 14.90   1st Qu.: 3.790  
+ Median : 24.00   Median : 23.20   Median : 20.00   Median : 4.630  
+ Mean   : 27.57   Mean   : 26.67   Mean   : 24.24   Mean   : 5.194  
+ 3rd Qu.: 35.00   3rd Qu.: 33.70   3rd Qu.: 30.00   3rd Qu.: 6.060  
+ Max.   :126.00   Max.   :110.00   Max.   :106.20   Max.   :17.090  
+ slope_bare_r300    climb_in_m        climb_bare      
+ Min.   : 0.100   Min.   :-31.360   Min.   :-31.9219  
+ 1st Qu.: 1.340   1st Qu.: -2.930   1st Qu.: -2.6830  
+ Median : 2.270   Median : -0.220   Median : -0.5218  
+ Mean   : 3.185   Mean   :  1.808   Mean   :  1.9881  
+ 3rd Qu.: 4.150   3rd Qu.:  4.650   3rd Qu.:  4.3957  
+ Max.   :19.020   Max.   : 58.580   Max.   : 70.3197  
+
+correlations:
+                elev_m elev30_m elev_bare_m slope_r300 slope_bare_r300
+elev_m            1.00     0.96        0.96       0.64            0.69
+elev30_m          0.96     1.00        0.97       0.61            0.67
+elev_bare_m       0.96     0.97        1.00       0.62            0.68
+slope_r300        0.64     0.61        0.62       1.00            0.90
+slope_bare_r300   0.69     0.67        0.68       0.90            1.00
+climb_in_m        0.77     0.82        0.77       0.54            0.61
+climb_bare_all    0.79     0.79        0.82       0.57            0.65
+climb_bare        0.79     0.79        0.83       0.57            0.65
+                climb_in_m climb_bare_all climb_bare
+elev_m                0.77           0.79       0.79
+elev30_m              0.82           0.79       0.79
+elev_bare_m           0.77           0.82       0.83
+slope_r300            0.54           0.57       0.57
+slope_bare_r300       0.61           0.65       0.65
+climb_in_m            1.00           0.93       0.93
+climb_bare_all        0.93           1.00       1.00
+climb_bare            0.93           1.00       1.00
+
+== dry-morning shortage by bare-earth elevation band ==
+# A tibble: 3 × 4
+  band          n     am     pm
+  <fct>     <int>  <dbl>  <dbl>
+1 [-Inf,20)  1219 0.0487 0.041 
+2 [20,40)    1150 0.115  0.0976
+3 [40, Inf)   344 0.281  0.221 
+
+== one terrain variable at a time (controls: subway, university, docks) ==
+(no terrain)               AIC 1689.8
+elevation 90 m (Open-Meteo) AIC 1384.5  OR per 1 SD 2.91 (2.54-3.32)
+elevation Copernicus 30 m  AIC 1365.0  OR per 1 SD 3.08 (2.68-3.54)
+elevation bare (contours)  AIC 1361.2  OR per 1 SD 3.03 (2.65-3.46)
+slope r300 Copernicus      AIC 1580.1  OR per 1 SD 1.82 (1.63-2.03)
+slope r300 bare            AIC 1547.6  OR per 1 SD 1.96 (1.75-2.18)
+climb Copernicus (+round)  AIC 1352.3  OR per 1 SD 2.94 (2.58-3.35)
+climb bare (+round)        AIC 1334.9  OR per 1 SD 2.97 (2.61-3.37)
+climb bare (no round)      AIC 1348.5  OR per 1 SD 2.90 (2.55-3.30)
+
+elev_bare_m + slope_bare_r300: AIC 1362.6
+                         OR 2.5 % 97.5 %
+scale(elev_bare_m)     3.17  2.64   3.80
+scale(slope_bare_r300) 0.94  0.80   1.11
+
+elev_bare_m + climb_bare: AIC 1333.5
+                     OR 2.5 % 97.5 %
+scale(elev_bare_m) 1.69  1.32   2.16
+scale(climb_bare)  1.89  1.49   2.39
+
+elev30_m + climb_in_m: AIC 1335.6
+                    OR 2.5 % 97.5 %
+scale(elev30_m)   1.71  1.34   2.19
+scale(climb_in_m) 1.91  1.51   2.40
+
+bare elevation, OR per 10 m: 2.30 (2.08-2.54)
