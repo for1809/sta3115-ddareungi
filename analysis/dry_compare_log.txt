@@ -1,0 +1,144 @@
+stations: 2713 
+
+== 1. checks ==
+am_empty_all vs the yearly am_empty in stations.csv: max abs diff 0 
+missing per column:
+   am_empty_dry    pm_empty_dry      climb_in_m   drop_am_out_m use_commute_dry 
+              0               0               0               1               0 
+dry-morning snapshots per station:
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   54.0   626.0   635.0   624.9   641.0   656.0 
+stations with fewer than 300 dry-morning snapshots:
+# A tibble: 41 × 4
+   name                        gu       am_snapshots_dry dry_days_used
+   <chr>                       <chr>               <dbl>         <dbl>
+ 1 가산디지털단지역 9번출구 앞 금천구                199            57
+ 2 숭미파출소 사거리           도봉구                211            64
+ 3 청량리역광장                동대문구              160            51
+ 4 보라매병원역 2번출구        동작구                249            75
+ 5 북가좌2동 주민센터          서대문구              146            44
+ 6 명지대사거리                서대문구              113            34
+ 7 서울AI허브 앞               서초구                252            75
+ 8 뚝섬유수지 공영주차장       성동구                225            68
+ 9 신목동역1번출구             양천구                152            48
+10 목동4단지아파트             양천구                110            36
+11 도산공원                    강남구                255            76
+12 한강버스 압구정 선착장      강남구                258            78
+13 압구정로 11길               강남구                234            71
+14 율현삼거리                  강남구                125            36
+15 강동구 자원순환센터         강동구                 54            14
+16 한강버스 뚝섬 선착장        광진구                256            80
+17 광진구청 앞                 광진구                205            62
+18 광진경찰서 앞               광진구                 59            18
+19 신석초교 앞                 마포구                155            46
+20 한강버스 망원 선착장        마포구                255            76
+21 감정평가사회관앞            서초구                151            44
+22 래미안신반포리오센트 후문   서초구                 68            21
+23 한강버스 옥수 선착장        성동구                187            58
+24 성내5교 2                   송파구                225            67
+25 한강버스 잠실 선착장        송파구                258            79
+26 한림연예예술고등학교        송파구                143            44
+27 여의나루역 3번출구          영등포구              202            59
+28 한강버스 여의도 선착장      영등포구              187            56
+29 국회의사당본관 좌측         영등포구              285            87
+30 한국산업은행                영등포구              222            67
+# ℹ 11 more rows
+distance to the nearest AWS station (m):
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+     47    1323    1977    2046    2666    6839 
+summary of new variables:
+  am_empty_all     am_empty_dry     pm_empty_all      pm_empty_dry    
+ Min.   :0.0000   Min.   :0.0000   Min.   :0.00000   Min.   :0.00000  
+ 1st Qu.:0.0140   1st Qu.:0.0130   1st Qu.:0.01500   1st Qu.:0.01500  
+ Median :0.0510   Median :0.0520   Median :0.04400   Median :0.04500  
+ Mean   :0.1049   Mean   :0.1062   Mean   :0.08701   Mean   :0.08785  
+ 3rd Qu.:0.1430   3rd Qu.:0.1460   3rd Qu.:0.11000   3rd Qu.:0.11200  
+ Max.   :0.8770   Max.   :0.8870   Max.   :0.83600   Max.   :0.83900  
+                                                                      
+ use_commute_dry   climb_in_m      drop_am_out_m    
+ Min.   :  1.4   Min.   :-31.360   Min.   :-22.610  
+ 1st Qu.: 14.4   1st Qu.: -2.930   1st Qu.: -1.920  
+ Median : 28.7   Median : -0.220   Median :  1.140  
+ Mean   : 40.6   Mean   :  1.808   Mean   :  3.642  
+ 3rd Qu.: 52.4   3rd Qu.:  4.650   3rd Qu.:  6.872  
+ Max.   :635.1   Max.   : 58.580   Max.   : 65.710  
+                                   NAs    :1        
+
+== 2. does dropping rainy days change the morning shortage? ==
+mean am_empty all weekdays 0.1049  dry mornings 0.1062 
+correlation all vs dry: 0.9981 
+share with am_empty >= 0.3: all 0.0958  dry 0.0984 
+by elevation band (dry mornings):
+# A tibble: 3 × 6
+  band         n am_all am_dry pm_dry  climb
+  <fct>    <int>  <dbl>  <dbl>  <dbl>  <dbl>
+1 [0,20)     944 0.0485 0.0478 0.0403 -2.14 
+2 [20,40)   1290 0.0939 0.0953 0.0809  0.629
+3 [40,Inf)   479 0.246  0.251  0.200  12.8  
+
+== 3. which terrain variable explains the dry-morning shortage best? ==
+n = 2712  gap share 0.0985 
+spearman with am_empty_dry:
+       elev_m      elev30_m    slope_r300       tpi_500    climb_in_m 
+        0.497         0.502         0.304        -0.042         0.559 
+drop_am_out_m 
+        0.534 
+correlation among terrain variables:
+              elev_m elev30_m slope_r300 tpi_500 climb_in_m drop_am_out_m
+elev_m          1.00     0.96       0.64   -0.39       0.77          0.79
+elev30_m        0.96     1.00       0.61   -0.31       0.82          0.83
+slope_r300      0.64     0.61       1.00   -0.59       0.54          0.57
+tpi_500        -0.39    -0.31      -0.59    1.00      -0.10         -0.16
+climb_in_m      0.77     0.82       0.54   -0.10       1.00          0.94
+drop_am_out_m   0.79     0.83       0.57   -0.16       0.94          1.00
+elev_m         AIC 1384.4  OR per 1 SD 2.91 (2.54-3.32)
+elev30_m       AIC 1364.9  OR per 1 SD 3.08 (2.68-3.54)
+slope_r300     AIC 1580.0  OR per 1 SD 1.82 (1.63-2.03)
+tpi_500        AIC 1689.4  OR per 1 SD 0.91 (0.81-1.03)
+climb_in_m     AIC 1352.2  OR per 1 SD 2.94 (2.58-3.35)
+drop_am_out_m  AIC 1384.3  OR per 1 SD 2.75 (2.42-3.12)
+(no terrain)   AIC 1689.6
+
+elev30_m + climb_in_m: AIC 1335.6
+                       2.5 % 97.5 %
+scale(elev30_m)   1.71  1.34   2.19
+scale(climb_in_m) 1.91  1.51   2.40
+
+elev30_m + drop_am_out_m: AIC 1354.4
+                          2.5 % 97.5 %
+scale(elev30_m)      2.08  1.61   2.68
+scale(drop_am_out_m) 1.52  1.20   1.93
+
+elev30_m + slope_r300: AIC 1365.2
+                       2.5 % 97.5 %
+scale(elev30_m)   3.31  2.77   3.96
+scale(slope_r300) 0.90  0.77   1.05
+
+threshold check, elev30 OR per 10 m on dry mornings:
+  threshold 0.2: share 0.176  OR 2.47
+  threshold 0.3: share 0.098  OR 2.28
+  threshold 0.4: share 0.058  OR 2.26
+  dry by whole-day rain < 1 mm instead: OR 2.26
+  same model as the report (90 m elevation): OR 2.10 (1.91-2.30)
+
+== 4. evening shortage (17-19 h, dry evenings) ==
+spearman with pm_empty_dry:
+       elev_m      elev30_m    slope_r300       tpi_500    climb_in_m 
+        0.521         0.523         0.353        -0.058         0.524 
+drop_am_out_m         l_sub         l_uni         docks commute_share 
+        0.494         0.074        -0.148        -0.225        -0.062 
+share with pm_empty_dry >= 0.3: 0.0612 
+top 10 evening-shortage districts (mean pm_empty_dry):
+# A tibble: 10 × 3
+   gu           pm    am
+   <chr>     <dbl> <dbl>
+ 1 은평구   0.146  0.187
+ 2 서대문구 0.143  0.153
+ 3 종로구   0.132  0.152
+ 4 강북구   0.127  0.137
+ 5 강남구   0.126  0.136
+ 6 성북구   0.124  0.158
+ 7 중구     0.121  0.127
+ 8 노원구   0.119  0.148
+ 9 송파구   0.106  0.134
+10 용산구   0.0956 0.111

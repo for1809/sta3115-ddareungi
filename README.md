@@ -47,6 +47,7 @@
 | 서울시 지하철역 정보 API (784곳), 서울시 대학 목록 (53곳) | 지점 | 역과 대학까지 거리 |
 | Open-Meteo Elevation API (Copernicus DEM 90m) | 지점 | 대여소 고도 |
 | Copernicus DEM GLO-30 (30m, AWS 공개 저장소) | 30m 격자 | 대여소 주변 경사, 주변 대비 상대 고도 |
+| 기상청 방재기상관측(AWS) 시간 자료 (기상자료개방포털, 서울 27곳) | 관측소, 1시간 | 비 오는 출퇴근 시간 제외, 기온, 풍속 |
 
 까다로웠던 점:
 - 이동 데이터에는 같은 이용이 출발 기준과 도착 기준으로 두 번 들어 있습니다. 대여는 출발 기준 행만, 반납은 도착 기준 행만 셉니다.
@@ -68,21 +69,34 @@
 
 | 폴더 | 내용 |
 | --- | --- |
-| `scripts/` | 데이터 수집과 집계 Python 스크립트(표준 라이브러리만 사용, 01~06 순서) |
+| `scripts/` | 데이터 수집과 집계(Python 표준 라이브러리, R, Node.js, 01~10 순서) |
 | `data/` | 분석이 읽는 집계 파일과 각 단계 로그. 처음 만든 2025년 10월 한 달 결과는 `data/oct2025/`에 보관 |
 | `analysis/` | R Markdown 탐색 분석과 그림 |
 | `report/` | 논문형 보고서(HTML, PDF), 보고서용 그림 코드, PDF 생성 스크립트 |
+| `viz/` | 구별 시간대 대여 지도(HTML 한 장, `python viz/build_gu_hourly_map.py`로 생성) |
 | `raw/` | 원천 파일(약 2.2GB). 저장소에는 올리지 않음(`.gitignore`) |
 
+## 보강 분석: 비 오는 날을 빼고, 경사와 오르막과 비교 (2026-11-20)
+
+대여소마다 가장 가까운 기상청 관측소(중앙값 2.0km)의 시간 강수로, 출근 시간(6~10시)이나 퇴근 시간(16~20시)에
+비가 온 평일과 강수 기록이 빠진 평일을 뺐습니다. 이동 기록으로는 "이 대여소에 도착한 이용이 평균 몇 m를 올라왔나"
+(오르막, `climb_in_m`)를 새로 계산했습니다. 결과는 `analysis/dry_compare_log.txt`.
+
+- **비는 결론을 바꾸지 않았습니다.** 비 오는 아침을 뺀 품절 비율과 전체 평일 품절 비율의 상관은 0.998이고,
+  고도 10m당 오즈비는 2.10(90m 고도, 95% 구간 1.91~2.30)으로 기존 2.07과 같았습니다.
+- **경사는 고도를 대신하지 못했습니다.** 대여소 주변 300m 평균 경사(AIC 1580)는 고도(1365)보다 설명력이 낮고,
+  둘을 함께 넣으면 경사의 효과가 사라집니다(오즈비 0.90, 95% 구간 0.77~1.05).
+- **가장 잘 설명한 것은 오르막입니다.** 오르막 하나만 넣은 모형이 가장 좋았고(AIC 1352),
+  고도와 오르막을 함께 넣으면 둘 다 남습니다(AIC 1336, 1 표준편차당 오즈비 1.71과 1.91).
+  대여소가 높은 곳에 있는지와, 실제 이용이 그곳까지 얼마나 올라와야 하는지가 각각 품절과 관련됩니다.
+- **저녁(17~19시)에도 같은 곳이 빕니다.** 퇴근 품절도 고도와 상관이 높습니다(스피어만 0.52).
+
 진행 중:
-- 분석 보강: 평일 출퇴근 시간 중심, 비 오는 날 제외(기상청 방재기상관측 시간 강수), 고도와 경사와 오르막 비교.
-  첫 비교(비 제외 전)에서는 대여소 주변 300m 평균 경사가 고도보다 품절을 덜 설명했고(AIC 1550 대 1368),
-  둘을 함께 넣으면 경사의 효과가 사라졌습니다(`analysis/terrain_compare.R`, 결과는 `analysis/terrain_compare_log.txt`).
 - R Shiny 앱 5개 탭(현황, 규모, 흐름, 품절, 대여소)을 만들어 shinyapps.io에 배포할 예정입니다(`app/`).
 
 ## 재현 방법
 
-필요한 것: Python 3, R 4.x(tidyverse, broom, vcd, rmarkdown, terra), 서울 열린데이터광장 인증키(텍스트 파일 하나에 저장).
+필요한 것: Python 3, R 4.x(tidyverse, broom, vcd, rmarkdown, terra), Node.js 22 이상, 서울 열린데이터광장 인증키(텍스트 파일 하나에 저장).
 
 1. 원천 파일을 받아 `raw/`에 둡니다.
 
@@ -94,6 +108,7 @@
    | `raw/stations/csv/` | info_2606__대여소현황.csv | OA-13252 |
    | `raw/map/` | bikelist_map.csv(실시간 대여정보 API의 대여소 ID와 번호) | OA-15493 |
    | `raw/dem/` | cop30_N37_00_E126_00.tif, cop30_N37_00_E127_00.tif | Copernicus DEM GLO-30 |
+   | `raw/weather/` | aws_202501.csv ~ aws_202512.csv(`scripts/08_fetch_kma_aws.mjs`로 받음) | 기상청 방재기상관측 |
 
 2. 대여소 특성을 만들고 집계합니다. 인증키는 파일 경로로만 넘기고 화면에 출력하지 않습니다.
 
@@ -105,6 +120,10 @@
    python scripts/05_aggregate.py data raw/od_5min/202510.zip raw/inv_1h/2025Q4.zip raw/usage_monthly
    python scripts/06_aggregate_year.py data raw/od_5min raw/inv_1h
    Rscript scripts/07_terrain.R
+   node scripts/08_fetch_kma_aws.mjs ...   (기상자료개방포털 로그인 필요, 사용법은 스크립트 머리말)
+   python scripts/09_weather_daily.py raw/weather data
+   python scripts/10_aggregate_dry.py data raw/od_5min raw/inv_1h
+   Rscript analysis/dry_compare.R > analysis/dry_compare_log.txt
    ```
 
    05는 10월 한 달 집계와 연령대 추이(`monthly_age.csv`)를 만들고, 06이 대여소 집계를 1년 기준으로 덮어씁니다.

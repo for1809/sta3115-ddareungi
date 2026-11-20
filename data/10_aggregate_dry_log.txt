@@ -1,0 +1,3 @@
+AWS stations with data: 27; bike-station to AWS distance median 1978 m, max 6839 m
+stations: 2736; with am_empty_dry 2714, pm_empty_dry 2714, climb_in_m 2713, drop_am_out_m 2712
+dry-morning snapshots per station: median 635, min 54
