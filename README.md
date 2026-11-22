@@ -80,7 +80,30 @@
 | `analysis/` | R Markdown 탐색 분석(`eda_analysis.Rmd`, 13개 절)과 그림, 보강 분석 스크립트와 로그 |
 | `report/` | 논문형 보고서(HTML, PDF), 보고서용 그림 코드, PDF 생성 스크립트 |
 | `viz/` | 구별 시간대 대여 지도(HTML 한 장, `python viz/build_gu_hourly_map.py`로 생성) |
+| `slides/` | 15분 발표용 그림(한글, 16:9 슬라이드 크기)과 그림 코드, 로그 |
 | `raw/` | 원천 파일(약 2.2GB). 저장소에는 올리지 않음(`.gitignore`) |
+
+## 발표 그림 (`slides/figures/`)
+
+EDA 노트의 그림 가운데 발표 흐름에 맞는 것을 골라 한글 라벨과 큰 글씨로 다시 그렸습니다(`slides/slide_figures.R`).
+그림 안에는 제목을 넣지 않고, 슬라이드 제목으로 아래 문장을 씁니다. 고도는 모두 90m 격자 고도이고,
+경사와 오르막은 건물을 뺀 지표면 기준입니다. 고도 80m를 넘는 대여소 20곳은 수가 적어 곡선 그림에서 뺐습니다.
+
+| 순서 | 파일 | 슬라이드 제목 | 방법 |
+| --- | --- | --- | --- |
+| 1 | `01_scale.png` | 가장 바쁜 18시에도 달리는 자전거는 11%뿐이다 | 시간대별 막대 |
+| 2 | `02_elevation_loess.png` | 높은 대여소일수록 출근 시간에 비어 있다 | LOESS |
+| 3 | `03_map.png` | 품절은 언덕 지역에 모여 있다 | level plot(LOESS 곡면) |
+| 4 | `04_coplot_subway.png` | 지하철역이 가깝든 멀든 같은 모양이다 | coplot |
+| 5 | `05a_candidates_by_elevation.png` | 40m 이상 통합 후보의 절반은 이미 아침에 빈다 | 누적 막대 |
+| 6 | `06_residual_slope_climb.png` | 경사는 높이를 대신하지 못하고, 오르막은 더한다 | 잔차 의존 그림 |
+| 7 | `07_tukey_rain.png` | 비가 와도 언덕 위는 비어 있다 | Tukey 평균-차이 그림 |
+| 8 | `08_coplot_residential.png` | 주거지든 업무지구든 언덕 위는 빈다 | coplot |
+| 9 | `09_gu_slope.png` | 평평한 구일수록 많이 탄다 | 산점도와 LOESS |
+
+백업(질문 대비): `05b_mosaic_roles.png`(역할과 고도 모자이크, 카이제곱 720), `b1_net_change.png`(낮 동안 순변화),
+`b2_monthly_bands.png`(월별 고도 구간 품절), `b3_logit_prediction.png`(로지스틱 예측 확률),
+`b4_logit_calibration.png`(로지스틱 적합 점검).
 
 ## 보강 분석: 비 오는 날을 빼고, 경사와 오르막과 비교 (2026-11-20)
 
@@ -168,6 +191,7 @@
    Rscript -e "rmarkdown::render('analysis/eda_analysis.Rmd')"
    cd report && Rscript report_figures.R
    powershell -File report/make_pdf.ps1
+   Rscript slides/slide_figures.R > slides/slide_figures_log.txt
    ```
 
    PDF는 Microsoft Edge의 headless 인쇄로 만들고, Noto Serif KR과 Noto Sans KR 글꼴이 설치돼 있어야 합니다.
