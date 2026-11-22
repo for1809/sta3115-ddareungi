@@ -1,0 +1,21 @@
+<section id="slope" data-transition="fade">
+<p class="eyebrow">반론 1. 경사</p>
+<h2>경사는 높이를 대신하지 못하고, 오르막은 더한다</h2>
+<div class="body">
+<div class="figcard"><img src="/_blob/34c1fc65b9c080956de226d85f162e47" alt="고도로 설명하고 남은 품절 잔차를 경사와 오르막에 대해 그린 잔차 의존 그림. 경사를 따라서는 평평하고, 오르막을 따라서는 올라간다." style="width:1100px;height:572px;object-fit:contain"></div>
+<div class="side">
+<p class="stat-lab">로지스틱 회귀 AIC, 낮을수록 잘 설명</p>
+<table class="tbl small">
+<tr><th style="width:68%">지형 변수</th><th style="width:32%;text-align:right">AIC</th></tr>
+<tr><td>없음</td><td style="text-align:right">1690</td></tr>
+<tr><td>경사</td><td style="text-align:right">1548</td></tr>
+<tr><td>고도</td><td style="text-align:right">1361</td></tr>
+<tr><td>오르막</td><td style="text-align:right">1335</td></tr>
+<tr class="hl"><td>고도 + 오르막</td><td style="text-align:right">1324</td></tr>
+</table>
+<p class="stat-lab">오르막: 이 대여소에 도착한 이용이 출발지보다 평균 몇 m 올라왔나. 모두 건물을 뺀 지표면 기준.</p>
+</div>
+</div>
+<div class="foot"><p class="foot-l">STA3115 탐색적자료분석 1조</p><p class="foot-r"></p></div>
+<aside>첫 번째 반론, 경사입니다. 고도로 품절을 먼저 설명하고, 남은 잔차를 경사와 오르막에 대해 그렸습니다. 경사가 따로 중요하다면 왼쪽 선이 올라가야 하는데 평평합니다. 반면 이 대여소에 도착한 이용이 몇 m를 올라왔는지, 즉 오르막을 따라서는 잔차가 올라갑니다. AIC로도 경사만 넣은 모형이 가장 나빴고, 고도와 오르막을 함께 넣은 모형이 가장 좋았습니다. 대여소가 높은 곳에 있다는 것과, 이용이 그곳까지 올라와야 한다는 것이 각각 품절과 관련됩니다.</aside>
+</section>
