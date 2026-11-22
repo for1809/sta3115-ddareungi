@@ -20,14 +20,34 @@ theme_set(theme_minimal(base_size = 12))
 ```
 
 분석 기준: 2025년 1년 전체의 평일(공휴일 제외), 서울 25개 구 대여소 단위. 변수 정의는 `README.md` 참고.
-2025년에 이용이 한 번도 없었던 대여소는 뺀다. 계절에 따라 결과가 달라지는지는 마지막 절에서 월별로 확인한다.
+2025년에 이용이 한 번도 없었던 대여소는 뺀다. 계절에 따라 결과가 달라지는지는 9절에서 월별로 확인한다.
+
+**출근 품절(Y3 `am_empty`)은 출근 시간(6~10시)에 비가 오지 않은 평일만으로 계산한다.** 대여소마다 가장 가까운
+기상청 관측소의 시간 강수를 쓴다(`scripts/10_aggregate_dry.py`). 비를 빼기 전 값은 `am_empty_all`로 남겨 11절에서 비교한다.
+대여소 역할도 이 기준으로 다시 나눈다. 월별 분석(9절)은 전체 평일 기준이다.
 
 ```{r load}
-stations <- read_csv("../data/stations.csv", col_types = cols(station_no = col_character())) %>%
+rd <- function(f) read_csv(f, col_types = cols(station_no = col_character(), adm_cd = col_character()))
+dry <- rd("../data/stations_dry.csv")
+stations <- rd("../data/stations.csv") %>%
   filter(use_day > 0) %>%
+  rename(am_empty_all = am_empty) %>%
+  inner_join(dry %>% select(station_no, am_empty = am_empty_dry, pm_empty = pm_empty_dry, climb_in_m), by = "station_no") %>%
+  inner_join(rd("../data/station_terrain.csv") %>% select(station_no, slope_cop = slope_r300), by = "station_no") %>%
+  inner_join(rd("../data/station_terrain_bare.csv") %>% select(station_no, elev_bare_m, slope_bare = slope_bare_r300), by = "station_no") %>%
+  inner_join(rd("../data/station_climb_bare.csv") %>% select(station_no, climb_bare = climb_bare_all), by = "station_no") %>%
+  left_join(rd("../data/station_dong.csv") %>% select(station_no, res_index), by = "station_no") %>%
+  left_join(rd("../data/stations_wet.csv") %>% select(station_no, am_empty_wet, n_wet), by = "station_no") %>%
   mutate(log_use = log(use_day),
          elev_band = cut(elev_m, c(0, 20, 40, Inf), labels = c("<20 m", "20-40 m", ">=40 m"), right = FALSE),
-         gap = as.integer(am_empty >= 0.3),
+         gap = as.integer(am_empty >= 0.3))
+# roles with the dry-morning shortage (same thresholds as scripts/06: bottom 20% of use, another station within 300 m)
+q20 <- sort(stations$use_day)[floor(nrow(stations) * 0.2) + 1]
+q50 <- sort(stations$use_day)[floor(nrow(stations) * 0.5) + 1]
+stations <- stations %>%
+  mutate(low_near = use_day <= q20 & nearest_station_m <= 300,
+         role = case_when(low_near & gap == 1 ~ "supply_gap_suspect", low_near ~ "consolidate", gap == 1 ~ "morning_gap",
+                          use_day >= q50 & commute_share >= 0.5 ~ "commute_core", TRUE ~ "other"),
          role = factor(role, levels = c("commute_core", "consolidate", "supply_gap_suspect", "morning_gap", "other")))
 monthly <- read_csv("../data/monthly_age.csv")
 district_hour <- read_csv("../data/district_hour.csv") %>% filter(gu != "(미상)")
@@ -131,14 +151,14 @@ stations %>% mutate(fitted = fitted(fit_net), resid = residuals(fit_net)) %>%
   labs(x = "Fitted", y = "Residual", title = "Residuals of the LOESS fit")
 ```
 
-Y3 `am_empty` = 평일 7~9시 재고 기록 중 0대 비율.
+Y3 `am_empty` = 출근 시간(6~10시)에 비가 오지 않은 평일의 7~9시 재고 기록 중 0대 비율.
 
 ```{r loess-empty}
 ggplot(stations, aes(elev_m, am_empty)) +
   geom_point(alpha = 0.25, size = 0.8) +
   geom_smooth(method = "loess", span = 0.75, se = FALSE, colour = "#c23b4a") +
   scale_y_continuous(labels = scales::percent) +
-  labs(x = "Elevation (m)", y = "Share of 7-9am snapshots with 0 bikes",
+  labs(x = "Elevation (m)", y = "Share of 7-9am snapshots with 0 bikes (dry mornings)",
        title = "Higher stations are more often empty in the morning")
 stations %>% group_by(elev_band) %>%
   summarise(stations = n(), mean_am_empty = mean(am_empty, na.rm = TRUE), mean_net = mean(net_day))
@@ -324,4 +344,141 @@ station_month %>%
   scale_colour_viridis_d(end = 0.85, direction = -1) +
   labs(x = "Month of 2025", y = "Mean morning empty share", colour = "Elevation",
        title = "Morning shortages by elevation band through the year")
+```
+
+# 10. Height or steepness? Residual dependence and coplot (Units 7-10)
+
+질문: 품절은 대여소가 높은 곳에 있어서인가, 주변이 가팔라서인가? 경사는 대여소 주변 300m 평균 경사로,
+건물이 빠진 지표면 고도(서울시 1:5000 등고선, `scripts/12_dem_contour.R`)에서 계산한다.
+오르막(`climb_bare`)은 이 대여소에 도착한 평일 이용이 출발지보다 평균 몇 m 높이 올라왔는가이다(`analysis/bare_compare.R`).
+
+먼저 세 지형 변수끼리의 관계를 본다.
+
+```{r terrain-pairs, fig.height = 6, fig.width = 7}
+GGally::ggpairs(stations %>% select(`Elevation (m)` = elev_bare_m, `Slope (deg)` = slope_bare, `Climb (m)` = climb_bare,
+                                    `Shortage` = am_empty),
+                lower = list(continuous = GGally::wrap("points", alpha = 0.15, size = 0.4)),
+                upper = list(continuous = GGally::wrap("cor", method = "spearman", size = 3.5))) +
+  labs(title = "Terrain variables and the morning shortage (Spearman correlations above)")
+```
+
+고도로 품절을 LOESS 적합한 뒤, 남은 잔차가 경사나 오르막과 함께 움직이는지 본다(residual dependence plot).
+경사가 고도와 따로 중요하다면 잔차가 경사를 따라 올라가야 한다.
+
+```{r terrain-resid, fig.height = 4}
+fit_elev <- loess(am_empty ~ elev_bare_m, data = stations, span = 0.75)
+res_d <- stations %>% mutate(resid = residuals(fit_elev)) %>%
+  select(resid, `Slope within 300 m (deg)` = slope_bare, `Climb of arriving trips (m)` = climb_bare) %>%
+  pivot_longer(-resid)
+ggplot(res_d, aes(value, resid)) +
+  geom_hline(yintercept = 0, colour = "grey60") +
+  geom_point(alpha = 0.15, size = 0.6) +
+  geom_smooth(method = "loess", span = 0.75, se = FALSE, colour = "#c23b4a") +
+  facet_wrap(~ name, scales = "free_x") +
+  coord_cartesian(ylim = c(-0.3, 0.3)) +
+  labs(x = NULL, y = "Residual of shortage ~ LOESS(elevation)",
+       title = "After elevation, slope adds nothing; climb still does")
+```
+
+같은 질문을 coplot으로: 고도 구간 안에서 경사와 품절의 관계.
+
+```{r coplot-slope, fig.height = 4.5}
+stations %>%
+  mutate(elev_group = cut(elev_bare_m, quantile(elev_bare_m, c(0, .25, .5, .75, 1)), include.lowest = TRUE,
+                          labels = paste0("Elevation ", c("Q1", "Q2", "Q3", "Q4")))) %>%
+  ggplot(aes(slope_bare, am_empty)) +
+  geom_point(alpha = 0.2, size = 0.6) +
+  geom_smooth(method = "loess", se = FALSE, colour = "#c23b4a") +
+  facet_wrap(~ elev_group, nrow = 1) +
+  scale_y_continuous(labels = scales::percent) + coord_cartesian(xlim = c(0, 10)) +
+  labs(x = "Slope within 300 m (deg)", y = "Morning shortage", title = "Slope vs shortage, given elevation quartile")
+```
+
+로지스틱 회귀로 같은 비교(AIC가 낮을수록 잘 설명). 건물이 섞인 Copernicus 경사도 함께 본다.
+
+```{r terrain-aic}
+d_t <- stations %>% filter(!is.na(am_empty)) %>%
+  mutate(l_sub = log2(subway_m), l_uni = log2(univ_m))
+terms <- c("(none)" = "1", "slope, surface model" = "slope_cop", "slope, bare earth" = "slope_bare",
+           "elevation, 90 m" = "elev_m", "elevation, bare earth" = "elev_bare_m", "climb, bare earth" = "climb_bare",
+           "elevation + slope" = "elev_bare_m + slope_bare", "elevation + climb" = "elev_bare_m + climb_bare")
+tibble(model = names(terms),
+       AIC = map_dbl(terms, ~ AIC(glm(as.formula(paste("gap ~ l_sub + l_uni + docks +", .x)), family = binomial, data = d_t)))) %>%
+  mutate(AIC = round(AIC, 1)) %>% arrange(AIC)
+glm(gap ~ scale(elev_bare_m) + scale(slope_bare) + l_sub + l_uni + docks, family = binomial, data = d_t) %>%
+  tidy(exponentiate = TRUE, conf.int = TRUE) %>% filter(grepl("scale", term)) %>% mutate(across(where(is.numeric), ~ round(.x, 3)))
+```
+
+# 11. Is it the weather? Wet vs dry mornings, Tukey mean-difference plot (Units 3, 6)
+
+출근 시간에 비가 오면 아침 대여가 크게 준다(`analysis/weather_checks_log.txt`). 품절이 그날 수요 때문이라면
+비 오는 아침에는 고지대 품절도 크게 줄어야 한다. 대여소마다 비 온 출근 시간과 비 오지 않은 출근 시간의 품절을 비교한다.
+
+```{r rain-md, fig.height = 4.5}
+md <- stations %>% filter(n_wet >= 30, !is.na(am_empty_wet)) %>%
+  mutate(mean_wd = (am_empty + am_empty_wet) / 2, diff_wd = am_empty_wet - am_empty)
+ggplot(md, aes(mean_wd, diff_wd)) +
+  geom_hline(yintercept = 0, colour = "grey60") +
+  geom_point(aes(colour = elev_band), alpha = 0.35, size = 0.8) +
+  geom_smooth(method = "loess", se = FALSE, colour = "black") +
+  scale_colour_manual(values = c("<20 m" = "#9fb7c9", "20-40 m" = "#4f7ea8", ">=40 m" = "#c0392b")) +
+  scale_x_continuous(labels = scales::percent) + scale_y_continuous(labels = scales::percent) +
+  labs(x = "Mean of wet and dry shortage", y = "Wet minus dry", colour = "Elevation",
+       title = "Tukey mean-difference plot: wet mornings change little")
+md %>% group_by(elev_band) %>%
+  summarise(stations = n(), dry = mean(am_empty), wet = mean(am_empty_wet), mean_diff = mean(diff_wd),
+            cor_wet_dry = cor(am_empty, am_empty_wet)) %>% mutate(across(where(is.double), ~ round(.x, 3)))
+```
+
+```{r rain-all-vs-dry, fig.height = 4}
+ggplot(stations, aes(am_empty_all, am_empty)) +
+  geom_abline(colour = "grey60") + geom_point(alpha = 0.2, size = 0.6) +
+  scale_x_continuous(labels = scales::percent) + scale_y_continuous(labels = scales::percent) +
+  labs(x = "Shortage, all weekdays", y = "Shortage, dry mornings only",
+       title = sprintf("Dropping wet mornings barely moves any station (r = %.3f)",
+                       cor(stations$am_empty_all, stations$am_empty, use = "complete")))
+```
+
+# 12. Is it because hills are residential? Coplot on a residential index (Units 9-10)
+
+서울 생활인구(행정동, 2026년 6~7월 평일)로 동마다 새벽(2~4시) 인구 ÷ 낮(13~15시) 인구를 계산해 대여소에 붙였다
+(`scripts/14_living_population.py`). 1보다 크면 낮에 사람이 빠져나가는 주거지다.
+
+```{r res-elev, fig.height = 4}
+ggplot(stations %>% filter(!is.na(res_index)), aes(elev_bare_m, res_index)) +
+  geom_hline(yintercept = 1, colour = "grey60") +
+  geom_point(alpha = 0.2, size = 0.6) +
+  geom_smooth(method = "loess", se = FALSE, colour = "#4f7ea8") +
+  labs(x = "Elevation, bare earth (m)", y = "Night / day population of the dong",
+       title = sprintf("Hills are only slightly more residential (Spearman %.2f)",
+                       cor(stations$elev_bare_m, stations$res_index, method = "spearman", use = "complete")))
+```
+
+```{r coplot-res, fig.height = 4.5}
+stations %>% filter(!is.na(res_index)) %>%
+  mutate(res_group = cut(res_index, quantile(res_index, c(0, 1/3, 2/3, 1)), include.lowest = TRUE,
+                         labels = c("Business side", "Mixed", "Residential side"))) %>%
+  ggplot(aes(elev_bare_m, am_empty)) +
+  geom_point(alpha = 0.2, size = 0.6) +
+  geom_smooth(method = "loess", se = FALSE, colour = "#c23b4a") +
+  facet_wrap(~ res_group, nrow = 1) +
+  scale_y_continuous(labels = scales::percent) + coord_cartesian(xlim = c(0, 90)) +
+  labs(x = "Elevation, bare earth (m)", y = "Morning shortage",
+       title = "Hill stations run empty in business and residential dongs alike")
+```
+
+# 13. District level: flat districts ride more (Unit 7)
+
+25개 구의 평균 경사(대여소 주변 300m, 지표면)와 대여소당 평일 대여. 구가 25개뿐이고 평평한 구는 대부분 한강변이라 참고로만 본다.
+
+```{r gu-slope, fig.height = 5}
+gu_t <- read_csv("../data/gu_terrain.csv")
+ggplot(gu_t, aes(slope_bare, rent_per_station)) +
+  geom_smooth(method = "loess", span = 0.9, se = FALSE, colour = "grey50") +
+  geom_point(aes(size = stations), colour = "#4f7ea8", alpha = 0.8) +
+  ggrepel::geom_text_repel(aes(label = gu), size = 3, seed = 1, min.segment.length = 0.2) +
+  scale_y_log10() +
+  labs(x = "Mean slope around the district's stations (deg)", y = "Weekday rentals per station (log scale)",
+       size = "Stations", title = "Flat districts ride more: slope goes with how much people ride")
+cor.test(gu_t$slope_bare, gu_t$rent_per_station, method = "spearman")
 ```
