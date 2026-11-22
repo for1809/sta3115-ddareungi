@@ -1,17 +1,17 @@
 <section id="data" data-transition="fade">
-<p class="eyebrow">자료</p>
-<h2>2025년 평일 244일, 대여소 2,713곳</h2>
+<p class="eyebrow">DATA</p>
+<h2>244 weekdays in 2025, 2,713 stations</h2>
 <table class="tbl" style="margin-top:40px">
-<tr><th style="width:52%">자료(모두 공개)</th><th style="width:18%">단위</th><th style="width:30%">쓰임</th></tr>
-<tr><td>따릉이 대여소 간 이용 기록 (OA-21229)</td><td>5분</td><td>대여, 반납, 오르막</td></tr>
-<tr><td>대여소별 대여 가능 수량 (OA-22382)</td><td>1시간</td><td>출근 시간 품절</td></tr>
-<tr><td>기상청 방재기상관측(AWS), 서울 27곳</td><td>1시간</td><td>비 온 출근 시간 제외</td></tr>
-<tr><td>Copernicus DEM 90m</td><td>지점</td><td>대여소 고도</td></tr>
-<tr><td>서울시 1:5000 수치지도 등고선, 표고점</td><td>15m 격자</td><td>건물을 뺀 경사, 오르막</td></tr>
-<tr><td>서울 생활인구(행정동)</td><td>1시간</td><td>주거 지수</td></tr>
-<tr><td>지하철역 784곳, 대학 53곳</td><td>지점</td><td>역과 대학까지 거리</td></tr>
+<tr><th style="width:54%">Data (all public)</th><th style="width:16%">Resolution</th><th style="width:30%">Used for</th></tr>
+<tr><td>Station-to-station trips (Seoul Open Data OA-21229)</td><td>5 min</td><td>Rentals, returns, climb</td></tr>
+<tr><td>Bikes available per station (OA-22382)</td><td>1 hour</td><td>Morning shortage</td></tr>
+<tr><td>KMA automatic weather stations, 27 in Seoul</td><td>1 hour</td><td>Dropping wet mornings</td></tr>
+<tr><td>Copernicus DEM, 90 m</td><td>Point</td><td>Station elevation</td></tr>
+<tr><td>Seoul 1:5,000 contours and spot heights</td><td>15 m grid</td><td>Bare-earth slope, climb</td></tr>
+<tr><td>Seoul living population (by dong)</td><td>1 hour</td><td>Residential index</td></tr>
+<tr><td>784 subway stations, 53 universities</td><td>Point</td><td>Distance to each</td></tr>
 </table>
-<p class="text muted" style="margin-top:32px">공휴일은 뺐다. 이동 기록과 재고 기록은 대여소 ID 체계가 달라 실시간 대여정보 API로 연결했다.</p>
-<div class="foot"><p class="foot-l">STA3115 탐색적자료분석 1조</p><p class="foot-r"></p></div>
-<aside>모두 공개 자료입니다. 핵심은 두 가지입니다. 대여소 간 이용 기록으로 누가 어디서 어디로 탔는지를, 한 시간마다 찍힌 재고 기록으로 대여소에 자전거가 몇 대 있었는지를 봅니다. 여기에 기상청 시간 강수, 고도와 지표면 지형, 생활인구를 붙였습니다. 두 자료는 대여소 번호 체계가 달라서 실시간 대여정보 API로 연결했습니다.</aside>
+<p class="text muted" style="margin-top:32px">Public holidays are excluded. Trip and inventory records use different station IDs, so we linked them through the real-time rental API.</p>
+<div class="foot"><p class="foot-l">STA3115 Exploratory Data Analysis, Group 1</p><p class="foot-r"></p></div>
+<aside>Everything here is public data. Two sources do the main work: the trip records tell us who rode from where to where, and the hourly inventory snapshots tell us how many bikes each station had. On top of that we added hourly rain from the Korea Meteorological Administration, elevation and bare-earth terrain, and living population. The trip and inventory data use different station IDs, so we matched them through the real-time rental API.</aside>
 </section>

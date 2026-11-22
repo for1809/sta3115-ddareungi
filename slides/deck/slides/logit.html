@@ -1,23 +1,23 @@
 <section id="logit" data-transition="fade">
-<p class="eyebrow">발견 1</p>
-<h2>다른 조건을 함께 넣어도 남는 것은 고도다</h2>
+<p class="eyebrow">FINDING 1</p>
+<h2>With other factors in the model, elevation is what remains</h2>
 <div class="body">
 <div style="width:1040px;display:flex;flex-direction:column;gap:24px">
-<table class="tbl" style="font-size:34px">
-<tr><th style="width:40%">품절이 잦을 오즈</th><th style="width:16%;text-align:right">오즈비</th><th style="width:26%;text-align:right">95% 구간</th><th style="width:18%;text-align:right">p</th></tr>
-<tr class="hl"><td>고도가 10m 높을 때</td><td style="text-align:right">2.10</td><td style="text-align:right">1.91~2.30</td><td style="text-align:right">&lt; 0.001</td></tr>
-<tr><td>지하철역 거리가 2배일 때</td><td style="text-align:right">0.97</td><td style="text-align:right">0.88~1.07</td><td style="text-align:right">0.51</td></tr>
-<tr><td>대학 거리가 2배일 때</td><td style="text-align:right">1.04</td><td style="text-align:right">0.91~1.18</td><td style="text-align:right">0.59</td></tr>
-<tr><td>거치대가 1개 많을 때</td><td style="text-align:right">0.94</td><td style="text-align:right">0.90~0.97</td><td style="text-align:right">0.001</td></tr>
+<table class="tbl" style="font-size:32px">
+<tr><th style="width:42%">Odds of frequent shortage</th><th style="width:22%;text-align:right">Odds ratio</th><th style="width:22%;text-align:right">95% CI</th><th style="width:14%;text-align:right">p</th></tr>
+<tr class="hl"><td>Elevation +10 m</td><td style="text-align:right">2.10</td><td style="text-align:right">1.91–2.30</td><td style="text-align:right">&lt; 0.001</td></tr>
+<tr><td>Subway distance doubled</td><td style="text-align:right">0.97</td><td style="text-align:right">0.88–1.07</td><td style="text-align:right">0.51</td></tr>
+<tr><td>University distance doubled</td><td style="text-align:right">1.04</td><td style="text-align:right">0.91–1.18</td><td style="text-align:right">0.59</td></tr>
+<tr><td>One more dock</td><td style="text-align:right">0.94</td><td style="text-align:right">0.90–0.97</td><td style="text-align:right">0.001</td></tr>
 </table>
-<p class="note muted">로지스틱 회귀. 결과 변수는 품절이 잦은 대여소(출근 시간 품절 비율 30% 이상) 여부.</p>
+<p class="note muted">Logistic regression. Outcome: frequent shortage (morning shortage 30% or more).</p>
 </div>
 <div class="side">
-<div class="stat"><p class="stat-num ink">1.75~2.18</p><p class="stat-lab">달마다 따로 추정한 고도 오즈비, 12개월 모두</p></div>
-<div class="stat"><p class="stat-num ink">2.30, 2.10, 2.08</p><p class="stat-lab">품절 기준 20%, 30%, 40%일 때</p></div>
-<div class="stat"><p class="stat-num ink">2.30</p><p class="stat-lab">건물을 뺀 지표면 고도로 바꿔도</p></div>
+<div class="stat"><p class="stat-num ink">1.75–2.18</p><p class="stat-lab">elevation odds ratio fitted month by month, all 12 months</p></div>
+<div class="stat"><p class="stat-num ink">2.30, 2.10, 2.08</p><p class="stat-lab">with a 20%, 30% or 40% cut-off</p></div>
+<div class="stat"><p class="stat-num ink">2.30</p><p class="stat-lab">with bare-earth elevation (buildings removed)</p></div>
 </div>
 </div>
-<div class="foot"><p class="foot-l">STA3115 탐색적자료분석 1조</p><p class="foot-r"></p></div>
-<aside>지하철, 대학, 거치대 수를 함께 넣은 로지스틱 회귀입니다. 고도가 10m 높아질 때마다 품절이 잦은 대여소일 오즈가 2.1배입니다. 지하철역과 대학까지의 거리는 관련이 없었고, 거치대가 많을수록 조금 덜 빕니다. 이 결과는 달마다 따로 추정해도 12개월 모두 1.75에서 2.18 사이였고, 품절 기준을 20%나 40%로 바꾸거나, 건물을 뺀 고도로 바꿔도 같았습니다.</aside>
+<div class="foot"><p class="foot-l">STA3115 Exploratory Data Analysis, Group 1</p><p class="foot-r"></p></div>
+<aside>This is a logistic regression with subway distance, university distance and the number of docks. Every 10 metres of elevation multiplies the odds of being a frequent-shortage station by 2.1. Distance to the subway and to universities shows no relationship, and stations with more docks are empty slightly less often. The result holds month by month, between 1.75 and 2.18 in all twelve months, with a 20% or 40% cut-off, and with bare-earth elevation.</aside>
 </section>

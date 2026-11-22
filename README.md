@@ -86,9 +86,10 @@
 | `slides/` | 15분 발표 슬라이드 원본(`deck/`), 발표용 그림(한글, 16:9)과 그림 코드, 로그 |
 | `raw/` | 원천 파일(약 2.2GB). 저장소에는 올리지 않음(`.gitignore`) |
 
-## 발표 그림 (`slides/figures/`)
+## 발표 그림 (`slides/figures/`, `slides/figures_en/`)
 
-EDA 노트의 그림 가운데 발표 흐름에 맞는 것을 골라 한글 라벨과 큰 글씨로 다시 그렸습니다(`slides/slide_figures.R`).
+EDA 노트의 그림 가운데 발표 흐름에 맞는 것을 골라 큰 글씨로 다시 그렸습니다(`slides/slide_figures.R`).
+같은 코드가 한국어판(`slides/figures/`, Noto Sans KR)과 영어판(`slides/figures_en/`, Segoe UI)을 만들고, 발표는 영어판을 씁니다.
 그림 안에는 제목을 넣지 않고, 슬라이드 제목으로 아래 문장을 씁니다. 고도는 모두 90m 격자 고도이고,
 경사와 오르막은 건물을 뺀 지표면 기준입니다. 고도 80m를 넘는 대여소 20곳은 수가 적어 곡선 그림에서 뺐습니다.
 
@@ -110,9 +111,10 @@ EDA 노트의 그림 가운데 발표 흐름에 맞는 것을 골라 한글 라�
 
 ### 발표 슬라이드 (`slides/deck/`)
 
-위 그림으로 만든 15분 발표 슬라이드입니다. 본편 18장(표지, 질문, 자료, 품절 정의, 발견 6장, 반론 5장, 결론,
-한계, 질문)과 부록 6장이고, 장마다 발표자 노트가 있습니다. 슬라이드는 claude.ai의 Slides 형식(장마다 HTML 한 개,
-공통 CSS `deck.css`, 목차 `deck.json`)으로 만들었고, 그림은 덱에 올린 `slides/figures/`의 PNG를 씁니다.
+위 그림으로 만든 15분 영어 발표 슬라이드입니다(제목: Look Before You Cut: Seoul’s Public Bikes Run Out on the Hills).
+본편 18장(표지, 질문, 자료, 품절 정의, 발견 6장, 반론 5장, 결론, 한계, 질문)과 부록 6장이고, 장마다 영어 발표자 노트가
+있습니다. 글꼴은 Inter 하나입니다. 슬라이드는 claude.ai의 Slides 형식(장마다 HTML 한 개, 공통 CSS `deck.css`,
+목차 `deck.json`)으로 만들었고, 그림은 덱에 올린 `slides/figures_en/`의 PNG를 씁니다.
 마지막 장의 Shiny 앱과 GitHub 주소는 아직 비어 있습니다.
 
 ## 보강 분석: 비 오는 날을 빼고, 경사와 오르막과 비교 (2026-11-20)
@@ -201,7 +203,8 @@ EDA 노트의 그림 가운데 발표 흐름에 맞는 것을 골라 한글 라�
    Rscript -e "rmarkdown::render('analysis/eda_analysis.Rmd')"
    cd report && Rscript report_figures.R
    powershell -File report/make_pdf.ps1
-   Rscript slides/slide_figures.R > slides/slide_figures_log.txt
+   Rscript slides/slide_figures.R ko > slides/slide_figures_log.txt
+   Rscript slides/slide_figures.R en > slides/slide_figures_en_log.txt
    ```
 
    PDF는 Microsoft Edge의 headless 인쇄로 만들고, Noto Serif KR과 Noto Sans KR 글꼴이 설치돼 있어야 합니다.

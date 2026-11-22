@@ -1,6 +1,6 @@
 Warning message:
 package 'terra' was built under R version 4.6.2 
-stations 2713 with dry-morning shortage 2713 
+language ko ; stations 2713 with dry-morning shortage 2713 
 
 01 peak riding: 3915 at 18 h; parked then 30632 ; riding share 0.113 
 

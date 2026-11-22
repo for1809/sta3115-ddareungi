@@ -1,20 +1,20 @@
 <section id="define" data-transition="fade">
-<p class="eyebrow">품절의 정의</p>
-<h2>출근 시간에 자전거가 0대였던 비율로 쟀다</h2>
+<p class="eyebrow">MEASURING A SHORTAGE</p>
+<h2>How often a station had zero bikes at commute time</h2>
 <div class="cols">
 <div class="card">
-<p class="card-title">출근 시간 품절 비율</p>
-<p class="card-body">출근 시간(6~10시)에 비가 오지 않은 평일에, 7시, 8시, 9시 재고 기록 가운데 0대였던 비율</p>
-<p class="card-small">대여소마다 가장 가까운 기상청 관측소(중앙값 2km)의 시간 강수를 쓴다. 강수 기록이 빠진 날은 뺀다.</p>
+<p class="card-title">Morning shortage</p>
+<p class="card-body">On weekdays with no rain from 06:00 to 10:00, the share of the 07:00, 08:00 and 09:00 inventory records that show zero bikes.</p>
+<p class="card-small">Rain comes from the nearest KMA station (median 2 km away). Days with missing rain records are dropped.</p>
 </div>
 <div class="card">
-<p class="card-title">품절이 잦은 대여소</p>
-<p class="big">30% 이상</p>
-<p class="card-body">전체 2,713곳 가운데 9.8%</p>
-<p class="card-small">기준을 20%나 40%로 바꿔도 결론은 같았다.</p>
+<p class="card-title">Frequent shortage</p>
+<p class="big">30% or more</p>
+<p class="card-body">9.8% of the 2,713 stations</p>
+<p class="card-small">The result is the same with a 20% or 40% cut-off.</p>
 </div>
 </div>
-<p class="text muted" style="margin-top:40px">비 온 출근 시간을 뺀 이유: 비가 오면 아침 대여가 51~89% 줄어, 그날의 수요가 달라진다.</p>
-<div class="foot"><p class="foot-l">STA3115 탐색적자료분석 1조</p><p class="foot-r"></p></div>
-<aside>품절은 이렇게 정의했습니다. 재고가 한 시간에 한 번 찍히니까, 출근 시간인 7시, 8시, 9시 기록 중 자전거가 0대였던 비율입니다. 비가 오면 아침 대여가 절반 넘게 줄어서 수요 자체가 달라지기 때문에, 출근 시간에 비가 온 날은 뺐습니다. 이 비율이 30% 이상이면 품절이 잦은 대여소로 봤고, 전체의 9.8%입니다. 기준을 20%나 40%로 바꿔도 결론은 같았습니다.</aside>
+<p class="text muted" style="margin-top:40px">Why drop wet mornings: rain cuts morning rentals by 51 to 89%, so demand on those days is different.</p>
+<div class="foot"><p class="foot-l">STA3115 Exploratory Data Analysis, Group 1</p><p class="foot-r"></p></div>
+<aside>Here is how we measure a shortage. Inventory is recorded once an hour, so we take the 7, 8 and 9 a.m. records and ask how often the station had zero bikes. Rain cuts morning rentals by more than half, which changes demand itself, so we drop days when it rained during the commute. If a station is empty 30% of the time or more, we call it a frequent shortage; that is 9.8% of stations. Moving the cut-off to 20% or 40% gives the same result.</aside>
 </section>
