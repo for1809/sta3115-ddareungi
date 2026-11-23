@@ -19,9 +19,10 @@ out <- L("slides/figures", "slides/figures_en")
 dir.create(out, showWarnings = FALSE, recursive = TRUE)
 font <- L("Noto Sans KR", "Segoe UI")
 windowsFonts(Fig = windowsFont(font))
-ink <- "#22262a"; muted <- "#6b7178"; grid_col <- "#e6e8ea"; red <- "#c0392b"; blue <- "#4f7ea8"
+# Toss-like palette shared with the slide deck: one blue, red for shortage, cool greys
+ink <- "#191f28"; muted <- "#6b7684"; grid_col <- "#e5e8eb"; red <- "#f04452"; blue <- "#3182f6"
 band_lab <- L(c("20m 미만", "20~40m", "40m 이상"), c("Below 20 m", "20-40 m", "40 m and above"))
-band_cols <- setNames(c("#9fb7c9", "#4f7ea8", "#c0392b"), band_lab)
+band_cols <- setNames(c("#90c2ff", blue, red), band_lab)
 X_MAX <- 80  # few stations sit above 80 m, so smooth curves stop there
 gu_en <- c(강남 = "Gangnam", 강동 = "Gangdong", 강북 = "Gangbuk", 강서 = "Gangseo", 관악 = "Gwanak", 광진 = "Gwangjin",
            구로 = "Guro", 금천 = "Geumcheon", 노원 = "Nowon", 도봉 = "Dobong", 동대문 = "Dongdaemun", 동작 = "Dongjak",
@@ -91,7 +92,7 @@ p01 <- dh %>% pivot_longer(-hour) %>%
            label = sprintf(L("가장 바쁜 %d시에도\n달리는 자전거는 %s대(%s)", "Even at the busiest hour (%d:00),\nonly %s bikes are moving (%s)"),
                            peak$hour, scales::comma(peak$riding), pct(peak$riding / (peak$riding + peak$parked), 1)),
            linewidth = 0, fill = "white", colour = ink, lineheight = 0.95) +
-  scale_fill_manual(values = setNames(c("#c9ced3", red), fill01), name = NULL) +
+  scale_fill_manual(values = setNames(c("#d1d6db", red), fill01), name = NULL) +
   scale_x_continuous(breaks = seq(0, 23, 3), labels = paste0(seq(0, 23, 3), L("시", ":00"))) +
   scale_y_continuous(labels = scales::comma, expand = expansion(mult = c(0, 0.2))) +
   labs(x = L("평일 시간대", "Weekday hour"), y = L("자전거 수(대)", "Bikes")) +
@@ -130,9 +131,9 @@ gu_line <- as.data.frame(geom(gu_v)) %>% mutate(grp = paste(geom, part, hole))
 gu_lab <- as.data.frame(geom(centroids(gu_v, inside = TRUE))) %>% mutate(gu = gu_name(gu_v$sggnm[geom]))
 p03 <- ggplot() +
   geom_raster(data = grid, aes(lon, lat, fill = fit)) +
-  geom_path(data = gu_line, aes(x, y, group = grp), colour = "#7d848b", linewidth = 0.35) +
-  geom_text(data = gu_lab, aes(x, y, label = gu), family = "Fig", size = L(3.9, 3.4), colour = "#2f3438") +
-  scale_fill_gradientn(colours = c("#f7f4ee", "#f2d2a9", "#e08a5b", "#b8402f", "#5e1a24"),
+  geom_path(data = gu_line, aes(x, y, group = grp), colour = "#8b95a1", linewidth = 0.35) +
+  geom_text(data = gu_lab, aes(x, y, label = gu), family = "Fig", size = L(3.9, 3.4), colour = "#333d4b") +
+  scale_fill_gradientn(colours = c("#f9fafb", "#ffe3e5", "#ff9aa3", "#f04452", "#a1192a"),
                        limits = c(0, 0.6), labels = c("0%", "15%", "30%", "45%", L("60% 이상", "60% or more")),
                        breaks = c(0, 0.15, 0.3, 0.45, 0.6), name = y_short) +
   coord_quickmap(expand = FALSE) +
@@ -180,7 +181,7 @@ p05 <- cand %>%
             aes(x = n + 6, y = elev_band,
                 label = sprintf(L("%1$d곳 중 %2$d곳 (%3$s)", "%2$d of %1$d (%3$s)"), n, gap, pct(share, 1))),
             hjust = 0, family = "Fig", size = 5.2, colour = ink) +
-  scale_fill_manual(values = setNames(c("#c9ced3", red), c(k_not, k_gap)), name = NULL, breaks = c(k_gap, k_not)) +
+  scale_fill_manual(values = setNames(c("#d1d6db", red), c(k_not, k_gap)), name = NULL, breaks = c(k_gap, k_not)) +
   scale_x_continuous(expand = expansion(mult = c(0, 0.45))) +
   labs(x = L("통합 후보 대여소 수(이용 하위 20%, 300m 안에 다른 대여소)",
              "Consolidation candidates (bottom 20% of use, another station within 300 m)"),
@@ -288,7 +289,7 @@ save_fig(p08, "08_coplot_residential", h = 5)
 gu_t <- read_csv("data/gu_terrain.csv", show_col_types = FALSE) %>%
   mutate(top3 = gu %in% c("강서구", "송파구", "영등포구"), label = L(gu, gu_name(gu)))
 p09 <- ggplot(gu_t, aes(slope_bare, rent_per_station)) +
-  geom_smooth(method = "loess", span = 0.9, se = FALSE, colour = "#9aa1a8", linewidth = 1.2) +
+  geom_smooth(method = "loess", span = 0.9, se = FALSE, colour = "#8b95a1", linewidth = 1.2) +
   geom_point(aes(size = stations, colour = top3), alpha = 0.85) +
   ggrepel::geom_text_repel(aes(label = label, colour = top3), family = "Fig", size = 4.6, seed = 1,
                            min.segment.length = 0.3, box.padding = 0.6, point.padding = 0.5, show.legend = FALSE) +

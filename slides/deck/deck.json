@@ -1,22 +1,71 @@
 {
   "v": 5,
-  "createdOnFiles": {"v": 1, "at": "2026-11-22T12:00:00Z"},
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-11-22T12:00:00Z"
+  },
   "lists": "css",
-  "format": {"v": 1, "shared": ["project/deck.css"]},
+  "format": {
+    "v": 1,
+    "shared": [
+      "project/deck.css"
+    ]
+  },
   "title": "Look Before You Cut: Seoul’s Public Bikes Run Out on the Hills",
   "cover": "cover",
-  "order": ["cover", "why", "data", "define", "scale", "elev", "map", "subway", "logit", "cands",
-            "counter", "slope", "rain", "resid", "gu", "conclusion", "limits", "thanks",
-            "appendix", "a_mosaic", "a_net", "a_month", "a_logit", "a_calib"],
+  "order": [
+    "cover",
+    "why",
+    "data",
+    "define",
+    "elev",
+    "map",
+    "cands",
+    "counter",
+    "subway",
+    "slope",
+    "rain",
+    "resid",
+    "logit",
+    "conclusion",
+    "limits",
+    "thanks",
+    "appendix",
+    "scale",
+    "gu",
+    "a_mosaic",
+    "a_net",
+    "a_month",
+    "a_logit",
+    "a_calib"
+  ],
   "sections": {
-    "s1": {"description": "Why we asked, and how we measure a shortage", "start": "cover"},
-    "s2": {"description": "Morning shortages sit on the hills, and many merge candidates are there", "start": "scale"},
-    "s3": {"description": "Three objections, slope, rain and housing, checked one by one", "start": "counter"},
-    "s4": {"description": "Conclusion, limits and questions", "start": "conclusion"},
-    "s5": {"description": "Backup figures for questions", "start": "appendix"}
+    "s1": {
+      "description": "The question: are low-use stations short of demand, or short of bikes?",
+      "start": "cover"
+    },
+    "s2": {
+      "description": "Morning shortages sit on the hills, and so do many merge candidates",
+      "start": "elev"
+    },
+    "s3": {
+      "description": "Four checks, subway, slope, rain and housing, then one model",
+      "start": "counter"
+    },
+    "s4": {
+      "description": "Conclusion, limits and questions",
+      "start": "conclusion"
+    },
+    "s5": {
+      "description": "Backup figures for questions",
+      "start": "appendix"
+    }
   },
   "faces": {
-    "inter": {"family": "Inter", "href": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"}
+    "inter": {
+      "family": "Inter",
+      "href": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    }
   },
   "designSystems": []
 }
