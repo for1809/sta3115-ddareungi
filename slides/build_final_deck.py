@@ -9,6 +9,10 @@ Changes, all made here so the original stays as received:
      (bottom 20% of use with another station within 300 m: 89 of the 164 at 40 m and above already empty)
   3. limits, item 1: trucks are now seen, but only as the part of stock change rides do not explain
   4. page numbers: each slide's counter is reset to its new place
+  5. slide "why": yearly rides 2021-2025 as bars with the operating deficit as a line (team's table)
+  6. slide "weather": a line saying the 480 dots are the 2024-2025 weekdays without holidays, minus 10 bad days
+  7. slide "gumap": the hourly-use map in green, so it is not confused with the blue of the net-flow maps
+  0. a "What is Ddareungi" slide after the cover
 Run from the project root:  python slides/build_final_deck.py
 Output: slides/deck_final.html
 """
@@ -83,6 +87,97 @@ CONCLUSION = """<section id="conclusion" class="accent" data-transition="fade">
 <aside>To sum up. Bikes roll downhill in the morning and are not ridden back up. Because of that, an empty station at 9 am is not always a problem: 703 stations get their bikes back by night without any help. The stations that really need a truck are the 893 G1 stations on the hills, and they are already refilled every day, just not before the morning peak. So the plan is about timing: bring bikes from the 533 G3 stations on low ground that pile up all day, and have them on the hills before 7 a.m. One more point for the debate about cutting the system: if you merge the least-used stations by ride counts alone, half of the hill-top candidates are stations that are already empty in the morning. Their low use may mean no bikes, not no demand.</aside>
 </section>
 """
+
+# ---- 5. slide "why": yearly rides 2021-2025 as bars, operating deficit as a line (numbers from the team's table:
+#      rides 2022-2025 match data/monthly_age.csv; deficit 2023 and 2024 match the press report in README)
+WHY_SIDE_OLD = re.search(r'(<section[^>]*id="why".*?<div class="side">)(.*?)(</div>\n</div>\n<div class="foot">)', t, re.S)
+assert WHY_SIDE_OLD, "why side not found"
+WHY_SIDE = """
+<div class="stat"><p class="stat-num ink">44.9M → 37.4M</p><p class="stat-lab">rides a year, 2023 → 2025; 2025 alone is −14.8%</p></div>
+<div class="stat"><p class="stat-num">₩17.6 bn</p><p class="stat-lab">operating deficit in 2025, almost double the ₩9.4 bn of 2022</p></div>
+<hr>
+<p class="note">Oct 2026: a newspaper reports the fleet may be cut to 30,000 bikes. The city denies it the same day, but says a study of the right size and running costs is under way.</p>
+"""
+t = t[:WHY_SIDE_OLD.start(2)] + WHY_SIDE + t[WHY_SIDE_OLD.end(2):]
+WHY_NOTE_OLD = re.search(r'(<section[^>]*id="why".*?<aside>)(.*?)(</aside>)', t, re.S)
+t = t[:WHY_NOTE_OLD.start(2)] + (
+    "Ddareungi grew fast: from 32 million rides in 2021 to almost 45 million in 2023. Then it fell two years in a row, "
+    "to 37.4 million in 2025, 14.8% fewer than the year before. At the same time the operating deficit grew, from 9.4 billion won "
+    "in 2022 to 17.6 billion won in 2025. In October a newspaper reported that the city was considering cutting the fleet. "
+    "The city denied it the same day, but it confirmed that a study of the right size of the system and its running costs is under way.") + t[WHY_NOTE_OLD.end(2):]
+
+WHY_JS = r"""  // ---------- why: yearly rides 2021-2025 (bars, left axis) and operating deficit (line, right axis) ----------
+  (function () {
+    const box = document.getElementById('ix-ride'); if (!box) return;
+    const YR = [2021, 2022, 2023, 2024, 2025], RIDES = [32.05, 40.95, 44.91, 43.85, 37.37], DEF = [10.3, 9.4, 10.9, 12.7, 17.6];
+    const YOY = ['', '+27.7%', '+9.7%', '−2.4%', '−14.8%'];
+    const W = 1071, H = 560, L = 96, R = 104, T = 78, B = 92, maxR = 50, maxD = 30;
+    const svg = makeSvg(box, W, H);
+    const y = v => H - B - v / maxR * (H - T - B), yd = v => H - B - v / maxD * (H - T - B), bw = (W - L - R) / YR.length;
+    axisY(svg, L, R, W, y, [0, 10, 20, 30, 40, 50], v => v + 'M');
+    ylab(svg, 'Rides a year (million)', T, H, B);
+    YR.forEach((yr, j) => {
+      const cx = L + bw * (j + .5);
+      el('rect', { x: cx - bw * .28, width: bw * .56, y: y(RIDES[j]), height: y(0) - y(RIDES[j]), rx: 8, fill: j === 4 ? C.blue : C.light }, svg);
+      halo(txt(RIDES[j].toFixed(2) + 'M', { x: cx, y: y(RIDES[j]) - 12, 'text-anchor': 'middle', 'font-size': 20, 'font-weight': 700, fill: C.ink }, svg));
+      txt(yr, { x: cx, y: H - B + 30, 'text-anchor': 'middle', 'font-size': 19, fill: C.ink }, svg);
+      if (YOY[j]) txt(YOY[j], { x: cx, y: H - B + 54, 'text-anchor': 'middle', 'font-size': 17, 'font-weight': 600, fill: YOY[j][0] === '+' ? C.muted : C.red }, svg);
+    });
+    const lg = el('g', {}, svg);
+    el('rect', { x: L, y: 14, width: 18, height: 18, rx: 4, fill: C.blue }, lg);
+    txt('Rides a year (left axis)', { x: L + 26, y: 30, 'font-size': 19, fill: C.ink }, lg);
+    const dl = el('g', {}, svg);
+    el('line', { x1: L + 300, x2: L + 330, y1: 23, y2: 23, stroke: C.red, 'stroke-width': 4.5 }, dl);
+    el('circle', { cx: L + 315, cy: 23, r: 6, fill: '#fff', stroke: C.red, 'stroke-width': 3.5 }, dl);
+    txt('Operating deficit, billion won (right axis)', { x: L + 340, y: 30, 'font-size': 19, fill: C.ink }, dl);
+    [0, 10, 20, 30].forEach(v => txt('₩' + v + 'B', { x: W - R + 14, y: yd(v) + 6, 'font-size': 17, fill: C.red }, dl));
+    txt('Operating deficit (billion won)', { x: 0, y: 0, transform: `translate(${W - 16} ${(T + H - B) / 2}) rotate(90)`, 'text-anchor': 'middle', 'font-size': 19, fill: C.red }, dl);
+    const pts = DEF.map((v, j) => [L + bw * (j + .5), yd(v)]);
+    el('path', { d: 'M' + pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join('L'), fill: 'none', stroke: C.red, 'stroke-width': 4.5, 'stroke-linejoin': 'round' }, dl);
+    pts.forEach((p, j) => {
+      el('circle', { cx: p[0], cy: p[1], r: 7, fill: '#fff', stroke: C.red, 'stroke-width': 4 }, dl);
+      halo(txt('₩' + DEF[j].toFixed(1) + 'B', { x: p[0] + 14, y: p[1] - 12, 'font-size': 19, 'font-weight': 700, fill: C.red }, dl));
+    });
+    txt('Rides: Seoul Open Data. Deficit: Seoul Facilities Corporation figures as reported in the press.', { x: L, y: H - 4, 'font-size': 14, fill: C.muted }, svg);
+    const side = sideItems('why');
+    IX.why = {
+      steps: 2,
+      cues: ['Rides grew to 44.9 million in 2023, then fell two years in a row: 37.4 million in 2025, 14.8% fewer than 2024.',
+             'Meanwhile the operating deficit grew, from 9.4 billion won in 2022 to 17.6 billion won in 2025.'],
+      set(k) { fade(dl, k >= 1); reveal(side, k === 0 ? 1 : side.length); },
+    };
+    stop(box);
+  })();
+
+"""
+i0 = t.find("  // ---------- why: average rides a day, 2024 vs 2025 ----------")
+i1 = t.find("  // ---------- hours:", i0)
+assert i0 > 0 and i1 > i0, "why chart block not found"
+t = t[:i0] + WHY_JS + t[i1:]
+
+# ---- 6. slide "weather": say what the 480 weekdays are. The side column reveals one child per step, so the note
+#      goes inside the first item (shown from the first step) instead of becoming a fourth item that never shows
+WX_OLD = ('<div class="stat"><p class="stat-num blue">Smooth</p><p class="stat-lab">on dry weekdays: rides rise with temperature '
+          'and dip in the hottest weeks (LOESS, span 0.75)</p></div>')
+assert t.count(WX_OLD) == 1, "weather first stat changed"
+WX_NOTE = ('<p class="stat-lab" style="font-size:20px;margin-top:10px">Each dot is one of 480 weekdays: every Monday to Friday of 2024 '
+           'and 2025 except public holidays (490), minus 10 days whose rentals and returns did not match.</p>')
+t = t.replace(WX_OLD, WX_OLD[:-len("</div>")] + WX_NOTE + "</div>")
+
+# ---- 7. slide "gumap": the hourly-use map in green, so it is not read as the blue "gains bikes" of the net-flow maps
+GREEN = "#12a150"
+gi = t.find("// ---------- gu map:")
+gj = t.find("// ----------", gi + 10)
+blk = t[gi:gj]
+for a, b in [("ps[g].setAttribute('fill', seq(GH[g][h].u, 8))",
+              f"ps[g].setAttribute('fill', mix('#f7f9fc', '{GREEN}', Math.max(0, Math.min(1, GH[g][h].u / 8))))"),
+             ("linear-gradient(90deg, #f7f9fc, ${C.navy})", f"linear-gradient(90deg, #f7f9fc, {GREEN})")]:
+    assert blk.count(a) == 1, a
+    blk = blk.replace(a, b)
+t = t[:gi] + blk + t[gj:]
+GU_STAT = '<div class="stat"><p class="stat-num blue">8 am, 6 pm</p><p class="stat-lab">every district lights up at the two commute peaks</p></div>'
+assert t.count(GU_STAT) == 1
+t = t.replace(GU_STAT, GU_STAT.replace('class="stat-num blue"', f'class="stat-num" style="color:{GREEN}"'))
 
 secs = list(re.finditer(r"<section\b.*?</section>\s*", t, re.S))
 ids = [re.search(r'id="([^"]+)"', m.group(0)).group(1) for m in secs]

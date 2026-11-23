@@ -192,14 +192,14 @@ section:not(.accent) > table.tbl, .body > div > table.tbl { box-shadow: 0 0 0 1p
 <div class="body">
 <div class="figcard"><div id="ix-ride" style="position:relative;width:1071px;height:560px"></div></div>
 <div class="side">
-<div class="stat"><p class="stat-num ink">120k → 104k</p><p class="stat-lab">rides a day, 2024 → 2025 (−14%)</p></div>
-<div class="stat"><p class="stat-num">Every month</p><p class="stat-lab">of 2025 is below the same month of 2024</p></div>
+<div class="stat"><p class="stat-num ink">44.9M → 37.4M</p><p class="stat-lab">rides a year, 2023 → 2025; 2025 alone is −14.8%</p></div>
+<div class="stat"><p class="stat-num">₩17.6 bn</p><p class="stat-lab">operating deficit in 2025, almost double the ₩9.4 bn of 2022</p></div>
 <hr>
 <p class="note">Oct 2026: a newspaper reports the fleet may be cut to 30,000 bikes. The city denies it the same day, but says a study of the right size and running costs is under way.</p>
 </div>
 </div>
 <div class="foot"><p class="foot-l">STA3115 Exploratory Data Analysis, Group 1</p><p class="foot-r"></p></div>
-<aside>Ddareungi is losing riders. In 2024 there were about 120,000 rides a day; in 2025, about 104,000. That is 14% fewer, and it is not one bad month: every single month of 2025 is below the same month of 2024. In October a newspaper reported that the city was considering cutting the fleet. The city denied it the same day, but it confirmed that the Seoul Institute is studying the right size of the system and how to run it more efficiently.</aside>
+<aside>Ddareungi grew fast: from 32 million rides in 2021 to almost 45 million in 2023. Then it fell two years in a row, to 37.4 million in 2025, 14.8% fewer than the year before. At the same time the operating deficit grew, from 9.4 billion won in 2022 to 17.6 billion won in 2025. In October a newspaper reported that the city was considering cutting the fleet. The city denied it the same day, but it confirmed that a study of the right size of the system and its running costs is under way.</aside>
 </section>
 
 <section style="counter-reset: page 3" id="cost" data-transition="fade">
@@ -254,7 +254,7 @@ section:not(.accent) > table.tbl, .body > div > table.tbl { box-shadow: 0 0 0 1p
 <div class="body">
 <div class="figcard"><div id="ix-wx" style="position:relative;width:1071px;height:580px"></div></div>
 <div class="side">
-<div class="stat"><p class="stat-num blue">Smooth</p><p class="stat-lab">on dry weekdays: rides rise with temperature and dip in the hottest weeks (LOESS, span 0.75)</p></div>
+<div class="stat"><p class="stat-num blue">Smooth</p><p class="stat-lab">on dry weekdays: rides rise with temperature and dip in the hottest weeks (LOESS, span 0.75)</p><p class="stat-lab" style="font-size:20px;margin-top:10px">Each dot is one of 480 weekdays: every Monday to Friday of 2024 and 2025 except public holidays (490), minus 10 days whose rentals and returns did not match.</p></div>
 <div class="stat"><p class="stat-num">Scattered</p><p class="stat-lab">on rainy weekdays (1 mm or more)</p></div>
 <div class="stat"><p class="stat-num">3×</p><p class="stat-lab">the residual spread: SD 37k rides on rainy days vs 13k on dry days, and it grows with temperature</p></div>
 </div>
@@ -288,7 +288,7 @@ section:not(.accent) > table.tbl, .body > div > table.tbl { box-shadow: 0 0 0 1p
 <div class="body">
 <div class="figcard"><div id="ix-gu" style="position:relative;width:690px;height:600px;margin-top:40px"></div></div>
 <div class="side">
-<div class="stat"><p class="stat-num blue">8 am, 6 pm</p><p class="stat-lab">every district lights up at the two commute peaks</p></div>
+<div class="stat"><p class="stat-num" style="color:#12a150">8 am, 6 pm</p><p class="stat-lab">every district lights up at the two commute peaks</p></div>
 <div class="stat"><p class="stat-num">Lose, 7–9 am</p><p class="stat-lab">Gwangjin +27%, Seodaemun +23%, Dongdaemun +18% of docks</p></div>
 <div class="stat"><p class="stat-num blue">Gain, 7–9 am</p><p class="stat-lab">Seongdong −39%, Jung −15%, Yeongdeungpo −13%: offices in Seongsu, the city centre and Yeouido</p></div>
 <hr>
@@ -576,35 +576,45 @@ section:not(.accent) > table.tbl, .body > div > table.tbl { box-shadow: 0 0 0 1p
     return g;
   }
 
-  // ---------- why: average rides a day, 2024 vs 2025 ----------
+  // ---------- why: yearly rides 2021-2025 (bars, left axis) and operating deficit (line, right axis) ----------
   (function () {
     const box = document.getElementById('ix-ride'); if (!box) return;
-    const M = D.monthly, W = 1071, H = 560, L = 96, R = 20, T = 70, B = 70;
-    const svg = makeSvg(box, W, H), max = 170000;
-    const y = v => H - B - v / max * (H - T - B), bw = (W - L - R) / 12;
-    axisY(svg, L, R, W, y, [0, 50000, 100000, 150000], v => (v / 1000) + 'k');
-    ylab(svg, 'Rides a day (monthly average)', T, H, B);
-    const MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    MO.forEach((m, j) => txt(m, { x: L + bw * (j + .5), y: H - B + 28, 'text-anchor': 'middle', 'font-size': 17, fill: C.muted }, svg));
-    const b24 = [], b25 = [], labs = [];
-    M.mo.forEach((m, j) => {
-      const x = L + bw * j;
-      const a = el('rect', { x: x + bw * .14, width: bw * .34, y: y(M.y24[j]), height: y(0) - y(M.y24[j]), rx: 5, fill: C.grey }, svg);
-      const b = el('rect', { x: x + bw * .52, width: bw * .34, y: y(M.y25[j]), height: y(0) - y(M.y25[j]), rx: 5, fill: C.blue }, svg);
-      const ch = Math.round(100 * (M.y25[j] / M.y24[j] - 1));
-      const l = halo(txt(sgn(ch) + '%', { x: x + bw * .5, y: y(Math.max(M.y24[j], M.y25[j])) - 12, 'text-anchor': 'middle', 'font-size': 17, 'font-weight': 700, fill: C.red }, svg));
-      b24.push(a); b25.push(b); labs.push(l);
+    const YR = [2021, 2022, 2023, 2024, 2025], RIDES = [32.05, 40.95, 44.91, 43.85, 37.37], DEF = [10.3, 9.4, 10.9, 12.7, 17.6];
+    const YOY = ['', '+27.7%', '+9.7%', '−2.4%', '−14.8%'];
+    const W = 1071, H = 560, L = 96, R = 104, T = 78, B = 92, maxR = 50, maxD = 30;
+    const svg = makeSvg(box, W, H);
+    const y = v => H - B - v / maxR * (H - T - B), yd = v => H - B - v / maxD * (H - T - B), bw = (W - L - R) / YR.length;
+    axisY(svg, L, R, W, y, [0, 10, 20, 30, 40, 50], v => v + 'M');
+    ylab(svg, 'Rides a year (million)', T, H, B);
+    YR.forEach((yr, j) => {
+      const cx = L + bw * (j + .5);
+      el('rect', { x: cx - bw * .28, width: bw * .56, y: y(RIDES[j]), height: y(0) - y(RIDES[j]), rx: 8, fill: j === 4 ? C.blue : C.light }, svg);
+      halo(txt(RIDES[j].toFixed(2) + 'M', { x: cx, y: y(RIDES[j]) - 12, 'text-anchor': 'middle', 'font-size': 20, 'font-weight': 700, fill: C.ink }, svg));
+      txt(yr, { x: cx, y: H - B + 30, 'text-anchor': 'middle', 'font-size': 19, fill: C.ink }, svg);
+      if (YOY[j]) txt(YOY[j], { x: cx, y: H - B + 54, 'text-anchor': 'middle', 'font-size': 17, 'font-weight': 600, fill: YOY[j][0] === '+' ? C.muted : C.red }, svg);
     });
     const lg = el('g', {}, svg);
-    el('rect', { x: L, y: 14, width: 18, height: 18, rx: 4, fill: C.grey }, lg); txt('2024', { x: L + 26, y: 30, 'font-size': 19, fill: C.ink }, lg);
-    const l25 = el('g', {}, svg);
-    el('rect', { x: L + 110, y: 14, width: 18, height: 18, rx: 4, fill: C.blue }, l25); txt('2025', { x: L + 136, y: 30, 'font-size': 19, fill: C.ink }, l25);
+    el('rect', { x: L, y: 14, width: 18, height: 18, rx: 4, fill: C.blue }, lg);
+    txt('Rides a year (left axis)', { x: L + 26, y: 30, 'font-size': 19, fill: C.ink }, lg);
+    const dl = el('g', {}, svg);
+    el('line', { x1: L + 300, x2: L + 330, y1: 23, y2: 23, stroke: C.red, 'stroke-width': 4.5 }, dl);
+    el('circle', { cx: L + 315, cy: 23, r: 6, fill: '#fff', stroke: C.red, 'stroke-width': 3.5 }, dl);
+    txt('Operating deficit, billion won (right axis)', { x: L + 340, y: 30, 'font-size': 19, fill: C.ink }, dl);
+    [0, 10, 20, 30].forEach(v => txt('₩' + v + 'B', { x: W - R + 14, y: yd(v) + 6, 'font-size': 17, fill: C.red }, dl));
+    txt('Operating deficit (billion won)', { x: 0, y: 0, transform: `translate(${W - 16} ${(T + H - B) / 2}) rotate(90)`, 'text-anchor': 'middle', 'font-size': 19, fill: C.red }, dl);
+    const pts = DEF.map((v, j) => [L + bw * (j + .5), yd(v)]);
+    el('path', { d: 'M' + pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join('L'), fill: 'none', stroke: C.red, 'stroke-width': 4.5, 'stroke-linejoin': 'round' }, dl);
+    pts.forEach((p, j) => {
+      el('circle', { cx: p[0], cy: p[1], r: 7, fill: '#fff', stroke: C.red, 'stroke-width': 4 }, dl);
+      halo(txt('₩' + DEF[j].toFixed(1) + 'B', { x: p[0] + 14, y: p[1] - 12, 'font-size': 19, 'font-weight': 700, fill: C.red }, dl));
+    });
+    txt('Rides: Seoul Open Data. Deficit: Seoul Facilities Corporation figures as reported in the press.', { x: L, y: H - 4, 'font-size': 14, fill: C.muted }, svg);
     const side = sideItems('why');
     IX.why = {
       steps: 2,
-      cues: ['2024: about 120,000 rides a day, peaking in spring and autumn.',
-             '2025 is lower in every single month: 14% fewer rides a day over the year.'],
-      set(k) { b25.forEach(b => fade(b, k >= 1)); labs.forEach(l => fade(l, k >= 1)); fade(l25, k >= 1); reveal(side, k === 0 ? 1 : side.length); },
+      cues: ['Rides grew to 44.9 million in 2023, then fell two years in a row: 37.4 million in 2025, 14.8% fewer than 2024.',
+             'Meanwhile the operating deficit grew, from 9.4 billion won in 2022 to 17.6 billion won in 2025.'],
+      set(k) { fade(dl, k >= 1); reveal(side, k === 0 ? 1 : side.length); },
     };
     stop(box);
   })();
@@ -707,7 +717,7 @@ section:not(.accent) > table.tbl, .body > div > table.tbl { box-shadow: 0 0 0 1p
     lg.style.cssText = `position:absolute;left:0;top:${Hh + 4}px;font:18px ${FONT};color:${C.muted};display:flex;gap:10px;align-items:center`;
     box.appendChild(lg);
     function legend(kind) {
-      const grad = kind === 'use' ? `linear-gradient(90deg, #f7f9fc, ${C.navy})` : `linear-gradient(90deg, #1b64da, #f2f4f6, #e8323f)`;
+      const grad = kind === 'use' ? `linear-gradient(90deg, #f7f9fc, #12a150)` : `linear-gradient(90deg, #1b64da, #f2f4f6, #e8323f)`;
       const a = kind === 'use' ? '0' : 'gains bikes', b = kind === 'use' ? '8+ rides per station' : 'loses bikes';
       lg.innerHTML = `<span>${a}</span><span style="display:inline-block;width:220px;height:14px;border-radius:7px;background:${grad}"></span><span>${b}</span>`;
     }
@@ -717,7 +727,7 @@ section:not(.accent) > table.tbl, .body > div > table.tbl { box-shadow: 0 0 0 1p
     const sl = document.createElement('input'); sl.type = 'range'; sl.min = 0; sl.max = 23; sl.value = 8; sl.style.width = '260px';
     const lab = document.createElement('span'); ctl.append(sl, lab); box.appendChild(ctl); stop(ctl);
     let mode = 0;
-    function paintUse(h) { lab.textContent = `${String(h).padStart(2, '0')}:00, rentals per station`; for (const g in ps) ps[g].setAttribute('fill', seq(GH[g][h].u, 8)); legend('use'); }
+    function paintUse(h) { lab.textContent = `${String(h).padStart(2, '0')}:00, rentals per station`; for (const g in ps) ps[g].setAttribute('fill', mix('#f7f9fc', '#12a150', Math.max(0, Math.min(1, GH[g][h].u / 8)))); legend('use'); }
     sl.addEventListener('input', () => { if (mode === 0) paintUse(+sl.value); });
     const tag = document.createElement('div'); tag.style.cssText = `position:absolute;left:0;top:-4px;font:700 22px ${FONT};color:${C.ink};transition:opacity 400ms`; box.appendChild(tag);
     const side = sideItems('gumap');
