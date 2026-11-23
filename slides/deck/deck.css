@@ -16,7 +16,7 @@
   --on-blue-muted: #C9E2FF;
 }
 
-body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; color: var(--ink); }
+body { font-family: 'Inter', 'Noto Sans KR', 'Segoe UI', Arial, sans-serif; color: var(--ink); }
 
 section {
   box-sizing: border-box;
@@ -31,7 +31,7 @@ section.dark { background: var(--card); color: var(--ink); padding: 128px; }
 section.accent { background: var(--blue); color: var(--on-blue); padding: 128px; }
 section.alt { background: var(--bg); }
 
-h1, h2, h3 { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; margin: 0; letter-spacing: -1.5px; color: inherit; }
+h1, h2, h3 { font-family: 'Inter', 'Noto Sans KR', 'Segoe UI', Arial, sans-serif; margin: 0; letter-spacing: -1.5px; color: inherit; }
 h1 { font-size: 104px; font-weight: 700; line-height: 1.12; }
 h2 { font-size: 56px; font-weight: 700; line-height: 1.22; }
 h3 { font-size: 36px; font-weight: 700; line-height: 1.3; }
