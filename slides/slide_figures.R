@@ -306,14 +306,19 @@ save_fig(p09, "09_gu_slope", h = 6)
 
 # ---- 10 who moves the bikes over the day: riders vs other moves (mostly rebalancing), by elevation band ----
 # data/station_2x2.csv (scripts/15_inventory_2x2.py): dry (< 1 mm) weekdays, 06 h to 23 h; analysis/two_by_two.R has the details
-mv <- st %>% inner_join(rd("data/station_2x2.csv") %>% filter(days_dry >= 30) %>%
-                          select(station_no, day_trip = day_out_trip_dry, other = other_in_day_dry), by = "station_no") %>%
-  group_by(elev_band) %>%
-  summarise(n = n(), riders = -mean(day_trip), other = mean(other), drained = mean(day_trip > 0), .groups = "drop")
+mv_all <- st %>% inner_join(rd("data/station_2x2.csv") %>% filter(days_dry >= 30) %>%
+                              select(station_no, day_trip = day_out_trip_dry, other = other_in_day_dry), by = "station_no") %>%
+  inner_join(rd("data/station_terrain_bare.csv") %>% select(station_no, elev_bare_m), by = "station_no")
+band_summary <- function(d) d %>% group_by(elev_band) %>%
+  summarise(n = n(), drained = mean(day_trip > 0), riders = -mean(day_trip), other = mean(other), .groups = "drop")
+mv <- band_summary(mv_all)
 cat("\n10 bikes added per station per dry weekday (06-23 h), by band:\n"); print(mv)
+# the final deck (teammate's deck) bands stations by bare-earth elevation from the 1:5,000 contours
+mv_bare <- band_summary(mv_all %>% mutate(elev_band = cut(elev_bare_m, c(-Inf, 20, 40, Inf), labels = band_lab, right = FALSE)))
+cat("\n10b the same by bare-earth elevation band:\n"); print(mv_bare)
 k_rider <- L("이용자가 옮긴 몫", "Moved by riders")
 k_other <- L("그 밖의 이동(주로 재배치)", "Other moves (mostly rebalancing)")
-p10 <- mv %>% pivot_longer(c(riders, other)) %>%
+rebalance_plot <- function(mv, note = "") mv %>% pivot_longer(c(riders, other)) %>%
   # dodge puts the first level at the bottom, so "other" comes first to draw riders on top
   mutate(name = factor(name, c("other", "riders"), c(k_other, k_rider)), elev_band = fct_rev(elev_band)) %>%
   ggplot(aes(value, elev_band, fill = name)) +
@@ -325,10 +330,11 @@ p10 <- mv %>% pivot_longer(c(riders, other)) %>%
   scale_x_continuous(limits = c(-5.2, 5.2), breaks = seq(-4, 4, 2),
                      labels = function(x) sprintf("%+d", as.integer(x))) +
   labs(x = L("대여소 하나에 하루(6~23시) 더해진 자전거(대)", "Bikes added to a station per day, 06-23 h"), y = NULL,
-       caption = L("비 1mm 미만 평일. 이용자 몫 = 반납 - 대여, 그 밖의 이동 = 재고 변화 - 이용자 몫.",
-                   "Weekdays with under 1 mm of rain. Riders = returns minus rentals; other moves = change in stock minus riders.")) +
+       caption = paste0(L("비 1mm 미만 평일. 이용자 몫 = 반납 - 대여, 그 밖의 이동 = 재고 변화 - 이용자 몫.",
+                          "Weekdays with under 1 mm of rain. Riders = returns minus rentals; other moves = change in stock minus riders."), note)) +
   theme_slide() + theme(panel.grid.major.y = element_blank(), axis.text.y = element_text(size = 16, colour = ink))
-save_fig(p10, "10_rebalance", h = 5.2)
+save_fig(rebalance_plot(mv), "10_rebalance", h = 5.2)
+save_fig(rebalance_plot(mv_bare, L("\n고도: 1:5,000 등고선 지표면.", "\nElevation: bare earth, from the 1:5,000 contours.")), "10b_rebalance_bare", h = 5.2)
 
 # ---- backups ----
 # B1 net change during the day by elevation

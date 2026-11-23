@@ -1,0 +1,27 @@
+stations 2713 ; cor(90 m grid, bare-earth elevation) = 0.961 
+
+==== bands by elev_m ====
+# A tibble: 3 × 7
+  band           stations shortage with_split drained riders other
+  <fct>             <int>    <dbl>      <int>   <dbl>  <dbl> <dbl>
+1 Below 20 m          944   0.0478        938   0.457   0.82 -1.29
+2 20-40 m            1290   0.0953       1288   0.534  -0.24  0.03
+3 40 m and above      479   0.251         479   0.889  -3.85  3.76
+
+==== bands by elev_bare_m ====
+# A tibble: 3 × 7
+  band           stations shortage with_split drained riders other
+  <fct>             <int>    <dbl>      <int>   <dbl>  <dbl> <dbl>
+1 Below 20 m         1219   0.0487       1213   0.447   1.03 -1.48
+2 20-40 m            1150   0.115        1148   0.598  -1     0.8 
+3 40 m and above      344   0.281         344   0.913  -4.37  4.37
+
+correlation of 07-09 h stock change with rides: 0.988 
+
+merge candidates by bare-earth band (q20 = 24.2 rides a day):
+# A tibble: 3 × 4
+  band           candidates often_empty share
+  <fct>               <int>       <int> <dbl>
+1 Below 20 m             75           7 0.093
+2 20-40 m               188          32 0.17 
+3 40 m and above        164          89 0.543

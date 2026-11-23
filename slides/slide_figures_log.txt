@@ -56,11 +56,19 @@ X-squared = 720.06, df = 8, p-value < 2.2e-16
 
 10 bikes added per station per dry weekday (06-23 h), by band:
 # A tibble: 3 × 5
-  elev_band     n riders   other drained
-  <fct>     <int>  <dbl>   <dbl>   <dbl>
-1 20m 미만    938  0.816 -1.29     0.457
-2 20~40m     1288 -0.243  0.0294   0.534
-3 40m 이상    479 -3.85   3.76     0.889
+  elev_band     n drained riders   other
+  <fct>     <int>   <dbl>  <dbl>   <dbl>
+1 20m 미만    938   0.457  0.816 -1.29  
+2 20~40m     1288   0.534 -0.243  0.0294
+3 40m 이상    479   0.889 -3.85   3.76  
+
+10b the same by bare-earth elevation band:
+# A tibble: 3 × 5
+  elev_band     n drained riders  other
+  <fct>     <int>   <dbl>  <dbl>  <dbl>
+1 20m 미만   1213   0.447  1.03  -1.48 
+2 20~40m     1148   0.598 -0.997  0.801
+3 40m 이상    344   0.913 -4.37   4.37 
 `geom_smooth()` using formula = 'y ~ x'
 
 B3 elevation OR per 10 m (main effects model): 2.1 ( 1.91 2.3 )
