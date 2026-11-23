@@ -23,6 +23,35 @@ FIG = ROOT / "figures_en" / "10b_rebalance_bare.png"   # bare-earth elevation ba
 
 t = SRC.read_text(encoding="utf-8")
 img = "data:image/png;base64," + base64.b64encode(FIG.read_bytes()).decode("ascii")
+jpg = lambda name: "data:image/jpeg;base64," + base64.b64encode((ROOT / "photos" / name).read_bytes()).decode("ascii")
+
+# 0. "What is Ddareungi?" after the cover: photos from Wikimedia Commons (slides/photos/CREDITS.md), facts from the
+#    Seoul press release of 2025-11-12 and the city's how-to article of 2024-07-22 (sources in CREDITS.md)
+CARD = "background:var(--tint);border-radius:24px;padding:26px 30px;display:flex;flex-direction:column;gap:10px"
+CT = "font-size:28px;font-weight:700;margin:0;color:var(--ink)"
+CB = "font-size:22px;line-height:1.45;margin:0;color:var(--ink2)"
+INTRO = f"""<section id="intro" data-transition="fade">
+<p class="eyebrow">WHAT IS DDAREUNGI</p>
+<h2>Seoul’s public bikes: rent at any station, return at any station</h2>
+<div style="display:flex;gap:24px;margin-top:32px;align-items:stretch">
+<img src="{jpg('seoul_bike_31590.jpg')}" alt="A white Ddareungi bike with green wheels locked at a green station rack on a Seoul pavement." style="width:640px;height:360px;object-fit:cover;border-radius:24px">
+<img src="{jpg('hangang_station_6.jpg')}" alt="A Ddareungi station under a bridge on the Han River bikeway, with a row of bikes in green racks." style="width:480px;height:360px;object-fit:cover;border-radius:24px">
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px;padding-left:8px">
+<div class="stat"><p class="stat-num ink">45,000 bikes</p><p class="stat-lab">at about 2,800 stations (2025)</p></div>
+<div class="stat"><p class="stat-num blue">Since 2015</p><p class="stat-lab">5.06 million members, 250 million rides in ten years</p></div>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:24px">
+<div style="{CARD}"><p style="{CT}">Rent</p><p style="{CB}">Scan the QR code on the bike with the app. The lock opens by Bluetooth. Age 13 and over, 24 hours a day.</p></div>
+<div style="{CARD}"><p style="{CT}">Return</p><p style="{CB}">Lock the rear wheel at any station and the return is automatic. Locked anywhere else, it still counts as rented.</p></div>
+<div style="{CARD}"><p style="{CT}">Price</p><p style="{CB}">1,000 won for an hour on a day pass. Season passes run 7 to 365 days; return and rent again when time is up.</p></div>
+<div style="{CARD}"><p style="{CT}">Commute</p><p style="{CB}">7–9 am and 5–7 pm carry 44% of weekday rides. The city already sends 33 staff to 330 crowded or empty stations.</p></div>
+</div>
+<p style="font-size:16px;color:var(--muted);margin:14px 0 0">Photos: *Youngjin, CC BY-SA 3.0 (left); Sarang, public domain (right); Wikimedia Commons. Facts: Seoul Metropolitan Government, 2024 and 2025.</p>
+<div class="foot"><p class="foot-l">STA3115 Exploratory Data Analysis, Group 1</p><p class="foot-r"></p></div>
+<aside>First, a quick look at Ddareungi for anyone who has not used it. It started in October 2015, and today there are about 45,000 bikes at around 2,800 stations. You rent with an app: scan the QR code on the bike and the lock opens. You can return it at any station, just by locking the rear wheel there. A day pass is 1,000 won an hour, and there are season passes too. Most important for us: on weekdays, the morning and evening commute hours carry 44% of all rides. Because bikes are rented at one station and returned at another, some stations empty out and others fill up. The city already knows this: at commute times it sends 33 staff to 330 stations that are too full or too empty. That is the problem we look at.</aside>
+</section>
+"""
 
 WHEN = f"""<section id="when" data-transition="fade">
 <p class="eyebrow">STEP 7. WHEN</p>
@@ -57,7 +86,7 @@ CONCLUSION = """<section id="conclusion" class="accent" data-transition="fade">
 
 secs = list(re.finditer(r"<section\b.*?</section>\s*", t, re.S))
 ids = [re.search(r'id="([^"]+)"', m.group(0)).group(1) for m in secs]
-assert "when" not in ids and {"g12", "conclusion", "limits"} <= set(ids), ids
+assert "when" not in ids and "intro" not in ids and {"cover", "g12", "conclusion", "limits"} <= set(ids), ids
 
 parts, k_prev = [], 0
 for m, sid in zip(secs, ids):
@@ -72,6 +101,8 @@ for m, sid in zip(secs, ids):
         s = s.replace("First, trip records do not show the trucks, so we see where riders move bikes, not where trucks already move them back.",
                       "First, we see the trucks only indirectly, as the change in stock that rides do not explain, so we do not know when each truck arrives.")
     parts.append(s)
+    if sid == "cover":
+        parts.append(INTRO + "\n")
     if sid == "g12":
         parts.append(WHEN + "\n")
     k_prev = m.end()
