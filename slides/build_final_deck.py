@@ -180,6 +180,22 @@ GU_STAT = '<div class="stat"><p class="stat-num blue">8 am, 6 pm</p><p class="st
 assert t.count(GU_STAT) == 1
 t = t.replace(GU_STAT, GU_STAT.replace('class="stat-num blue"', f'class="stat-num" style="color:{GREEN}"'))
 
+# ---- 9. charts: stmap and quad redrawn, gumap shows losing and gaining together (slides/final_deck_charts.py)
+cspec = importlib.util.spec_from_file_location("final_deck_charts", ROOT / "final_deck_charts.py")
+CH = importlib.util.module_from_spec(cspec)
+cspec.loader.exec_module(CH)
+a, b = CH.GUMAP_REVEAL
+assert t.count(a) == 1, "gumap reveal not found"
+t = t.replace(a, b)
+for start, end, new in [("  // ---------- station map with contours ----------", "  // ---------- flow field", CH.STMAP),
+                        ("  // ---------- the 2x2 ----------", "  // ---------- the 2x2 on the map", CH.QUAD)]:
+    i0 = t.find(start); i1 = t.find(end, i0)
+    assert i0 > 0 and i1 > i0, start
+    t = t[:i0] + new + t[i1:]
+ST = re.search(r'(<section[^>]*id="stmap".*?<div class="side">)(.*?)(</div>\n</div>\n<div class="foot">)', t, re.S)
+assert ST, "stmap side not found"
+t = t[:ST.start(2)] + CH.STMAP_SIDE + t[ST.end(2):]
+
 secs = list(re.finditer(r"<section\b.*?</section>\s*", t, re.S))
 ids = [re.search(r'id="([^"]+)"', m.group(0)).group(1) for m in secs]
 assert "when" not in ids and "intro" not in ids and {"cover", "g12", "conclusion", "limits"} <= set(ids), ids

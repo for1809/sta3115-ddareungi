@@ -151,16 +151,13 @@ SLIDES = {
               "around plus 50% by 60 metres. We stop the curve at 80 metres, where there are too few stations."),
 
     "stmap": dict(
-        title="On the map, stations that lose bikes sit above the 50 m contour",
-        pairs=[("<b>Red on the hills</b><br>Northern foothills (Eunpyeong, Gangbuk, Dobong), Gwanak, and the hills of Seodaemun, Seongbuk and Jongno.",
-                "<b>Red on the hills</b><br>The northern foothills (Eunpyeong, Gangbuk, Dobong), Gwanak, and the hills of Seodaemun, Seongbuk and Jongno."),
-               ("<b>Blue in the valleys</b><br>Along the Han River and the streams, Yeouido, Seongsu, Gangnam’s main roads.",
-                "<b>Blue in the valleys</b><br>Along the Han River and its streams, Yeouido, Seongsu and Gangnam’s main roads."),
-               ("Contours from Seoul’s 1:5,000 digital topographic map.", "Contours: Seoul 1:5,000 digital topographic map.")],
-        aside="Here is the same pattern on the map. Each station is coloured by its daily net flow: red stations lose bikes and blue ones "
-              "gain them. Now add the 50-metre contour. The red stations cluster on and above it: the northern foothills, Gwanak, and the hills "
-              "of Seodaemun, Seongbuk and Jongno. The blue ones line the Han River, its streams and the flat business areas. So elevation "
-              "matters. The next question is how. Where do the bikes go?"),
+        title="On the map, the stations that lose bikes sit on the hills",
+        aside="Here is the same pattern on the map. First, the terrain: the shaded areas are ground 50 metres or higher. Now we add the "
+              "stations that lose more than 10% of their docks every day, in red. They sit on the shaded hills: the northern foothills, "
+              "Gwanak, and the hills of Seodaemun, Seongbuk and Jongno. The bars on the right say the same with numbers: below 15 metres, "
+              "39% of stations end the day short; at 50 metres and above, every one of them does. Finally, the stations that gain bikes, in "
+              "blue, line the Han River, its streams and the flat business areas. So elevation matters. The next question is how. Where do "
+              "the bikes go?"),
 
     "vec": dict(
         title="Bikes flow downhill: people ride down but rarely ride back up",
@@ -189,13 +186,14 @@ SLIDES = {
         title="Two questions sort the stations into four groups",
         pairs=[('<p class="stat-num">893 | 703</p><p class="stat-lab">G1 never refilled | G2 refills itself, the trucks’ real target vs a false alarm</p>',
                 '<p class="stat-num">893 vs 703</p><p class="stat-lab">G1 stays short and needs a truck; G2 refills by night and does not</p>'),
-               ("stations are emptied in the morning. Why does only half refill?", "stations are emptied in the morning. Why does only half of them recover?")],
-        aside="Here is the two-by-two. Across is morning net outflow, so further right means the station is emptied in the morning. Up is "
-              "daily net outflow, so higher means it is still short at night. Stations within 10% of their docks on both counts are balanced. "
-              "Top right is G1, which stays short: 893 stations, 31%. Bottom right is G2, which refills by night: 703. Bottom left is G3, which "
-              "collects bikes all day, and top left is G4, an office hub that fills in the morning and empties during the day. Now look at the "
-              "right half: 1,596 stations lose bikes in the morning. About half of them get their bikes back by night, and the other half never "
-              "do. Why?"),
+               ("stations are emptied in the morning. Why does only half refill?", "stations are emptied in the morning. Why does only half of them recover?"),
+               ("stations, each placed by its two answers", "stations, each sorted by its two answers")],
+        aside="Here are the two questions as a grid. The columns ask whether a station is emptied during the morning commute; the rows ask "
+              "whether it is still short at the end of the day. Stations within 10% of their docks on both counts are balanced. Top right is G1, "
+              "which stays short: 893 stations, 31%. Bottom right is G2, which refills by night: 703. Bottom left is G3, which collects bikes "
+              "all day, and top left is G4, an office hub that fills in the morning and empties during the day. Each tile also shows a typical "
+              "day for its group: up means bikes leave, down means bikes arrive. Now look at the right column: 1,596 stations lose bikes every "
+              "morning. About half of them get their bikes back by night, and the other half never do. Why?"),
 
     "tmap": dict(
         title="Each group occupies its own part of the city",

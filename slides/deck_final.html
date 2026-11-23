@@ -335,18 +335,18 @@ section:not(.accent) > table.tbl, .body > div > table.tbl { box-shadow: 0 0 0 1p
 
 <section style="counter-reset: page 11" id="stmap" data-transition="fade">
 <p class="eyebrow">STEP 4. WHY</p>
-<h2>On the map, stations that lose bikes sit above the 50 m contour</h2>
+<h2>On the map, the stations that lose bikes sit on the hills</h2>
 <div class="body">
 <div class="figcard"><div id="ix-stmap" style="position:relative;width:760px;height:660px"></div></div>
 <div class="side">
-<p class="note"><b>Red on the hills</b><br>The northern foothills (Eunpyeong, Gangbuk, Dobong), Gwanak, and the hills of Seodaemun, Seongbuk and Jongno.</p>
-<p class="note"><b>Blue in the valleys</b><br>Along the Han River and its streams, Yeouido, Seongsu and Gangnam’s main roads.</p>
-<hr>
-<p class="note muted">Contours: Seoul 1:5,000 digital topographic map.</p>
+<div class="stat"><p class="stat-lab" style="margin:0 0 8px">Share of stations that end the day short of bikes, by station elevation</p><div id="st-bars"></div></div>
+<p class="note"><b style="color:var(--red)">Red on the hills</b><br>The northern foothills (Eunpyeong, Gangbuk, Dobong), Gwanak, and the hills of Seodaemun, Seongbuk and Jongno.</p>
+<p class="note"><b style="color:var(--blue)">Blue in the valleys</b><br>Along the Han River and its streams, Yeouido, Seongsu and Gangnam’s main roads.</p>
+<p class="note muted" style="font-size:20px">Shaded: ground 50 m or higher. Terrain and contours: Seoul 1:5,000 digital topographic map.</p>
 </div>
 </div>
 <div class="foot"><p class="foot-l">STA3115 Exploratory Data Analysis, Group 1</p><p class="foot-r"></p></div>
-<aside>Here is the same pattern on the map. Each station is coloured by its daily net flow: red stations lose bikes and blue ones gain them. Now add the 50-metre contour. The red stations cluster on and above it: the northern foothills, Gwanak, and the hills of Seodaemun, Seongbuk and Jongno. The blue ones line the Han River, its streams and the flat business areas. So elevation matters. The next question is how. Where do the bikes go?</aside>
+<aside>Here is the same pattern on the map. First, the terrain: the shaded areas are ground 50 metres or higher. Now we add the stations that lose more than 10% of their docks every day, in red. They sit on the shaded hills: the northern foothills, Gwanak, and the hills of Seodaemun, Seongbuk and Jongno. The bars on the right say the same with numbers: below 15 metres, 39% of stations end the day short; at 50 metres and above, every one of them does. Finally, the stations that gain bikes, in blue, line the Han River, its streams and the flat business areas. So elevation matters. The next question is how. Where do the bikes go?</aside>
 </section>
 
 <section style="counter-reset: page 12" id="vec" data-transition="fade">
@@ -383,13 +383,13 @@ section:not(.accent) > table.tbl, .body > div > table.tbl { box-shadow: 0 0 0 1p
 <div class="figcard"><div id="ix-quad" style="position:relative;width:1071px;height:600px"></div></div>
 <div class="side">
 <div class="stat"><p class="stat-num ink">2 questions</p><p class="stat-lab">emptied 7–9 am? still short at night? (net outflow beyond ±10% of docks)</p></div>
-<div class="stat"><p class="stat-num ink">2,843</p><p class="stat-lab">stations, each placed by its two answers</p></div>
+<div class="stat"><p class="stat-num ink">2,843</p><p class="stat-lab">stations, each sorted by its two answers</p></div>
 <div class="stat"><p class="stat-num">893 vs 703</p><p class="stat-lab">G1 stays short and needs a truck; G2 refills by night and does not</p></div>
 <div class="stat"><p class="stat-num ink">1,596</p><p class="stat-lab">stations are emptied in the morning. Why does only half of them recover?</p></div>
 </div>
 </div>
 <div class="foot"><p class="foot-l">STA3115 Exploratory Data Analysis, Group 1</p><p class="foot-r"></p></div>
-<aside>Here is the two-by-two. Across is morning net outflow, so further right means the station is emptied in the morning. Up is daily net outflow, so higher means it is still short at night. Stations within 10% of their docks on both counts are balanced. Top right is G1, which stays short: 893 stations, 31%. Bottom right is G2, which refills by night: 703. Bottom left is G3, which collects bikes all day, and top left is G4, an office hub that fills in the morning and empties during the day. Now look at the right half: 1,596 stations lose bikes in the morning. About half of them get their bikes back by night, and the other half never do. Why?</aside>
+<aside>Here are the two questions as a grid. The columns ask whether a station is emptied during the morning commute; the rows ask whether it is still short at the end of the day. Stations within 10% of their docks on both counts are balanced. Top right is G1, which stays short: 893 stations, 31%. Bottom right is G2, which refills by night: 703. Bottom left is G3, which collects bikes all day, and top left is G4, an office hub that fills in the morning and empties during the day. Each tile also shows a typical day for its group: up means bikes leave, down means bikes arrive. Now look at the right column: 1,596 stations lose bikes every morning. About half of them get their bikes back by night, and the other half never do. Why?</aside>
 </section>
 
 <section style="counter-reset: page 15" id="tmap" data-transition="fade">
@@ -744,7 +744,7 @@ section:not(.accent) > table.tbl, .body > div > table.tbl { box-shadow: 0 0 0 1p
         else { const key = k === 1 ? 'am' : 'r'; tag.textContent = k === 1 ? 'Net flow, 7–9 am (% of docks)' : 'Net flow, whole day (% of docks)';
           for (const g in ps) ps[g].setAttribute('fill', div(GD[g][key], k === 1 ? 30 : 15)); legend('net'); }
         for (const g in ps) ps[g].style.transition = 'fill 600ms';
-        reveal(side, k + 1);
+        reveal(side, k === 0 ? 1 : k === 1 ? 3 : side.length);   // losing and gaining together on the morning step
       },
     };
     stop(box);
@@ -819,33 +819,58 @@ section:not(.accent) > table.tbl, .body > div > table.tbl { box-shadow: 0 0 0 1p
     };
   })();
 
-  // ---------- station map with contours ----------
+  // ---------- station map: the hills first, then the stations that lose and gain bikes ----------
   (function () {
     const box = document.getElementById('ix-stmap'); if (!box) return;
     const W = 760, Hh = Math.round(W * F.h / 1000);
     const svg = makeSvg(box, W, Hh, `0 0 1000 ${F.h}`);
-    guLayer(svg, '#f7f9fc', '#c9ced6');
-    const cg = el('g', {}, svg);
-    D.contours.forEach(c => el('path', { d: c.d, fill: 'none', stroke: c.level === 50 ? '#7a5c3e' : '#b49a7c', 'stroke-width': c.level === 50 ? 1.6 : 0.9,
-      'stroke-opacity': c.level === 50 ? 0.95 : 0.6, 'vector-effect': 'non-scaling-stroke' }, cg));
-    const dg = el('g', {}, svg);
-    const P = D.stations.slice().sort((a, b) => Math.abs(a.d) - Math.abs(b.d));
-    P.forEach(p => el('circle', { cx: p.x, cy: p.y, r: 3.4, fill: div(p.d, 60), stroke: '#fff', 'stroke-width': .5, 'vector-effect': 'non-scaling-stroke' }, dg));
-    const lab = guLabels(svg, 14);
+    guLayer(svg, '#f7f9fc', '#d1d6db');
+    const hill = el('g', {}, svg);
+    D.terrain.forEach(t => { if (t.e >= 50) el('rect', { x: t.x, y: t.y, width: F.cell + .4, height: F.cell + .4, fill: t.e >= 100 ? '#d9c6a3' : '#ebe0c9' }, hill); });
+    D.contours.filter(c => c.level === 50).forEach(c => el('path', { d: c.d, fill: 'none', stroke: '#a08360', 'stroke-width': 1, 'vector-effect': 'non-scaling-stroke' }, hill));
+    D.gu.forEach(u => el('path', { d: u.d, fill: 'none', stroke: '#ffffff', 'stroke-width': 1.3, 'vector-effect': 'non-scaling-stroke' }, svg));
+    const P = D.stations;
+    const layer = (keep, col, r) => {
+      const g = el('g', {}, svg);
+      P.filter(keep).sort((a, b) => Math.abs(a.d) - Math.abs(b.d)).forEach(p =>
+        el('circle', { cx: p.x, cy: p.y, r, fill: col, stroke: '#fff', 'stroke-width': .6, 'vector-effect': 'non-scaling-stroke' }, g));
+      g.style.opacity = 0; return g;
+    };
+    const gMid = layer(p => Math.abs(p.d) <= 10, '#c4cad1', 2.4);
+    const gLose = layer(p => p.d > 10, C.red, 3.8);
+    const gGain = layer(p => p.d < -10, C.blue, 3.8);
+    guLabels(svg, 14);
+    const nL = P.filter(p => p.d > 10).length, nG = P.filter(p => p.d < -10).length;
+    const sw = (c, round) => `<span style="display:inline-block;width:16px;height:16px;border-radius:${round ? '50%' : '4px'};background:${c};vertical-align:-2px;margin-right:6px"></span>`;
     const lg = document.createElement('div');
-    lg.style.cssText = `position:absolute;left:0;top:${Hh + 2}px;font:18px ${FONT};color:${C.muted};display:flex;gap:10px;align-items:center`;
-    lg.innerHTML = `<span>gains bikes</span><span style="display:inline-block;width:200px;height:14px;border-radius:7px;background:linear-gradient(90deg,#1b64da,#f2f4f6,#e8323f)"></span><span>loses bikes (daily net, % of docks)</span>`;
+    lg.style.cssText = `position:absolute;left:0;top:${Hh + 2}px;font:18px ${FONT};color:${C.ink2};display:flex;gap:20px;align-items:center;white-space:nowrap`;
+    lg.innerHTML = `<span>${sw('#ebe0c9')}ground 50 m or higher</span>` +
+      `<span class="lgL">${sw(C.red, 1)}loses over 10% of docks a day (${nL.toLocaleString('en')})</span>` +
+      `<span class="lgG">${sw(C.blue, 1)}gains over 10% (${nG.toLocaleString('en')})</span>`;
     box.appendChild(lg);
-    const clg = document.createElement('div');
-    clg.style.cssText = `position:absolute;right:0;top:0;font:18px ${FONT};color:${C.ink2};display:flex;gap:10px;align-items:center;transition:opacity 400ms`;
-    clg.innerHTML = `<span style="display:inline-block;width:34px;border-top:3px solid #7a5c3e"></span><span>50 m contour</span><span style="display:inline-block;width:34px;border-top:2px solid #b49a7c;margin-left:10px"></span><span>100 m, 200 m</span>`;
-    box.appendChild(clg);
+    const lgL = lg.querySelector('.lgL'), lgG = lg.querySelector('.lgG');
+    const bars = document.getElementById('st-bars');
+    if (bars) {
+      const LAB = { '[0,15)': 'Below 15 m', '[15,25)': '15–25 m', '[25,35)': '25–35 m', '[35,50)': '35–50 m', '[50,1e+03)': '50 m and above' };
+      bars.innerHTML = D.bins.map(b => {
+        const hot = b.out >= .5, col = hot ? C.red : '#9aa4af';
+        return `<div style="display:flex;align-items:center;gap:12px;margin:7px 0;font:22px ${FONT}">` +
+          `<span style="width:160px;color:${C.ink2}">${LAB[b.b] || b.b}</span>` +
+          `<span style="flex:1;height:22px;background:#f2f4f6;border-radius:11px;overflow:hidden"><span style="display:block;height:100%;width:${Math.round(100 * b.out)}%;background:${col};border-radius:11px"></span></span>` +
+          `<span style="width:64px;text-align:right;font-weight:700;color:${hot ? C.red : C.ink2}">${Math.round(100 * b.out)}%</span></div>`;
+      }).join('');
+    }
     const side = sideItems('stmap');
     IX.stmap = {
-      steps: 2,
-      cues: ['Every station, coloured by its daily net flow. Red loses bikes, blue gains them.',
-             'Add the 50 m contour: the red stations sit on and above it, around the northern hills, Gwanak and the hills of Seodaemun and Seongbuk.'],
-      set(k) { fade(cg, k >= 1, 700); fade(clg, k >= 1); reveal(side, k + 1); },
+      steps: 3,
+      cues: ['First the terrain: the shaded areas are ground 50 m or higher.',
+             'Now the stations that lose more than 10% of their docks a day, in red. They sit on the shaded hills. On the right: the higher the station, the more of them end the day short.',
+             'And the stations that gain bikes, in blue: along the Han River, its streams and the flat business areas.'],
+      set(k) {
+        fade(gMid, k >= 1); fade(gLose, k >= 1, 600); fade(gGain, k >= 2, 600); fade(lgL, k >= 1); fade(lgG, k >= 2);
+        const show = [k >= 1, k >= 1, k >= 2, true];
+        side.forEach((n, j) => fade(n, show[j]));
+      },
     };
     stop(box);
   })();
@@ -919,50 +944,61 @@ section:not(.accent) > table.tbl, .body > div > table.tbl { box-shadow: 0 0 0 1p
     stop(box);
   })();
 
-  // ---------- the 2x2 ----------
+  // ---------- the 2x2 as four tiles, each with its typical day ----------
   (function () {
     const box = document.getElementById('ix-quad'); if (!box) return;
-    const P = D.stations, W = 1071, H = 600, L = 96, R = 24, T = 50, B = 84, LIM = 120;
+    const W = 1071, H = 600, L = 150, T = 64, GAP = 18, TW = (W - L - GAP) / 2, TH = (H - T - 44 - GAP) / 2;
     const svg = makeSvg(box, W, H);
-    const cl = v => Math.max(-LIM, Math.min(LIM, v));
-    const x = v => L + (cl(v) + LIM) / (2 * LIM) * (W - L - R), y = v => H - B - (cl(v) + LIM) / (2 * LIM) * (H - T - B);
-    const qs = el('g', {}, svg);
-    const QB = [['G2', 0, LIM, -LIM, 0], ['G1', 0, LIM, 0, LIM], ['G3', -LIM, 0, -LIM, 0], ['G4', -LIM, 0, 0, LIM]];
-    QB.forEach(([t, a, b, c, d]) => el('rect', { x: x(a), width: x(b) - x(a), y: y(d), height: y(c) - y(d), fill: TYC[t], 'fill-opacity': .07 }, qs));
-    el('rect', { x: x(-10), width: x(10) - x(-10), y: y(10), height: y(-10) - y(10), fill: '#e5e8eb', 'fill-opacity': .9 }, qs);
-    [-100, -50, 0, 50, 100].forEach(v => {
-      el('line', { x1: x(v), x2: x(v), y1: T, y2: H - B, stroke: v === 0 ? C.muted : C.grid, 'stroke-width': v === 0 ? 1.5 : 1 }, svg);
-      el('line', { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: v === 0 ? C.muted : C.grid, 'stroke-width': v === 0 ? 1.5 : 1 }, svg);
-      txt(sgn(v) + '%', { x: x(v), y: H - B + 28, 'text-anchor': 'middle', 'font-size': 16, fill: C.muted }, svg);
-      txt(sgn(v) + '%', { x: L - 12, y: y(v) + 6, 'text-anchor': 'end', 'font-size': 16, fill: C.muted }, svg);
-    });
-    txt('Morning net outflow, 7–9 am (% of docks)  →  emptied in the morning', { x: (L + W - R) / 2, y: H - B + 58, 'text-anchor': 'middle', 'font-size': 19, fill: C.ink }, svg);
-    ylab(svg, 'Daily net outflow (% of docks)  →  still short at night', T, H, B);
-    const pg = el('g', {}, svg);
-    const dots = P.map(p => { const c = el('circle', { cx: x(p.a).toFixed(1), cy: y(p.d).toFixed(1), r: 3, fill: C.muted, 'fill-opacity': .3 }, pg);
-      c.style.transition = 'fill 500ms, fill-opacity 500ms'; return c; });
     const cnt = {}; D.tcount.forEach(t => { cnt[t.ty] = t.N; });
     const tot = D.stations.length;
-    const QL = { G1: [LIM - 4, LIM - 6, 'end'], G2: [LIM - 4, -LIM + 22, 'end'], G3: [-LIM + 4, -LIM + 22, 'start'], G4: [-LIM + 4, LIM - 6, 'start'] };
-    const labs = Object.keys(QL).map(t => {
-      const g = el('g', {}, svg), [a, b, an] = QL[t];
-      halo(txt(TYL[t], { x: x(a), y: y(b) + 8, 'text-anchor': an, 'font-size': 24, 'font-weight': 700, fill: TYC[t] }, g));
-      halo(txt(`${cnt[t].toLocaleString('en')} stations, ${Math.round(100 * cnt[t] / tot)}%`, { x: x(a), y: y(b) + 36, 'text-anchor': an, 'font-size': 19, fill: C.ink2 }, g));
-      g.style.opacity = 0; return [t, g];
+    const PR = {}; D.prof.forEach(r => { (PR[r.ty] = PR[r.ty] || [])[r.h] = r.net; });
+    const hdr = el('g', {}, svg);
+    [['Not emptied in the morning', 0], ['Emptied in the morning (7–9 am)', 1]].forEach(([s, c]) =>
+      txt(s, { x: L + c * (TW + GAP) + TW / 2, y: T - 20, 'text-anchor': 'middle', 'font-size': 21, 'font-weight': 700, fill: C.ink }, hdr));
+    [['Still short', 'at night', 0], ['Back to normal', 'by night', 1]].forEach(([a, b, r]) => {
+      const cy = T + r * (TH + GAP) + TH / 2;
+      txt(a, { x: L - 16, y: cy - 4, 'text-anchor': 'end', 'font-size': 20, 'font-weight': 700, fill: C.ink }, hdr);
+      txt(b, { x: L - 16, y: cy + 22, 'text-anchor': 'end', 'font-size': 20, 'font-weight': 700, fill: C.ink }, hdr);
     });
-    const bl = halo(txt(`Balanced (±10%): ${cnt.B}`, { x: x(0), y: y(-10) + 22, 'text-anchor': 'middle', 'font-size': 16, fill: C.muted }, svg));
+    const CELL = { G4: [0, 0, 'fills in the morning, empties during the day'], G1: [1, 0, 'drained in the morning, never refilled'],
+                   G3: [0, 1, 'gains bikes over the whole day'], G2: [1, 1, 'drained in the morning, back by evening'] };
+    const tiles = {};
+    Object.entries(CELL).forEach(([t, [c, r, desc]]) => {
+      const x0 = L + c * (TW + GAP), y0 = T + r * (TH + GAP);
+      el('rect', { x: x0, y: y0, width: TW, height: TH, rx: 22, fill: '#f7f9fc', stroke: C.grid, 'stroke-width': 1.5 }, svg);
+      const card = el('g', {}, svg);
+      el('rect', { x: x0, y: y0, width: TW, height: TH, rx: 22, fill: TYC[t], 'fill-opacity': .1, stroke: TYC[t], 'stroke-width': 2 }, card);
+      txt(TYL[t], { x: x0 + 24, y: y0 + 40, 'font-size': 24, 'font-weight': 700, fill: TYC[t] }, card);
+      txt(desc, { x: x0 + 24, y: y0 + 68, 'font-size': 17, fill: C.ink2 }, card);
+      txt(cnt[t].toLocaleString('en'), { x: x0 + TW - 22, y: y0 + 54, 'text-anchor': 'end', 'font-size': 46, 'font-weight': 700, fill: TYC[t] }, card);
+      txt(`${Math.round(100 * cnt[t] / tot)}% of stations`, { x: x0 + 24, y: y0 + 92, 'font-size': 16, fill: C.muted }, card);
+      const day = el('g', {}, svg);
+      const sx = h => x0 + 26 + h / 23 * (TW - 52), z = y0 + TH - 62, sy = v => z - v / 3.3 * 34;
+      el('rect', { x: sx(6.5), width: sx(9.5) - sx(6.5), y: z - 36, height: 72, fill: '#dbeafe' }, day);
+      el('line', { x1: sx(0), x2: sx(23), y1: z, y2: z, stroke: C.muted, 'stroke-width': 1 }, day);
+      el('path', { d: 'M' + PR[t].map((v, h) => sx(h).toFixed(1) + ',' + sy(v).toFixed(1)).join('L'), fill: 'none', stroke: TYC[t], 'stroke-width': 3.5, 'stroke-linejoin': 'round' }, day);
+      [0, 6, 12, 18].forEach(h => txt(h + ':00', { x: sx(h), y: y0 + TH - 10, 'text-anchor': 'middle', 'font-size': 13, fill: C.muted }, day));
+      txt('a typical day: ↑ bikes leave, ↓ bikes arrive', { x: sx(23), y: z - 40, 'text-anchor': 'end', 'font-size': 13, fill: C.muted }, day);
+      [card, day].forEach(g => { g.style.transition = 'opacity 450ms'; g.style.opacity = 0; });
+      tiles[t] = { card, day };
+    });
+    const bal = txt(`Balanced, within ±10% of docks on both counts: ${cnt.B} stations`, { x: L, y: H - 12, 'font-size': 17, fill: C.muted }, svg);
+    const call = txt(`${(cnt.G1 + cnt.G2).toLocaleString('en')} stations are emptied every morning: ${cnt.G2} recover by night, ${cnt.G1} do not`,
+                     { x: L, y: H - 12, 'font-size': 20, 'font-weight': 700, fill: C.red }, svg);
     const side = sideItems('quad');
     IX.quad = {
       steps: 4,
-      cues: ['Two questions for every station: is it emptied in the morning (across)? Is it still short at the end of the day (up)?',
-             'Every station placed by its answers.', 'Four groups. Stations within ±10% of their docks on both counts are balanced.',
-             'The two right-hand groups both lose bikes in the morning, 1,596 stations. Half of them refill by night; the other half never do.'],
+      cues: ['Two questions for every station: is it emptied during the 7–9 am commute (columns), and is it still short at the end of the day (rows)?',
+             'Sorted by their answers, the stations fall into four groups.',
+             'Each tile shows a typical day for its group: up means bikes leave, down means bikes arrive. The blue band is 7–9 am.',
+             'The right column is the 1,596 stations emptied every morning. 703 recover by night; 893 never do. Why?'],
       set(k) {
-        P.forEach((p, j) => { const d = dots[j]; const on = k >= 1;
-          d.style.fill = on ? TYC[p.t] : C.muted;
-          d.style.fillOpacity = !on ? 0 : (k === 3 ? (p.t === 'G1' || p.t === 'G2' ? .6 : .06) : .45); });
-        labs.forEach(([t, g]) => fade(g, k >= 2 && (k < 3 || t === 'G1' || t === 'G2'))); fade(bl, k === 2); fade(qs, k >= 2);
-        reveal(side, k + 1);
+        Object.entries(tiles).forEach(([t, o]) => {
+          const dim = k === 3 && (t === 'G3' || t === 'G4');
+          o.card.style.opacity = k >= 1 ? (dim ? .25 : 1) : 0;
+          o.day.style.opacity = k >= 2 ? (dim ? .25 : 1) : 0;
+        });
+        fade(bal, k >= 1 && k < 3); fade(call, k === 3); reveal(side, k + 1);
       },
     };
     stop(box);
