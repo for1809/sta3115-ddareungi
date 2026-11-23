@@ -1,0 +1,43 @@
+stations 2713 
+
+slide 5 bands:
+# A tibble: 3 × 3
+  band      n      v
+  <fct> <int>  <dbl>
+1 lo      944 0.0478
+2 mid    1290 0.0953
+3 hi      479 0.251 
+
+slide 7 cut-off bottom 10% (rides a day <= 14.8): 212 candidates, 76 often empty (35.8%)
+# A tibble: 3 × 4
+  band      n   gap share
+  <fct> <int> <int> <dbl>
+1 lo       33     3 0.091
+2 mid      69    14 0.203
+3 hi      110    59 0.536
+
+slide 7 cut-off bottom 20% (rides a day <= 24.2): 427 candidates, 128 often empty (30.0%)
+# A tibble: 3 × 4
+  band      n   gap share
+  <fct> <int> <int> <dbl>
+1 lo       68     6 0.088
+2 mid     167    27 0.162
+3 hi      192    95 0.495
+
+slide 7 cut-off bottom 30% (rides a day <= 35.2): 645 candidates, 153 often empty (23.7%)
+# A tibble: 3 × 4
+  band      n   gap share
+  <fct> <int> <int> <dbl>
+1 lo      115     6 0.052
+2 mid     283    39 0.138
+3 hi      247   108 0.437
+
+slide 11 (stations with >= 30 wet mornings):
+# A tibble: 3 × 5
+  band      n    dry    wet     r
+  <fct> <int>  <dbl>  <dbl> <dbl>
+1 lo      924 0.0474 0.0543 0.742
+2 mid    1283 0.0954 0.0830 0.759
+3 hi      477 0.251  0.209  0.854
+
+wrote slides/interactive.json: 2693 elevation points, 2684 rain points
