@@ -125,6 +125,8 @@ EDA 노트의 그림 가운데 발표 흐름에 맞는 것을 골라 큰 글씨�
 노트가 있습니다. 디자인은 토스 스타일(흰 바탕, 옅은 파랑 둥근 카드, 큰 굵은 숫자, 파란 강조 하나)이고 글꼴은 Inter(한글은 Noto Sans KR)입니다. 따릉이는 공식 영문 이름 Seoul Bike로 쓰고 처음 나올 때만 "(따릉이)"를 붙였습니다.
 슬라이드는 claude.ai의 Slides 형식(장마다 HTML 한 개, 공통 CSS `deck.css`, 목차 `deck.json`)으로 만들었고,
 그림은 덱에 올린 `slides/figures_en/`의 PNG를 씁니다.
+발표 대본은 `slides/talk_script.pdf`입니다(A4 11쪽, 덱과 같은 Inter와 Noto Sans KR). 장마다 슬라이드 그림, 시간, 영어 대본, 단계 신호(→), 한국어 "자료 읽는 법"이 있고, 끝에 예상 질문과 답, 띄울 부록 장을 정리했습니다. 원본은 `slides/talk_script.html`이고 `python slides/build_talk_script.py <슬라이드 그림 폴더>`로 다시 만듭니다. HTML 덱은 `#5-4`처럼 주소에 장과 단계를 적으면 그 단계로 바로 열립니다.
+
 인터넷 없이도 열리는 HTML 한 파일본은 `python slides/build_deck_html.py`로 만듭니다(`slides/deck_standalone.html`, 그림 내장, 저장소에는 올리지 않음). 방향키나 스페이스로 넘기고, F는 전체 화면, N은 발표자 노트입니다.
 이 파일본에서는 대본에 맞춰 세 장이 키를 누를 때마다 한 단계씩 바뀝니다(`slides/interactive.js`). 발표자 노트(N)에 단계마다 할 말이 노란 글씨로 나옵니다.
 

@@ -107,7 +107,10 @@ addEventListener('keydown', e => {
 });
 document.getElementById('stage').addEventListener('click', e => (e.clientX > innerWidth / 3 ? next() : prev()));
 addEventListener('resize', fit);
+// a link like #5-4 opens slide 5 at step 4 (counted from 0); read it before show() rewrites the hash
+const hashStep = parseInt(location.hash.split('-')[1]);
 fit(); show(i);
+if (hashStep >= 0) setStep(hashStep);
 """
 
 

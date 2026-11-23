@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<title>Talk Script: Look Before You Cut</title>
+<!-- Source of slides/talk_script.pdf. Build: python slides/build_talk_script.py <thumbs dir>
+     {{thumb:NN}} is replaced by slide NN's picture. Fonts match the deck: Inter, Hangul in Noto Sans KR. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=block">
+<style>
+:root { --ink:#191F28; --ink2:#333D4B; --muted:#6B7684; --line:#E5E8EB; --blue:#3182F6; --blue-bg:#E8F3FF;
+        --tint:#F4F8FF; --red:#F04452; }
+@page { size: A4; margin: 15mm 15mm 16mm; }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; font-family: 'Inter', 'Noto Sans KR', 'Segoe UI', sans-serif; color: var(--ink); font-size: 9.6pt; line-height: 1.5; }
+h1 { font-size: 26pt; line-height: 1.15; letter-spacing: -0.6pt; margin: 0 0 4pt; font-weight: 700; }
+h2.part { font-size: 15pt; letter-spacing: -0.3pt; margin: 0 0 8pt; padding-top: 2pt; font-weight: 700; break-after: avoid; }
+.part-lead { color: var(--muted); margin: -4pt 0 10pt; font-size: 9.4pt; }
+.kicker { color: var(--blue); font-weight: 700; font-size: 10pt; letter-spacing: .4pt; margin: 0 0 6pt; }
+.meta { color: var(--muted); margin: 0 0 14pt; }
+.cover-box { background: var(--tint); border-radius: 10pt; padding: 10pt 14pt; margin: 0 0 12pt; }
+.cover-box ul { margin: 0; padding-left: 14pt; }
+.cover-box li { margin: 2pt 0; }
+table { width: 100%; border-collapse: collapse; font-size: 9pt; }
+th { text-align: left; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--line); padding: 4pt 6pt; }
+td { border-bottom: 1px solid var(--line); padding: 3.5pt 6pt; vertical-align: top; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr.act td { background: var(--tint); font-weight: 600; color: var(--blue); }
+.part-break { break-before: page; }
+.slide { break-inside: avoid; margin: 0 0 12pt; padding-bottom: 10pt; border-bottom: 1px solid var(--line); }
+.slide:last-child { border-bottom: 0; }
+.head { display: flex; gap: 10pt; align-items: flex-start; margin-bottom: 6pt; }
+.head img { width: 52mm; border: 1px solid var(--line); border-radius: 4pt; flex: none; }
+.head .t { flex: 1; }
+.eyebrow { color: var(--blue); font-weight: 700; font-size: 8pt; letter-spacing: .4pt; margin: 1pt 0 2pt; }
+h3 { font-size: 12pt; line-height: 1.25; margin: 0 0 4pt; letter-spacing: -0.2pt; font-weight: 700; }
+.time { display: inline-block; background: var(--blue-bg); color: var(--blue); font-weight: 600; font-size: 8pt;
+        border-radius: 999px; padding: 1pt 7pt; margin-right: 4pt; }
+.say p { margin: 0 0 4pt; font-size: 10pt; line-height: 1.55; color: var(--ink); }
+.say p.opt { color: var(--muted); }
+.cue { display: inline-block; background: var(--blue); color: #fff; font-weight: 700; font-size: 7.6pt; border-radius: 999px;
+       padding: 0.5pt 6pt; margin-right: 3pt; vertical-align: 1pt; }
+.read { background: var(--tint); border-radius: 8pt; padding: 6pt 10pt; margin-top: 5pt; font-size: 8.8pt; color: var(--ink2); }
+.read .lab { font-weight: 700; color: var(--blue); font-size: 8pt; margin: 0 0 2pt; }
+.read ul { margin: 0; padding-left: 12pt; }
+.read li { margin: 1.5pt 0; }
+b.r { color: var(--red); }
+.qa td:first-child { width: 30%; font-weight: 600; }
+.qa td:last-child { width: 13%; color: var(--blue); font-weight: 600; white-space: nowrap; }
+code { font-family: inherit; color: var(--ink2); }
+.src { color: var(--muted); font-size: 8pt; margin-top: 6pt; }
+.src a { color: var(--blue); text-decoration: none; }
+</style></head><body>
+
+<!-- ===================== cover ===================== -->
+<p class="kicker">STA3115 EXPLORATORY DATA ANALYSIS, GROUP 1</p>
+<h1>Talk Script: Look Before You Cut</h1>
+<p class="meta">Seoul’s public bikes run out on the hills. 발표일 2026년 11월 26일, 15분, 영어 발표. 대본 기준 2026년 11월 23일.</p>
+
+<div class="cover-box">
+<ul>
+<li><b>대본(영어)</b>은 그대로 읽어도 되는 말이고, <b>자료 읽는 법(한국어)</b>은 팀원이 슬라이드의 그림과 숫자를 이해하고 질문에 답하기 위한 설명입니다.</li>
+<li><span class="cue">→</span> 표시는 키를 한 번 누르는 자리입니다. HTML 파일본(<code>slides/deck_standalone.html</code>)에서는 5, 7, 11장이 누를 때마다 한 단계씩 바뀌고, claude.ai 덱은 정적 그림이라 단계 없이 넘깁니다.</li>
+<li>대본대로 읽으면 약 13분 35초입니다. 남는 1분 25초는 말 속도 여유나 Shiny 시연에 씁니다.</li>
+<li>시간이 밀리면 8장은 한 문장으로, 6장은 두 문장으로 줄이고, 12장은 13장 설명에 한 줄로 합칩니다.</li>
+<li>숫자는 모두 저장소 README와 분석 로그의 값입니다. 바꾸거나 반올림을 달리하지 말고 그대로 말합니다.</li>
+</ul>
+</div>
+
+<table>
+<tr><th class="num">장</th><th>제목</th><th class="num">시간</th><th>단계</th></tr>
+<tr class="act"><td></td><td colspan="3">1막. 질문: 이용 적은 대여소는 수요가 적은가, 자전거가 없는가</td></tr>
+<tr><td class="num">1</td><td>Cover</td><td class="num">0:20</td><td></td></tr>
+<tr><td class="num">2</td><td>Ridership is falling, and closing stations is on the table</td><td class="num">1:00</td><td></td></tr>
+<tr><td class="num">3</td><td>244 weekdays in 2025, 2,713 stations</td><td class="num">0:35</td><td></td></tr>
+<tr><td class="num">4</td><td>How often a station had zero bikes at commute time</td><td class="num">0:45</td><td></td></tr>
+<tr class="act"><td></td><td colspan="3">2막. 답: 품절은 언덕 위에 있고, 줄이려는 곳이 바로 거기다</td></tr>
+<tr><td class="num">5</td><td>The higher the station, the more often it is empty</td><td class="num">1:20</td><td>5단계</td></tr>
+<tr><td class="num">6</td><td>Shortages cluster in the hilly parts of Seoul</td><td class="num">0:35</td><td></td></tr>
+<tr><td class="num">7</td><td>Half the hill-top merge candidates already run empty</td><td class="num">1:30</td><td>4단계</td></tr>
+<tr class="act"><td></td><td colspan="3">3막. 검증: 정말 고도 때문인가</td></tr>
+<tr><td class="num">8</td><td>Is it really elevation?</td><td class="num">0:15</td><td></td></tr>
+<tr><td class="num">9</td><td>Check 1: near a subway station or far from one</td><td class="num">0:45</td><td></td></tr>
+<tr><td class="num">10</td><td>Check 2: what matters is how far up, not how steep</td><td class="num">1:00</td><td></td></tr>
+<tr><td class="num">11</td><td>Check 3: rain or shine, hill-top stations stay empty</td><td class="num">1:10</td><td>3단계</td></tr>
+<tr><td class="num">12</td><td>Check 4: residential or business area</td><td class="num">0:40</td><td></td></tr>
+<tr><td class="num">13</td><td>With other factors in the model, elevation remains</td><td class="num">0:45</td><td></td></tr>
+<tr class="act"><td></td><td colspan="3">4막. 해결: 채울지가 아니라 언제 채울지가 문제다</td></tr>
+<tr><td class="num">14</td><td>The hills are refilled every day, yet still empty at 8 am</td><td class="num">1:15</td><td></td></tr>
+<tr><td class="num">15</td><td>Conclusion</td><td class="num">1:00</td><td></td></tr>
+<tr><td class="num">16</td><td>What this analysis cannot tell us</td><td class="num">0:30</td><td></td></tr>
+<tr><td class="num">17</td><td>Questions?</td><td class="num">0:10</td><td></td></tr>
+<tr><td></td><td><b>합계</b></td><td class="num"><b>13:35</b></td><td></td></tr>
+</table>
+
+<!-- ===================== act 1 ===================== -->
+<div class="part-break"></div>
+<h2 class="part">1막. 질문 (1~4장, 2:40)</h2>
+<p class="part-lead">청중이 끝까지 붙들 질문 하나를 세웁니다: are the least-used stations short of demand, or short of bikes?</p>
+
+<div class="slide">
+<div class="head">{{thumb:01}}<div class="t"><p class="eyebrow">1 COVER</p><h3>Seoul’s public bikes run out on the hills</h3><span class="time">0:20</span></div></div>
+<div class="say">
+<p>Hi, we’re Group 1. Our topic is Seoul Bike, the public bike system we all know as 따릉이. Our title is: Look before you cut. Seoul’s public bikes run out on the hills.</p>
+</div>
+</div>
+
+<div class="slide">
+<div class="head">{{thumb:02}}<div class="t"><p class="eyebrow">2 WHY THIS QUESTION</p><h3>Ridership is falling, and closing stations is on the table</h3><span class="time">1:00</span></div></div>
+<div class="say">
+<p>Seoul Bike is losing riders. Rides fell from 44.9 million in 2023 to 37.4 million in 2025, two years in a row, and people have started to ask whether the system is too big.</p>
+<p>When you want to shrink a network, the first idea is to merge the least-used stations. But there is a catch. A ride only happens if there is a bike. If you walk to a station, find it empty and walk away, you leave no record.</p>
+<p>So our question is simple: are the least-used stations short of demand, or short of bikes? This one question runs through the whole talk.</p>
+</div>
+<div class="read"><p class="lab">자료 읽는 법</p><ul>
+<li>4,490만 건과 3,740만 건은 연간 대여 건수입니다. 2년 연속 줄었습니다.</li>
+<li>핵심 전제: 대여 기록은 자전거가 있을 때만 생깁니다. 빈 대여소에서 돌아간 사람은 숫자에 안 잡힙니다.</li>
+<li>서울시는 2026년 10월 "감축은 검토한 적 없다"고 정정했습니다. "감축이 결정됐다"가 아니라 "규모를 다시 보자는 이야기가 나온다" 정도로 말합니다.</li>
+</ul></div>
+</div>
+
+<div class="slide">
+<div class="head">{{thumb:03}}<div class="t"><p class="eyebrow">3 DATA</p><h3>244 weekdays in 2025, 2,713 stations</h3><span class="time">0:35</span></div></div>
+<div class="say">
+<p>Everything here is public data. Two sources do most of the work: trip records, which tell us who rode from where to where, and hourly snapshots of how many bikes each station had.</p>
+<p>On top of that we added rain from the Korea Meteorological Administration, elevation and terrain, living population, and the locations of subway stations and universities.</p>
+</div>
+<div class="read"><p class="lab">자료 읽는 법</p><ul>
+<li>이동 기록(5분 단위)은 대여, 반납, 오르막 계산에, 대여소별 보유 대수(1시간 단위)는 품절 계산에 씁니다.</li>
+<li>기상청 관측소 27곳의 시간 강수, 90m 고도 격자, 1:5,000 등고선(건물 뺀 지표면), 동별 생활인구, 지하철역 784곳과 대학 53곳을 더했습니다.</li>
+<li>이동 기록과 재고 기록은 대여소 번호 체계가 달라서 실시간 대여 API로 연결했습니다. 공휴일은 뺐습니다.</li>
+</ul></div>
+</div>
+
+<div class="slide">
+<div class="head">{{thumb:04}}<div class="t"><p class="eyebrow">4 MEASURING A SHORTAGE</p><h3>How often a station had zero bikes at commute time</h3><span class="time">0:45</span></div></div>
+<div class="say">
+<p>This is how we measure a shortage. Stock is recorded once an hour, so we take the 7, 8 and 9 a.m. snapshots and ask: how often did this station have zero bikes?</p>
+<p>We drop mornings when it rained, because rain cuts rentals by more than half and changes demand itself. We will come back to rain later.</p>
+<p>If a station is empty 30% of the time or more, we call it a frequent shortage. That is 9.8% of all stations.</p>
+</div>
+<div class="read"><p class="lab">자료 읽는 법</p><ul>
+<li>출근 품절 = 비 안 온 평일 아침 7, 8, 9시 재고 기록 중 0대였던 비율. 대여소마다 기록이 약 600개입니다.</li>
+<li>비: 대여소에서 가장 가까운 관측소(중앙값 2km)에서 6~10시에 비가 조금이라도 오면 그날 아침을 뺍니다. 강수 기록이 빠진 날도 뺍니다.</li>
+<li>자주 비는 대여소 = 출근 품절 30% 이상(열 번 중 세 번 이상). 기준을 20%나 40%로 바꿔도 결론이 같습니다(13장).</li>
+<li>재고는 한 시간에 한 번이라, 정시 사이에 잠깐 비었다 찬 경우는 놓칩니다. 실제 품절은 더 많을 수 있습니다.</li>
+</ul></div>
+</div>
+
+<!-- ===================== act 2 ===================== -->
+<div class="part-break"></div>
+<h2 class="part">2막. 답 (5~7장, 3:25)</h2>
+<p class="part-lead">품절은 고도를 따라 오르고, 이용 건수로 줄이려는 대여소의 상당수가 바로 그 언덕 위에 있습니다. 발표의 답은 7장에서 나옵니다.</p>
+
+<div class="slide">
+<div class="head">{{thumb:05}}<div class="t"><p class="eyebrow">5 WHERE BIKES RUN OUT</p><h3>The higher the station, the more often it is empty</h3><span class="time">1:20</span><span class="time">5단계</span></div></div>
+<div class="say">
+<p>Here is our core figure. Each dot is a station. Across is elevation, up is how often it had no bikes at commute time.</p>
+<p><span class="cue">→ 2</span>Below 20 metres, stations are empty 4.8% of the time.</p>
+<p><span class="cue">→ 3</span>Between 20 and 40 metres, 9.5%.</p>
+<p><span class="cue">→ 4</span>And at 40 metres and above, 25.1%. That is one commute hour in four, five times the lowest band.</p>
+<p><span class="cue">→ 5</span>The LOESS curve shows the shape: flat until about 25 metres, then climbing steadily.</p>
+</div>
+<div class="read"><p class="lab">자료 읽는 법</p><ul>
+<li>가로축 대여소 고도(m), 세로축 출근 품절 비율. 구간 평균은 20m 미만 4.8%(944곳), 20~40m 9.5%(1,290곳), 40m 이상 25.1%(479곳).</li>
+<li>빨간 곡선은 LOESS(span 0.75): 함수 모양을 가정하지 않고 점들을 국소적으로 매끄럽게 이은 추세선입니다.</li>
+<li>80m 넘는 대여소 20곳은 수가 적어 곡선이 불안정해서 그림에서 뺐습니다. 구간 평균에는 들어 있습니다.</li>
+<li>HTML 파일본의 마지막 단계에서는 점에 마우스를 올리면 대여소 이름이 뜹니다. 질문 시간에 쓸 수 있습니다.</li>
+</ul></div>
+</div>
+
+<div class="slide">
+<div class="head">{{thumb:06}}<div class="t"><p class="eyebrow">6 WHERE BIKES RUN OUT</p><h3>Shortages cluster in the hilly parts of Seoul</h3><span class="time">0:35</span></div></div>
+<div class="say">
+<p>On the map, the same pattern. Dark means stations there are often empty. The northern foothills, Eunpyeong, Jongno, Seongbuk and Nowon, are dark, and so is the edge of Songpa near Wirye. The flat riverside districts, like Gangseo and Yeongdeungpo, are pale.</p>
+</div>
+<div class="read"><p class="lab">자료 읽는 법</p><ul>
+<li>대여소 위치(위도, 경도)에 LOESS 곡면을 맞춰 진하기로 칠한 level plot입니다. 개별 대여소가 아니라 동네 평균의 그림입니다.</li>
+<li>위례 쪽은 56~71m 대여소가 45~60% 빕니다. 대여소에서 800m 넘게 떨어진 곳은 근거가 없어 비워 두었습니다.</li>
+</ul></div>
+</div>
+
+<div class="slide">
+<div class="head">{{thumb:07}}<div class="t"><p class="eyebrow">7 THE ANSWER</p><h3>Half the hill-top merge candidates already run empty</h3><span class="time">1:30</span><span class="time">4단계</span></div></div>
+<div class="say">
+<p>Now back to our question. These are the stations a ride-count rule would merge: the bottom 20% of use, with another station within 300 metres. There are 427, one dot each.</p>
+<p><span class="cue">→ 2</span>In red: stations that are already empty most commute mornings. 128 of them, 30%.</p>
+<p><span class="cue">→ 3</span>And on the hills, 95 of 192. Half of the hill-top candidates already run empty.</p>
+<p><span class="cue">→ 4</span>Does that depend on our cut-off? With the bottom 10% instead, it is 54% on the hills. With 30%, it is 44%. Either way, about half. So for many of these stations, low use may mean no bikes, not no demand.</p>
+</div>
+<div class="read"><p class="lab">자료 읽는 법</p><ul>
+<li>통합 후보 = 하루 이용 하위 20%(하루 24.2건 이하)이고 300m 안에 다른 대여소가 있는 곳(합쳐도 걸어갈 수 있음). 427곳.</li>
+<li>빨간 점 = 자주 비는 곳(출근 품절 30% 이상). 128곳(30%), 40m 이상은 192곳 중 95곳(49%).</li>
+<li>기준 버튼: 하위 10%면 212곳 중 76곳, 언덕 위 54%. 하위 30%면 645곳 중 153곳, 언덕 위 44%.</li>
+<li>"통합 후보"는 저희가 정한 기준이지 서울시의 실제 감축 명단이 아닙니다.</li>
+</ul></div>
+</div>
+
+<!-- ===================== act 3 ===================== -->
+<div class="part-break"></div>
+<h2 class="part">3막. 검증 (8~13장, 4:35)</h2>
+<p class="part-lead">청중이 떠올릴 의심 네 가지를 발표자가 먼저 꺼내 하나씩 지우고, 마지막에 회귀 하나로 묶습니다.</p>
+
+<div class="slide">
+<div class="head">{{thumb:08}}<div class="t"><p class="eyebrow">8 FOUR CHECKS</p><h3>Is it really elevation?</h3><span class="time">0:15</span></div></div>
+<div class="say">
+<p>Before we believe it, four checks: the subway, slope, rain and housing. Then everything in one model.</p>
+</div>
+</div>
+
+<div class="slide">
+<div class="head">{{thumb:09}}<div class="t"><p class="eyebrow">9 CHECK 1: SUBWAY</p><h3>Near a subway station or far from one, the pattern holds</h3><span class="time">0:45</span></div></div>
+<div class="say">
+<p>Check one, the subway. Stations near a subway exit lose bikes fast at commute time. So we split stations into four groups by distance to the nearest station.</p>
+<p>In every panel, shortage still rises with elevation. The curve is a bit steeper close to the subway, probably because commuters take bikes from the hill-top stations near a station first.</p>
+</div>
+<div class="read"><p class="lab">자료 읽는 법</p><ul>
+<li>coplot: 지하철역까지의 거리로 4등분(209m 이내, 209~418m, 418~661m, 661m 초과)하고 칸마다 고도와 품절의 LOESS를 그렸습니다.</li>
+<li>p &lt; 0.001은 회귀에 "고도 × 역 거리" 상호작용을 넣었을 때의 검정입니다. 방향은 같고 역 근처에서 더 가파르다는 뜻입니다(부록 6).</li>
+</ul></div>
+</div>
+
+<div class="slide">
+<div class="head">{{thumb:10}}<div class="t"><p class="eyebrow">10 CHECK 2: SLOPE</p><h3>What matters is how far up, not how steep</h3><span class="time">1:00</span></div></div>
+<div class="say">
+<p>Check two, slope. Maybe hills matter because they are steep. But slope has no direction.</p>
+<p>Here are two real stations on the same hill in Seongdong, 780 metres apart, on equally steep ground, about 9.5 degrees. Singeumho Station exit 2 is near the top, at 68 metres. Geumnam Market is near the foot, at 24 metres. The top one is empty 80% of commute hours; the foot one, half a percent. And the top one gets only 2 rides a day, so by ride counts it would look like a station to cut.</p>
+<p>The figure shows the same for all stations: once we know the height, slope adds nothing, but the climb riders need to make to arrive still does.</p>
+</div>
+<div class="read"><p class="lab">자료 읽는 법</p><ul>
+<li>잔차 의존 그림: 먼저 고도로 품절을 설명(LOESS)하고, 남은 부분(실제 − 예측, %p)을 경사와 오르막에 대해 그렸습니다. 평평하면 더 알려 주는 게 없다는 뜻입니다.</li>
+<li>경사 = 반경 300m 평균 경사. 오르막 = 이 대여소에 도착한 이동이 출발지보다 평균 몇 m 높아졌나. 둘 다 건물 뺀 지표면 기준입니다.</li>
+<li>AIC(낮을수록 좋음): 경사 1548, 고도 1361, 고도 + 오르막 1324. 신금호역 2번출구 앞은 통합 후보이면서 자주 비는 128곳 중 하나입니다.</li>
+</ul></div>
+</div>
+
+<div class="slide">
+<div class="head">{{thumb:11}}<div class="t"><p class="eyebrow">11 CHECK 3: RAIN</p><h3>Rain or shine, hill-top stations stay empty</h3><span class="time">1:10</span><span class="time">3단계</span></div></div>
+<div class="say">
+<p>Check three, rain. When it rains at commute time, morning rentals fall by 51 to 89%. If shortage were about that day’s demand, hill-tops should empty much less on wet days. On dry mornings, hill-top stations are empty 25.1% of the time.</p>
+<p><span class="cue">→ 2</span>On wet mornings, demand drops by half or more, yet they are still empty 20.9% of the time. The same stations stay empty: the correlation is 0.85.</p>
+<p><span class="cue">→ 3</span>This is the Tukey mean-difference view of the same data: wet minus dry, for each station. The points sit around zero. So the problem is not the demand of the day. Bikes are simply not back up the hill before the morning.</p>
+</div>
+<div class="read"><p class="lab">자료 읽는 법</p><ul>
+<li>대상은 비 온 출근 아침이 30일 이상인 대여소 2,684곳. 비 온 아침 = 6~10시에 가장 가까운 관측소에 비가 조금이라도 온 날.</li>
+<li>51~89%는 비의 양에 따라 아침 대여가 줄어드는 폭입니다. 수요가 절반 넘게 줄어도 품절은 4%p만 줄었습니다.</li>
+<li>Tukey 그림: 가로 = 두 날 품절의 평균, 세로 = 비 온 날 − 맑은 날. 0선 근처일수록 비가 그 대여소의 품절을 바꾸지 않습니다.</li>
+<li>"수요가 줄어도 빈다"가 14장의 "아침 전에 다시 채워지지 않는다"로 이어지는 다리입니다.</li>
+</ul></div>
+</div>
+
+<div class="slide">
+<div class="head">{{thumb:12}}<div class="t"><p class="eyebrow">12 CHECK 4: HOUSING</p><h3>Residential or business area, hill-tops run empty</h3><span class="time">0:40</span></div></div>
+<div class="say">
+<p>Check four, housing. Maybe hill-tops are simply residential, so everyone rides down in the morning. We built a residential index from living population: night-time over day-time population.</p>
+<p>On the business side, in the middle and on the residential side, shortage rises with elevation in all three. Adding the index to the model leaves the elevation effect unchanged.</p>
+</div>
+<div class="read"><p class="lab">자료 읽는 법</p><ul>
+<li>주거지수 = 동별 새벽(2~4시) 인구 ÷ 낮(13~15시) 인구. 1보다 크면 낮에 사람이 빠져나가는 주거지. 2026년 6~7월 자료(API가 최근 자료만 줌).</li>
+<li>고도와 주거지수의 순위 상관 0.17: 언덕 위가 주거지인 경향은 아주 약합니다.</li>
+<li>고도 1표준편차당 오즈비 3.03 → 3.01(지수 넣기 전후), 주거지수 자체 1.08(0.94~1.25, 1을 포함). 지표면 고도 기준입니다.</li>
+</ul></div>
+</div>
+
+<div class="slide">
+<div class="head">{{thumb:13}}<div class="t"><p class="eyebrow">13 ALL TOGETHER</p><h3>With other factors in the model, elevation is what remains</h3><span class="time">0:45</span></div></div>
+<div class="say">
+<p>Finally, everything in one model, a logistic regression. Every 10 metres of elevation roughly doubles the odds of frequent shortage: an odds ratio of 2.1. Distance to the subway and to universities shows no effect.</p>
+<p>The result holds in every month, with a 20% or 40% cut-off, and with bare-earth elevation. After all four checks, elevation is what remains.</p>
+</div>
+<div class="read"><p class="lab">자료 읽는 법</p><ul>
+<li>결과 변수 = 자주 비는 대여소인가(출근 품절 30% 이상). 오즈비 = 그 변수가 한 단위 늘 때 "자주 빌 오즈"가 몇 배가 되나. 1이면 관계 없음.</li>
+<li>고도 10m당 2.10(1.91~2.30). 지하철 거리 두 배당 0.97(0.88~1.07, p 0.51), 대학 1.04(0.91~1.18), 거치대 하나당 0.94(큰 대여소가 조금 덜 빔).</li>
+<li>월별 1.75~2.18(전체 평일 기준), 기준값 20%, 30%, 40%에서 2.30, 2.10, 2.08, 지표면 고도로 2.30.</li>
+</ul></div>
+</div>
+
+<!-- ===================== act 4 ===================== -->
+<div class="part-break"></div>
+<h2 class="part">4막. 해결 (14~17장, 2:55)</h2>
+<p class="part-lead">팀 2×2 아이디어에서 출발해, 언덕 위는 매일 채워지지만 출근 전에는 아니라는 것을 보이고, 제안으로 닫습니다.</p>
+
+<div class="slide">
+<div class="head">{{thumb:14}}<div class="t"><p class="eyebrow">14 WHO REFILLS THE HILLS</p><h3>The hills are refilled every day, yet still empty at 8 am</h3><span class="time">1:15</span></div></div>
+<div class="say">
+<p>So what should the city do? This slide starts from our teammate’s two-by-two idea. Stock data alone says many stations recover by the evening. But stock also moves when trucks rebalance, so we matched each day’s stock with the trip records.</p>
+<p>Below 20 metres, riders bring in about one bike a day, and other moves, mostly rebalancing, take about one away. At 40 metres and above, riders take away about four bikes a day, and other moves bring almost exactly four back. So the hills are already refilled every day.</p>
+<p>But between 7 and 9 a.m., stock moves almost exactly with rides, a correlation of 0.99, so almost nothing is refilled during the peak. The question is not whether to refill the hills, but when.</p>
+</div>
+<div class="read"><p class="lab">자료 읽는 법</p><ul>
+<li>기간: 하루 강수 1mm 미만인 평일, 6시에서 23시. 이용자 몫 = 반납 − 대여(+면 이용자가 놓고 감). 그 밖의 이동 = 재고 변화 − 이용자 몫.</li>
+<li>막대: 20m 미만 이용자 +0.8, 그 밖의 이동 −1.3. 40m 이상 이용자 −3.9, 그 밖의 이동 +3.8. 89% = 40m 이상 중 하루 동안 이용자가 비우는 대여소 비율.</li>
+<li>0.99 = 대여소들 사이에서 7~9시 재고 변화와 같은 시간 이용 기록의 상관. 하루 전체로는 0.14뿐이라, 하루 재고 변화는 대부분 재배치입니다.</li>
+<li>팀 2×2: 재고만 보면 저녁에 회복되는 대여소 718곳 중 327곳은 이용자가 더 가져가는데 재배치가 채운 곳입니다(고도 중앙값 32m).</li>
+<li>주의: "그 밖의 이동"에는 정비 반출, 기록 연결 누락도 섞일 수 있어 "트럭"이 아니라 "mostly rebalancing"이라고 말합니다. 트럭이 몇 시에 오는지는 재지 않았습니다.</li>
+</ul></div>
+</div>
+
+<div class="slide">
+<div class="head">{{thumb:15}}<div class="t"><p class="eyebrow">15 CONCLUSION</p><h3>Before cutting stations, check whether the hills are short of bikes</h3><span class="time">1:00</span></div></div>
+<div class="say">
+<p>To sum up. Many low-use stations are short of bikes, not of demand: 128 of 427 merge candidates already run empty, half of those on the hills. That shortage follows elevation and climb, not the subway, rain or housing.</p>
+<p>And the fleet is big enough: even at the busiest hour, 89% of bikes are parked, and the hills are refilled every day.</p>
+<p>So our proposal: when choosing stations to merge, look at morning shortage as well as ride counts. And time rebalancing so bikes reach the hills before the morning peak.</p>
+<p class="opt">(선택) With losses of more than 10 billion won a year and 234 staff moving bikes, when the trucks go matters.</p>
+</div>
+<div class="read"><p class="lab">자료 읽는 법</p><ul>
+<li>1번 줄은 7장, 2번 줄은 5장과 9~13장, 3번 줄은 부록 1(18시에도 89%가 서 있음)과 14장의 숫자입니다.</li>
+<li>선택 문장의 근거: 운영 적자 2023년 109억 원, 2024년 127억 원(<a href="https://news.tf.co.kr/read/life/2241109.htm">더팩트, 2025.9.6</a>), 회수와 재배치 배송원 234명(<a href="https://biz.sbs.co.kr/amp/article/20000200671">SBS Biz, 2024.11.8</a>). "인건비 53%"는 출처를 못 찾아 쓰지 않습니다.</li>
+</ul></div>
+</div>
+
+<div class="slide">
+<div class="head">{{thumb:16}}<div class="t"><p class="eyebrow">16 LIMITS</p><h3>What this analysis cannot tell us</h3><span class="time">0:30</span></div></div>
+<div class="say">
+<p>Some limits. This is observational data, so we do not claim causation. Demand that met an empty station is not observed directly; shortage is only its trace. Stock is recorded hourly, so short gaps are missed. And we did not estimate how many bikes the system needs.</p>
+</div>
+</div>
+
+<div class="slide">
+<div class="head">{{thumb:17}}<div class="t"><p class="eyebrow">17 THANK YOU</p><h3>Questions?</h3><span class="time">0:10</span></div></div>
+<div class="say">
+<p>Thank you. We are happy to take questions.</p>
+</div>
+<div class="read"><p class="lab">발표 전 확인</p><ul>
+<li>이 장의 Shiny 앱 주소와 GitHub 주소는 아직 비어 있습니다. 발표 전에 채웁니다.</li>
+</ul></div>
+</div>
+
+<!-- ===================== Q&A ===================== -->
+<div class="part-break"></div>
+<h2 class="part">질의응답 준비</h2>
+<p class="part-lead">예상 질문, 한두 문장 답(영어), 띄울 장입니다. 부록 장 번호는 덱의 APPENDIX 번호입니다.</p>
+<table class="qa">
+<tr><th>질문</th><th>답</th><th>띄울 장</th></tr>
+<tr><td>Why not just buy more bikes?</td><td>Even at 6 p.m., the busiest hour, only 3,915 bikes are moving, 11% of the fleet. The problem is where bikes are, not how many.</td><td>부록 1</td></tr>
+<tr><td>Does slope matter at all?</td><td>For how much people ride, yes: each extra degree of a district’s mean slope goes with 17.5% fewer rentals per station. But there are only 25 districts, so it is a side note.</td><td>부록 2</td></tr>
+<tr><td>Are merge candidates really on the hills?</td><td>Station role and elevation band are far from independent: chi-squared 720 on 8 degrees of freedom. Commute-core stations sit low; candidates and supply gaps sit high.</td><td>부록 3</td></tr>
+<tr><td>Why do hill-tops run empty?</td><td>People ride down and ride back up less. Net change turns negative from about 30 m, and riders take about four bikes a day from stations at 40 m and above.</td><td>부록 4, 14장</td></tr>
+<tr><td>Is it only some months?</td><td>No. In all 12 months the 40 m band is highest and the lines never cross; the monthly odds ratio stays between 1.75 and 2.18.</td><td>부록 5</td></tr>
+<tr><td>What does an odds ratio of 2.1 mean in probability?</td><td>Above 40 m the chance of frequent shortage climbs fast, and faster for stations 200 m from the subway than 800 m.</td><td>부록 6</td></tr>
+<tr><td>Does the model fit?</td><td>Yes. Grouped into 20 bins by predicted probability, mean predictions sit close to the observed shares.</td><td>부록 7</td></tr>
+<tr><td>Why a 30% cut-off?</td><td>It is one reasonable line, three commute hours in ten. With 20% or 40% the elevation odds ratio is 2.30 or 2.08, so the result does not depend on it.</td><td>13장</td></tr>
+<tr><td>Hourly snapshots miss short gaps?</td><td>Yes, so we undercount shortages. Our shortage numbers are a lower bound, not an overstatement.</td><td>16장</td></tr>
+<tr><td>Are the "other moves" really trucks?</td><td>Mostly rebalancing, but they can also include repairs and gaps in the records, so we do not call them trucks. Morning stock follows rides almost exactly (0.99), which supports the timing assumption behind the split.</td><td>14장</td></tr>
+<tr><td>Why exclude rain?</td><td>Rain cuts morning rentals by 51 to 89%, so wet days measure different demand. We still checked them: hill-tops stay empty on wet mornings too.</td><td>11장</td></tr>
+<tr><td>Is this causal?</td><td>No. It is observational. Elevation held up after subway, universities, docks and the residential index, but other neighbourhood differences may remain.</td><td>16장</td></tr>
+</table>
+<p class="src">숫자 출처: 저장소 README, analysis/eda_analysis.Rmd, analysis/dry_compare_log.txt, analysis/two_by_two_log.txt, slides/slide_figures_en_log.txt, slides/interactive_data_log.txt.</p>
+
+</body></html>
