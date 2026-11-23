@@ -1,0 +1,9 @@
+stations 2713 ; above 80 m: 20 ; merge candidates 427 
+# A tibble: 3 × 3
+  band         n mean_shortage
+  <fct>    <int>         <dbl>
+1 [0,20)     944        0.0478
+2 [20,40)   1290        0.0953
+3 [40,Inf)   479        0.251 
+LOESS at 10, 30, 60 m: 0.044 0.106 0.317 
+wrote slides/elev_hover.json: 2693 points

@@ -125,6 +125,7 @@ EDA 노트의 그림 가운데 발표 흐름에 맞는 것을 골라 큰 글씨�
 슬라이드는 claude.ai의 Slides 형식(장마다 HTML 한 개, 공통 CSS `deck.css`, 목차 `deck.json`)으로 만들었고,
 그림은 덱에 올린 `slides/figures_en/`의 PNG를 씁니다.
 인터넷 없이도 열리는 HTML 한 파일본은 `python slides/build_deck_html.py`로 만듭니다(`slides/deck_standalone.html`, 그림 내장, 저장소에는 올리지 않음). 방향키나 스페이스로 넘기고, F는 전체 화면, N은 발표자 노트입니다.
+이 파일본의 5장(고도 그림)은 점에 마우스를 올리면 대여소 이름, 구, 고도, 품절률, 하루 이용, 통합 후보 여부가 뜹니다. 데이터는 `slides/elev_hover_data.R`이 같은 기준(맑은 출근 아침, 80m 이하, LOESS span 0.75)으로 만든 `slides/elev_hover.json`이고 파일 안에 들어가므로 따로 필요한 것은 없습니다. claude.ai 덱은 정적 그림 그대로입니다.
 10장(경사 점검)의 실제 예는 같은 언덕에서 777m 떨어지고 경사가 거의 같은(9.4°, 9.8°) 두 대여소입니다. 위쪽 신금호역 2번출구 앞(68m)은 출근 시간 80%가 비고 하루 2.1건, 아래쪽 금남시장 교차로(24m)는 0.5%가 비고 하루 28.3건입니다(`slides/station_pair.R`).
 마지막 장의 Shiny 앱과 GitHub 주소는 아직 비어 있습니다.
 
