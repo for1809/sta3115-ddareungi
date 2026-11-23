@@ -17,6 +17,7 @@ Run from the project root:  python slides/build_final_deck.py
 Output: slides/deck_final.html
 """
 import base64
+import importlib.util
 import re
 from pathlib import Path
 
@@ -203,6 +204,39 @@ for m, sid in zip(secs, ids):
     k_prev = m.end()
 parts.append(t[k_prev:])
 out = "".join(parts)
+
+# ---- 8. wording: plainer English for every slide, its notes, the step cues and the chart group names
+#      (slides/final_deck_copy.py; same content, numbers and order)
+spec = importlib.util.spec_from_file_location("final_deck_copy", ROOT / "final_deck_copy.py")
+COPY = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(COPY)
+for sid, rw in COPY.SLIDES.items():
+    m = re.search(r'<section\b[^>]*id="%s".*?</section>' % sid, out, re.S)
+    assert m, sid
+    s = m.group(0)
+    for a, b in rw.get("pairs", []):
+        assert s.count(a) == 1, (sid, a[:60])
+        s = s.replace(a, b)
+    if "eyebrow" in rw:
+        s, k = re.subn(r'<p class="eyebrow">.*?</p>', f'<p class="eyebrow">{rw["eyebrow"]}</p>', s, count=1)
+        assert k == 1, sid
+    if "title" in rw:
+        s, k = re.subn(r"<h2>.*?</h2>", f"<h2>{rw['title']}</h2>", s, count=1, flags=re.S)
+        assert k == 1, sid
+    if "aside" in rw:
+        s, k = re.subn(r"<aside>.*?</aside>", f"<aside>{rw['aside']}</aside>", s, count=1, flags=re.S)
+        assert k == 1, sid
+    out = out[:m.start()] + s + out[m.end():]
+out, k = re.subn(r"<title>.*?</title>", "<title>Where Do All the Ddareungi Go? Bikes roll downhill, and nobody rides them back up</title>", out, count=1)
+assert k == 1
+js0 = out.find("// Step-by-step SVG charts for the deck.")
+js1 = out.find("</script>", js0)
+assert js0 > 0
+js = out[js0:js1]
+for a, b in COPY.JS:
+    assert js.count(a) >= 1, a[:60]
+    js = js.replace(a, b)
+out = out[:js0] + js + out[js1:]
 
 # page numbers: section n resets the counter to n - 1 (hidden slides do not count)
 n = 0
