@@ -24,3 +24,6 @@ desktop.ini
 
 # 발표 HTML 한 파일본(그림 내장, 약 5MB). slides/build_deck_html.py로 다시 만든다
 slides/deck_standalone.html
+
+# Claude Code local preview settings
+.claude/

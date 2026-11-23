@@ -1,0 +1,10 @@
+stations 2713 ; with wet mornings >= 30: 2684 ; with rider/other split: 2705 
+band means (dry):
+# A tibble: 3 × 3
+  band         n shortage
+  <fct>    <int>    <dbl>
+1 [0,20)     944   0.0478
+2 [20,40)   1290   0.0953
+3 [40,Inf)   479   0.251 
+merge candidates (bottom 20%, within 300 m): 427 ; often empty among them: 128 
+wrote app/data/stations.csv ( 2713 rows ) and app/data/station_hour.csv ( 130224 rows )
