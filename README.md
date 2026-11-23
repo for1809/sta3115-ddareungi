@@ -99,7 +99,7 @@ EDA 노트의 그림 가운데 발표 흐름에 맞는 것을 골라 큰 글씨�
 | 6 | `03_map.png` | 품절은 언덕 지역에 모여 있다 | level plot(LOESS 곡면) |
 | 7 | `05a_candidates_by_elevation.png` | 40m 이상 통합 후보의 절반은 이미 아침에 빈다 | 누적 막대 |
 | 9 | `04_coplot_subway.png` | 점검 1: 지하철역이 가깝든 멀든 같은 모양이다 | coplot |
-| 10 | `06_residual_slope_climb.png` | 점검 2: 경사는 높이를 대신하지 못하고, 오르막은 더한다 | 잔차 의존 그림 |
+| 10 | `06_residual_slope_climb.png` | 점검 2: 가파른 정도가 아니라 얼마나 올라가야 하느냐다 | 잔차 의존 그림 |
 | 11 | `07_tukey_rain.png` | 점검 3: 비가 와도 언덕 위는 비어 있다 | Tukey 평균-차이 그림 |
 | 12 | `08_coplot_residential.png` | 점검 4: 주거지든 업무지구든 언덕 위는 빈다 | coplot |
 | 부록 1 | `01_scale.png` | 가장 바쁜 18시에도 달리는 자전거는 11%뿐이다 | 시간대별 막대 |

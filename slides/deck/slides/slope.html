@@ -1,21 +1,21 @@
 <section id="slope" data-transition="fade">
 <p class="eyebrow">CHECK 2: SLOPE</p>
-<h2>Slope does not replace height, but the climb adds to it</h2>
+<h2>What matters is how far up, not how steep</h2>
 <div class="body">
 <div class="figcard"><img src="/_blob/b6f528463f269f6c06a3afb7a9949150" alt="Residual dependence plot: shortage left after elevation, plotted against slope and against climb. Flat along slope, rising along climb." style="width:1100px;height:572px;object-fit:contain"></div>
 <div class="side">
-<p class="stat-lab">Logistic regression AIC, lower is better</p>
+<p class="note"><b>Slope has no direction.</b> The foot of a steep hill is steep too, but bikes roll down to it.</p>
+<p class="note muted" style="font-size:24px">Left: after elevation, slope adds nothing. Right: the more metres riders climbed to arrive, the emptier.</p>
+<hr>
+<p class="stat-lab" style="margin:0">Model fit, AIC (lower is better)</p>
 <table class="tbl small">
-<tr><th style="width:68%">Terrain variable</th><th style="width:32%;text-align:right">AIC</th></tr>
-<tr><td>None</td><td style="text-align:right">1690</td></tr>
+<tr><th style="width:68%">Terrain in the model</th><th style="width:32%;text-align:right">AIC</th></tr>
 <tr><td>Slope</td><td style="text-align:right">1548</td></tr>
 <tr><td>Elevation</td><td style="text-align:right">1361</td></tr>
-<tr><td>Climb</td><td style="text-align:right">1335</td></tr>
 <tr class="hl"><td>Elevation + climb</td><td style="text-align:right">1324</td></tr>
 </table>
-<p class="stat-lab">Climb: how far trips arriving at the station rose from their origin, on average. All bare earth.</p>
 </div>
 </div>
 <div class="foot"><p class="foot-l">STA3115 Exploratory Data Analysis, Group 1</p><p class="foot-r"></p></div>
-<aside>Check two, slope. We first explained shortage with elevation, then plotted what was left against slope and against climb. If slope mattered on its own, the left curve would rise. It is flat. Against climb, meaning how many metres the trips arriving at the station had to go up, the residual does rise. AIC agrees: slope alone is the weakest terrain model, and elevation plus climb is the best. Being high up and having to ride up to get there both go with shortage.</aside>
+<aside>Check two, slope. You might think hills matter because they are steep. But slope has no direction. Picture two stations on the same steep hill, one at the top and one at the foot. Both sit on steep ground. In the morning people ride down, so the one at the foot fills up and the one at the top empties. Slope cannot tell them apart; height can. That is what the left panel shows: once we account for elevation, what is left does not change with slope, the line is flat. What does add something is the climb, how many metres the trips arriving at a station had to go up. A station that people must ride up to is refilled less, and the right panel rises. Model fit says the same: slope alone is the weakest, elevation is much better, and elevation plus climb is best.</aside>
 </section>
