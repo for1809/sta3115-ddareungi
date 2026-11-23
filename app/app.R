@@ -101,7 +101,8 @@ ui <- page_navbar(
     layout_sidebar(
       sidebar = sidebar(width = 290,
         radioButtons("r_by", "Group stations by", c("Elevation band" = "band", "District" = "gu_en")),
-        radioButtons("r_sort", "Sort districts by", c("Other moves" = "other", "Riders" = "riders", "Name" = "name"))),
+        conditionalPanel("input.r_by == 'gu_en'",
+          radioButtons("r_sort", "Sort districts by", c("Other moves" = "other", "Riders" = "riders", "Name" = "name")))),
       card(plotOutput("r_plot", height = 560)),
       p(class = "text-muted small", "Riders = returns minus rentals. Other moves = change in stock minus riders; they can also include repairs",
         "and gaps in the records. Stations with at least 30 dry weekdays."))),
@@ -165,8 +166,11 @@ server <- function(input, output, session) {
       scale_y_continuous(labels = function(x) pct(x, 0), limits = c(0, 1)) +
       labs(x = "Station elevation (m)", y = "Morning shortage (07-09 h)",
            caption = paste(nrow(d), "stations. Hover over a dot to name the station.")) + theme_app()
-    if (isTRUE(input$e_loess) && nrow(d) >= 30)
-      p <- p + geom_smooth(method = "loess", span = input$e_span, se = FALSE, colour = ink, linewidth = 1.3, formula = y ~ x)
+    # as in the talk, the curve is fitted up to 80 m: the few stations above it would bend its end
+    dl <- d %>% filter(elev_m <= 80)
+    if (isTRUE(input$e_loess) && nrow(dl) >= 30)
+      p <- p + geom_smooth(data = dl, method = "loess", span = input$e_span, se = FALSE, colour = ink, linewidth = 1.3, formula = y ~ x) +
+        labs(caption = paste(nrow(d), "stations. Curve fitted to stations up to 80 m. Hover over a dot to name the station."))
     p
   }, res = 96)
   output$e_tip <- renderUI({
@@ -184,17 +188,14 @@ server <- function(input, output, session) {
     d <- st
     if (isTRUE(input$m_cand)) d <- d %>% filter(use_day <= sort(st$use_day)[floor(nrow(st) * 0.2) + 1], nearest_station_m <= 300)
     if (length(input$m_gu)) d <- d %>% filter(gu_en %in% input$m_gu)
-    d %>% mutate(v = .data[[input$m_metric]]) %>% filter(!is.na(v))
+    d %>% mutate(v = .data[[input$m_metric]]) %>% filter(!is.na(v)) %>% arrange(abs(v))   # strongest drawn last, on top
   })
+  # the map is drawn whole on each change (a proxy update is lost while the tab is still hidden)
   output$m_map <- renderLeaflet({
-    leaflet(options = leafletOptions(preferCanvas = TRUE)) %>% addProviderTiles(providers$CartoDB.Positron) %>%
-      setView(126.99, 37.56, zoom = 11)
-  })
-  observe({
     d <- m_data()
     m <- input$m_metric
     pal <- switch(m,
-      am_empty = colorNumeric(c("#e8f3ff", "#ffd4d8", red, "#a1192a"), c(0, 1)),
+      am_empty = colorNumeric(c("#cdd6e0", "#ffb3ba", red, "#a1192a"), c(0, 1)),
       elev_m = colorNumeric(c("#e8f3ff", light, blue, "#1b4a9c"), range(st$elev_m)),
       use_day = colorNumeric(c("#e8f3ff", light, blue, "#1b4a9c"), log10(range(st$use_day))),
       colorNumeric(c(red, "#ffd4d8", "#f2f4f6", "#c9e2ff", blue), c(-8, 8)))
@@ -204,7 +205,9 @@ server <- function(input, output, session) {
     pop <- sprintf("<b>%s</b><br>%s-gu, %s m<br>Morning shortage %s<br>%s rides a day<br>Riders %+.1f, other moves %+.1f bikes a day",
                    htmltools::htmlEscape(d$name), d$gu_en, d$elev_m, pct(d$am_empty), d$use_day,
                    coalesce(d$riders_in, 0), coalesce(d$other_in, 0))
-    lp <- leafletProxy("m_map", data = d) %>% clearMarkers() %>% clearControls() %>%
+    lp <- leaflet(d, options = leafletOptions(preferCanvas = TRUE)) %>%
+      addTiles(options = tileOptions(opacity = 0.55)) %>%   # OpenStreetMap, faded so the stations stand out
+      fitBounds(min(st$lon), min(st$lat), max(st$lon), max(st$lat)) %>%
       addCircleMarkers(~lon, ~lat, radius = 4.5, stroke = TRUE, weight = 0.6, color = "#ffffff", fillOpacity = 0.9,
                        fillColor = pal(val), popup = pop)
     if (m == "use_day") {
@@ -237,7 +240,7 @@ server <- function(input, output, session) {
   output$c_plot <- renderPlot({
     d <- c_data() %>% count(band, gap, .drop = FALSE) %>%
       mutate(gap = factor(gap, c(FALSE, TRUE), c("Not often empty", "Often empty in the morning")), band = forcats::fct_rev(band))
-    tot <- d %>% group_by(band) %>% summarise(n = sum(n), g = sum(n[gap == "Often empty in the morning"]), .groups = "drop")
+    tot <- d %>% group_by(band) %>% summarise(g = sum(n[gap == "Often empty in the morning"]), n = sum(n), .groups = "drop")
     ggplot(d, aes(n, band, fill = gap)) + geom_col(width = 0.62) +
       geom_text(data = tot, aes(x = n, y = band, label = sprintf("  %d of %d (%s)", g, n, ifelse(n > 0, pct(g / n, 0), "-"))),
                 inherit.aes = FALSE, hjust = 0, size = 4.6, colour = ink) +
@@ -283,7 +286,7 @@ server <- function(input, output, session) {
                                                     if (!is.na(s$am_empty_wet)) paste("wet mornings", pct(s$am_empty_wet)) else "dry weekdays",
                                                     colour = if (s$am_empty >= 0.3) red else ink) })
   output$s_b3 <- renderUI({ s <- s_row(); stat_box("Rides a day", s$use_day,
-                                                    sprintf("more than %s of stations", pct(mean(st$use_day < s$use_day), 0))) })
+                                                    sprintf("rank %d of %d stations", sum(st$use_day > s$use_day) + 1L, nrow(st))) })
   output$s_b4 <- renderUI({ s <- s_row(); stat_box("Other moves a day", if (is.na(s$other_in)) "n/a" else sprintf("%+.1f", s$other_in),
                                                     if (is.na(s$riders_in)) "" else sprintf("riders %+.1f", s$riders_in), colour = blue) })
   output$s_plot <- renderPlot({
