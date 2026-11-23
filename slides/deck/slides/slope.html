@@ -3,19 +3,20 @@
 <h2>What matters is how far up, not how steep</h2>
 <div class="body">
 <div class="figcard"><img src="/_blob/b6f528463f269f6c06a3afb7a9949150" alt="Residual dependence plot: shortage left after elevation, plotted against slope and against climb. Flat along slope, rising along climb." style="width:1100px;height:572px;object-fit:contain"></div>
-<div class="side">
-<p class="note"><b>Slope has no direction.</b> The foot of a steep hill is steep too, but bikes roll down to it.</p>
-<p class="note muted" style="font-size:24px">Left: after elevation, slope adds nothing. Right: the more metres riders climbed to arrive, the emptier.</p>
-<hr>
-<p class="stat-lab" style="margin:0">Model fit, AIC (lower is better)</p>
-<table class="tbl small">
-<tr><th style="width:68%">Terrain in the model</th><th style="width:32%;text-align:right">AIC</th></tr>
-<tr><td>Slope</td><td style="text-align:right">1548</td></tr>
-<tr><td>Elevation</td><td style="text-align:right">1361</td></tr>
-<tr class="hl"><td>Elevation + climb</td><td style="text-align:right">1324</td></tr>
+<div class="side" style="gap:20px">
+<p class="note"><b>Slope has no direction.</b> Two stations on the same hill, 780 m apart:</p>
+<table class="tbl small" style="font-size:24px">
+<tr><th style="width:46%"></th><th style="width:27%;text-align:right">Top</th><th style="width:27%;text-align:right">Foot</th></tr>
+<tr><td>Elevation</td><td style="text-align:right">68 m</td><td style="text-align:right">24 m</td></tr>
+<tr><td>Slope</td><td style="text-align:right">9.4°</td><td style="text-align:right">9.8°</td></tr>
+<tr><td>Climb to arrive</td><td style="text-align:right">+26 m</td><td style="text-align:right">−6 m</td></tr>
+<tr class="hl"><td>Empty, 7–9 am</td><td style="text-align:right;color:var(--red)">80%</td><td style="text-align:right">0.5%</td></tr>
+<tr><td>Rides a day</td><td style="text-align:right">2.1</td><td style="text-align:right">28.3</td></tr>
 </table>
+<p class="stat-lab" style="margin:0">Top: Singeumho Stn exit 2. Foot: Geumnam Market. Both in Seongdong.</p>
+<p class="stat-lab" style="margin:0">AIC: slope 1548, elevation 1361, elevation + climb 1324</p>
 </div>
 </div>
 <div class="foot"><p class="foot-l">STA3115 Exploratory Data Analysis, Group 1</p><p class="foot-r"></p></div>
-<aside>Check two, slope. You might think hills matter because they are steep. But slope has no direction. Picture two stations on the same steep hill, one at the top and one at the foot. Both sit on steep ground. In the morning people ride down, so the one at the foot fills up and the one at the top empties. Slope cannot tell them apart; height can. That is what the left panel shows: once we account for elevation, what is left does not change with slope, the line is flat. What does add something is the climb, how many metres the trips arriving at a station had to go up. A station that people must ride up to is refilled less, and the right panel rises. Model fit says the same: slope alone is the weakest, elevation is much better, and elevation plus climb is best.</aside>
+<aside>Check two, slope. You might think hills matter because they are steep. But slope has no direction. Here are two real stations on the same hill in Geumho-dong, Seongdong, 780 metres apart. Singeumho Station exit 2 is near the top at 68 metres; Geumnam Market crossroads is near the foot at 24 metres. The ground around both is equally steep, about 9.5 degrees. Yet the top one has no bikes in 80% of morning commute hours, and the foot one in 0.5%. Riders reaching the top station have climbed 26 metres on average; riders reaching the foot station came down. And the top one gets 2 rides a day, so by ride counts alone it would look like a station to merge. The figure shows the same thing for all stations: once we account for elevation, what is left does not change with slope, the left line is flat, but it rises with climb. Model fit agrees: slope alone is the weakest, and elevation plus climb is best.</aside>
 </section>
