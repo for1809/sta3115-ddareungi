@@ -1,0 +1,97 @@
+
+==== inventory 2x2, dry (< 1 mm all day) weekdays (stations with >= 30 such days: 2705) ====
+morning-outflow stations (G1 + G2): 1587 
+# A tibble: 4 × 8
+  g                                           stations median_elev share_40m
+  <chr>                                          <int>       <dbl>     <dbl>
+1 G1 morning out, day out (permanent deficit)      869          23     0.163
+2 G2 morning out, day back (self-recovering)       718          26     0.212
+3 G3 morning in, day out                           680          23     0.165
+4 G4 morning in, day back                          438          25     0.167
+  mean_shortage mean_rides riders_day_out other_in_day
+          <dbl>      <dbl>          <dbl>        <dbl>
+1         0.094       75             1.54         0.11
+2         0.15        76.3           0.3          1.52
+3         0.073       86.4           0.03        -1.23
+4         0.111       81.3          -0.4          0.62
+
+==== inventory 2x2, all weekdays (stations with >= 30 such days: 2708) ====
+morning-outflow stations (G1 + G2): 1595 
+# A tibble: 4 × 8
+  g                                           stations median_elev share_40m
+  <chr>                                          <int>       <dbl>     <dbl>
+1 G1 morning out, day out (permanent deficit)      942          23     0.148
+2 G2 morning out, day back (self-recovering)       653          27     0.237
+3 G3 morning in, day out                           573          23     0.166
+4 G4 morning in, day back                          540          24     0.167
+  mean_shortage mean_rides riders_day_out other_in_day
+          <dbl>      <dbl>          <dbl>        <dbl>
+1         0.093       76.1           1.4         -0.02
+2         0.157       74.4           0.48         1.57
+3         0.068       80.1           0.15        -0.87
+4         0.108       89.3          -0.9          0.12
+
+==== G1 vs G2 by elevation band (dry) ====
+# A tibble: 6 × 4
+  band       g                                               n share
+  <fct>      <chr>                                       <int> <dbl>
+1 below 20 m G1 morning out, day out (permanent deficit)   307 0.586
+2 below 20 m G2 morning out, day back (self-recovering)    217 0.414
+3 20-40 m    G1 morning out, day out (permanent deficit)   420 0.546
+4 20-40 m    G2 morning out, day back (self-recovering)    349 0.454
+5 40 m+      G1 morning out, day out (permanent deficit)   142 0.483
+6 40 m+      G2 morning out, day back (self-recovering)    152 0.517
+
+logit P(G1 | morning outflow) on elevation per 10 m: OR 0.91 95% CI 0.85 0.97 p 0.0053 
+
+==== who refills G2 (dry): riders or other moves ====
+# A tibble: 2 × 6
+  refill                                          stations median_elev share_40m
+  <chr>                                              <int>       <dbl>     <dbl>
+1 riders bring back at least as many as they take      391          22     0.084
+2 riders take more; other moves refill                 327          32     0.364
+  riders_day_out other_in_day
+           <dbl>        <dbl>
+1          -3.08        -1.55
+2           4.33         5.21
+
+==== riders only: trip-based 2x2 (dry), trucks taken out ====
+# A tibble: 4 × 8
+  g                                           stations median_elev share_40m
+  <chr>                                          <int>       <dbl>     <dbl>
+1 G1 morning out, day out (permanent deficit)     1064          30     0.302
+2 G2 morning out, day back (self-recovering)       602          21     0.06 
+3 G3 morning in, day out                           479          26     0.219
+4 G4 morning in, day back                          560          20     0.03 
+  mean_shortage mean_rides riders_day_out other_in_day
+          <dbl>      <dbl>          <dbl>        <dbl>
+1         0.17        62.7           3.93         3.38
+2         0.068       89            -2.66        -2.21
+3         0.09        69.4           2.3          1.51
+4         0.039      109.           -4.09        -4.21
+
+by band, share of stations riders drain over the day (trip daily outflow > 0):
+# A tibble: 3 × 5
+  band       stations share_riders_drain mean_riders_day_out mean_other_in
+  <fct>         <int>              <dbl>               <dbl>         <dbl>
+1 below 20 m      938              0.457               -0.82         -1.29
+2 20-40 m        1288              0.534                0.24          0.03
+3 40 m+           479              0.889                3.85          3.76
+
+correlation of elevation with riders' daily outflow: 0.293 ; with other moves (in): 0.315 
+
+example stations (slide 10):
+# A tibble: 2 × 9
+  station_no name                elev_m am_inv day_inv am_trip day_trip  other
+  <chr>      <chr>                <dbl>  <dbl>   <dbl>   <dbl>    <dbl>  <dbl>
+1 00533      금남시장 교차로         24  4.23    2.23    2.55    -1.88  -4.11 
+2 04363      신금호역 2번출구 앞     68  0.016  -0.054   0.076    0.141  0.196
+  g                                          
+  <chr>                                      
+1 G1 morning out, day out (permanent deficit)
+2 G2 morning out, day back (self-recovering) 
+
+==== sanity: inventory vs trips (dry) ====
+cor of morning outflow, inventory vs trips: 0.988 
+cor of daily outflow, inventory vs trips: 0.141 
+sum over stations of |other moves| per dry day: 8764 bikes

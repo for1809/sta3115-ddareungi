@@ -1,0 +1,2 @@
+inventory rows used (weekdays, hours (6, 7, 9, 23)): 2576448; unreadable rows skipped: 0
+stations written: 2736; with dry days: 2714; dry days per station median 183, min 14, max 189
