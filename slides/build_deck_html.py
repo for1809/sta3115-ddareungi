@@ -36,6 +36,7 @@ BLOB = {
     "67fa9588c98c4b989e0b9d2469d3b32d": "b2_monthly_bands.png",
     "e8bbf921f66e5df472402d9de7c6b79a": "b3_logit_prediction.png",
     "411e9b98376154af6bd8044a8d8fe0c4": "b4_logit_calibration.png",
+    "277c4de232b06cf007021c3847cd7029": "10_rebalance.png",
 }
 # slides whose figure becomes a step-by-step chart: slide id -> chart size (same box as the static figure)
 IX_SLOTS = {"elev": (1071, 600), "cands": (1100, 506), "rain": (1071, 600)}

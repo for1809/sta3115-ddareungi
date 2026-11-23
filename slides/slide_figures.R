@@ -304,6 +304,32 @@ p09 <- ggplot(gu_t, aes(slope_bare, rent_per_station)) +
   theme_slide()
 save_fig(p09, "09_gu_slope", h = 6)
 
+# ---- 10 who moves the bikes over the day: riders vs other moves (mostly rebalancing), by elevation band ----
+# data/station_2x2.csv (scripts/15_inventory_2x2.py): dry (< 1 mm) weekdays, 06 h to 23 h; analysis/two_by_two.R has the details
+mv <- st %>% inner_join(rd("data/station_2x2.csv") %>% filter(days_dry >= 30) %>%
+                          select(station_no, day_trip = day_out_trip_dry, other = other_in_day_dry), by = "station_no") %>%
+  group_by(elev_band) %>%
+  summarise(n = n(), riders = -mean(day_trip), other = mean(other), drained = mean(day_trip > 0), .groups = "drop")
+cat("\n10 bikes added per station per dry weekday (06-23 h), by band:\n"); print(mv)
+k_rider <- L("이용자가 옮긴 몫", "Moved by riders")
+k_other <- L("그 밖의 이동(주로 재배치)", "Other moves (mostly rebalancing)")
+p10 <- mv %>% pivot_longer(c(riders, other)) %>%
+  # dodge puts the first level at the bottom, so "other" comes first to draw riders on top
+  mutate(name = factor(name, c("other", "riders"), c(k_other, k_rider)), elev_band = fct_rev(elev_band)) %>%
+  ggplot(aes(value, elev_band, fill = name)) +
+  geom_vline(xintercept = 0, colour = muted, linewidth = 0.5) +
+  geom_col(position = position_dodge(width = 0.72), width = 0.66) +
+  geom_text(aes(label = sprintf("%+.1f", value), hjust = ifelse(value >= 0, -0.2, 1.2)),
+            position = position_dodge(width = 0.72), family = "Fig", size = 5.4, colour = ink) +
+  scale_fill_manual(values = setNames(c(red, blue), c(k_rider, k_other)), breaks = c(k_rider, k_other), name = NULL) +
+  scale_x_continuous(limits = c(-5.2, 5.2), breaks = seq(-4, 4, 2),
+                     labels = function(x) sprintf("%+d", as.integer(x))) +
+  labs(x = L("대여소 하나에 하루(6~23시) 더해진 자전거(대)", "Bikes added to a station per day, 06-23 h"), y = NULL,
+       caption = L("비 1mm 미만 평일. 이용자 몫 = 반납 - 대여, 그 밖의 이동 = 재고 변화 - 이용자 몫.",
+                   "Weekdays with under 1 mm of rain. Riders = returns minus rentals; other moves = change in stock minus riders.")) +
+  theme_slide() + theme(panel.grid.major.y = element_blank(), axis.text.y = element_text(size = 16, colour = ink))
+save_fig(p10, "10_rebalance", h = 5.2)
+
 # ---- backups ----
 # B1 net change during the day by elevation
 pb1 <- stations %>% filter(elev_m <= X_MAX) %>%

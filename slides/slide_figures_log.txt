@@ -53,6 +53,14 @@ X-squared = 720.06, df = 8, p-value < 2.2e-16
   주거지 쪽 동네: n 869, OR 1.96 (1.70-2.27)
 `geom_smooth()` using formula = 'y ~ x'
 `geom_smooth()` using formula = 'y ~ x'
+
+10 bikes added per station per dry weekday (06-23 h), by band:
+# A tibble: 3 × 5
+  elev_band     n riders   other drained
+  <fct>     <int>  <dbl>   <dbl>   <dbl>
+1 20m 미만    938  0.816 -1.29     0.457
+2 20~40m     1288 -0.243  0.0294   0.534
+3 40m 이상    479 -3.85   3.76     0.889
 `geom_smooth()` using formula = 'y ~ x'
 
 B3 elevation OR per 10 m (main effects model): 2.1 ( 1.91 2.3 )

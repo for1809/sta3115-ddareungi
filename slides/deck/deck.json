@@ -27,6 +27,7 @@
     "rain",
     "resid",
     "logit",
+    "rebalance",
     "conclusion",
     "limits",
     "thanks",
@@ -53,8 +54,8 @@
       "start": "counter"
     },
     "s4": {
-      "description": "Conclusion, limits and questions",
-      "start": "conclusion"
+      "description": "Who refills the hills, then the conclusion, limits and questions",
+      "start": "rebalance"
     },
     "s5": {
       "description": "Backup figures for questions",
