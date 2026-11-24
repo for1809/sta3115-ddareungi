@@ -1,0 +1,8 @@
+﻿
+slope_bare_r100 from IDW for 1 station(s): 04453 
+stations 2736  outside the TIN (IDW kept): 2  missing: 0 0 0 
+elevation TIN - IDW: mean -0.22  sd 1.2 
+slope r300 TIN vs IDW: correlation 0.995  mean 3.29 vs 3.18 
+exact multiples of 5 m: TIN 370  IDW 804 
+
+

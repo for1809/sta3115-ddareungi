@@ -1,0 +1,4 @@
+points 3,054,021
+stations 2,736, outside the triangulation 2, flat triangles 351
+elevation min 5.0, median 20.2, max 104.9; exact multiple of 5 m: 370 (13.5%)
+grid 2020 x 2459, cells with a value 2,252,008

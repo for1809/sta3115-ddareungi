@@ -6,7 +6,7 @@ Changes, all made here so the original stays as received:
      (figure slides/figures_en/10b_rebalance_bare.png; numbers from analysis/rebalance_bare_log.txt, by bare-earth
      elevation like the teammate deck; 2025 weekdays with under 1 mm of rain)
   2. the conclusion: refill the hills before the morning, and a warning about merging low-use stations
-     (bottom 20% of use with another station within 300 m: 89 of the 164 at 40 m and above already empty)
+     (bottom 20% of use with another station within 300 m: 84 of the 156 at 40 m and above already empty)
   3. limits, item 1: trucks are now seen, but only as the part of stock change rides do not explain
   4. page numbers: each slide's counter is reset to its new place
   5. slide "why": yearly rides 2021-2025 and the operating deficit as side-by-side bars (team's table)
@@ -63,10 +63,10 @@ WHEN = f"""<section id="when" data-transition="fade">
 <p class="eyebrow">STEP 7. WHEN</p>
 <h2>Trucks already refill the hills every day, but not before 8 am</h2>
 <div class="body">
-<div class="figcard"><img src="{img}" alt="Bikes added to a station per weekday by riders and by other moves, by bare-earth elevation band. Below 20 m riders add 1.0 and other moves take 1.5; at 40 m and above riders take 4.4 and other moves add 4.4." style="width:1071px;height:557px;object-fit:contain"></div>
+<div class="figcard"><img src="{img}" alt="Bikes added to a station per weekday by riders and by other moves, by bare-earth elevation band. Below 20 m riders add 1.0 and other moves take 1.4; at 40 m and above riders take 4.3 and other moves add 4.3." style="width:1071px;height:557px;object-fit:contain"></div>
 <div class="side" style="gap:18px">
-<div class="stat"><p class="stat-num">−4.4</p><p class="stat-lab">bikes a day riders take from stations at 40 m and above</p></div>
-<div class="stat"><p class="stat-num blue">+4.4</p><p class="stat-lab">bikes a day put back there by other moves, mostly rebalancing</p></div>
+<div class="stat"><p class="stat-num">−4.3</p><p class="stat-lab">bikes a day riders take from stations at 40 m and above</p></div>
+<div class="stat"><p class="stat-num blue">+4.3</p><p class="stat-lab">bikes a day put back there by other moves, mostly rebalancing</p></div>
 <div class="stat"><p class="stat-num ink">0.99</p><p class="stat-lab">correlation of stock change and rides at 7 to 9 am: almost no refilling in the peak</p></div>
 <div class="stat"><p class="stat-num">28%</p><p class="stat-lab">of commute hours those stations still have zero bikes</p></div>
 <p class="note muted" style="font-size:20px">2025 dry weekdays; hourly stock matched with trips.</p>

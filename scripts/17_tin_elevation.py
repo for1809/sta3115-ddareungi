@@ -8,13 +8,16 @@ two lines of the same height); those stations are counted and reported.
 
 Run from the project root:  python scripts/17_tin_elevation.py
 Output: data/station_elevation_tin.csv  station_no, elev_tin_m, flat (1 if the triangle's corners share one height)
+        raw/derived/dem_tin_15m.asc       the TIN on the 15 m grid of the IDW surface, cells within 600 m of a station
+                                          (ESRI ASCII grid, read by scripts/17_tin_terrain.R for slopes)
 """
 import csv
 import sys
 from pathlib import Path
 
 import numpy as np
-from scipy.spatial import Delaunay
+from scipy.interpolate import LinearNDInterpolator
+from scipy.spatial import Delaunay, cKDTree
 
 ROOT = Path(__file__).resolve().parent.parent
 pts = np.loadtxt(ROOT / "raw/derived/tin_points.csv", delimiter=",", skiprows=1)
@@ -52,4 +55,28 @@ flat = sum(1 for o in out if o[2] == 1)
 mult5 = int(np.sum(np.isclose(e / 5, np.round(e / 5))))
 print(f"stations {len(out):,}, outside the triangulation {sum(1 for o in out if o[1] == ''):,}, flat triangles {flat:,}")
 print(f"elevation min {e.min():.1f}, median {np.median(e):.1f}, max {e.max():.1f}; exact multiple of 5 m: {mult5:,} ({100 * mult5 / len(e):.1f}%)")
+
+# the same TIN on the 15 m grid, for slopes
+nc, nr, x0, y0, cell = (float(v) for v in (ROOT / "raw/derived/tin_grid.txt").read_text().split())
+nc, nr = int(nc), int(nr)
+gx = x0 + (np.arange(nc) + .5) * cell
+gy = y0 + nr * cell - (np.arange(nr) + .5) * cell          # top row first
+f = LinearNDInterpolator(tri, z)
+near = cKDTree(sxy)
+grid = np.full((nr, nc), -9999.0)
+for j0 in range(0, nr, 200):
+    yy = gy[j0:j0 + 200]
+    X, Y = np.meshgrid(gx, yy)
+    q = np.column_stack([X.ravel(), Y.ravel()])
+    d, _ = near.query(q, distance_upper_bound=600)
+    v = np.full(len(q), np.nan)
+    ok = np.isfinite(d)
+    v[ok] = f(q[ok])
+    v[~np.isfinite(v)] = -9999.0
+    grid[j0:j0 + len(yy)] = v.reshape(len(yy), nc)
+with open(ROOT / "raw/derived/dem_tin_15m.asc", "w") as fh:
+    fh.write("".join(f"{k} {v}{chr(10)}" for k, v in [("ncols", nc), ("nrows", nr), ("xllcorner", x0), ("yllcorner", y0),
+                                                        ("cellsize", cell), ("NODATA_value", -9999)]))
+    np.savetxt(fh, grid, fmt="%.2f")
+print(f"grid {nr} x {nc}, cells with a value {(grid > -9999).sum():,}")
 sys.stdout.flush()
