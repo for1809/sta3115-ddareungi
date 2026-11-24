@@ -60,7 +60,7 @@ SLIDES = {
 
     "factors": dict(
         eyebrow="WHAT MIGHT MATTER",
-        title="Possible factors",
+        title="Possible Factors",
         # 1 and 2 keep only the factor; 3 and 4 keep only what is measured
         pairs=[('class="q-text">Time of day: commuting or leisure?', 'class="q-text">Time of day'),
                ('class="q-text">Weather: rain and temperature', 'class="q-text">Weather'),
