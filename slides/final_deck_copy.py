@@ -35,13 +35,12 @@ SLIDES = {
 
     "why": dict(
         eyebrow="WHY THIS MATTERS",
-        title="Fewer rides, a bigger deficit, and talk of a smaller system",
+        title="Rides are falling while the deficit grows",
         pairs=[("rides a year, 2023 → 2025; 2025 alone is −14.8%", "rides a year from 2023 to 2025, with −14.8% in 2025 alone"),
                ("operating deficit in 2025, almost double the ₩9.4 bn of 2022", "operating deficit in 2025, nearly twice the ₩9.4 bn of 2022")],
         aside="Ddareungi grew quickly, from 32 million rides in 2021 to almost 45 million in 2023. Since then it has fallen two years in a row, "
               "to 37.4 million in 2025, a drop of 14.8% in one year. Over the same period the operating deficit grew, from 9.4 billion won in 2022 "
-              "to 17.6 billion won in 2025. In October a newspaper reported that the city might cut the fleet. The city denied it the same day, "
-              "but confirmed that it is studying the right size of the system and how much it costs to run."),
+              "to 17.6 billion won in 2025, nearly twice as much."),
 
     "cost": dict(
         title="Over half the operating cost goes to moving bikes around",
