@@ -5,6 +5,8 @@ Read by slides/build_final_deck.py. For each slide id: the eyebrow, the title, t
 group names drawn inside the charts. Every old string must be found, so a change in the source deck is caught.
 """
 
+NL = chr(10)   # a line break, for pairs that remove a whole line of the slide
+
 GROUPS = [("G1 Never refilled", "G1 Stays short"), ("G2 Refills itself", "G2 Refills by night"),
           ("G3 Piles up", "G3 Collects bikes"), ("G4 Daytime hub", "G4 Office hub")]
 
@@ -44,13 +46,13 @@ SLIDES = {
 
     "cost": dict(
         title="Over half the operating cost goes to moving bikes around",
-        pairs=[("of operating cost is labour for redistributing bikes", "of the operating cost is staff time spent redistributing bikes"),
-               ("Those are the trucks we all see on the street, loading bikes at one station and dropping them at another.",
-                "That is the work of the trucks we see on the street, collecting bikes at one station and dropping them off at another."),
-               ("A truck is needed because some stations run out of bikes while others fill up.",
-                "Trucks are needed because some stations run out of bikes while others overflow."),
-               ("If we know that, the trucks can go to the right place at the right time.",
-                "If we know that, trucks can be sent to the right place at the right time.")],
+        # only the number and the question stay on the slide; the speaker says the rest (notes below)
+        pairs=[("of operating cost is labour for redistributing bikes", "of the operating cost goes to redistributing bikes"),
+               ('<p class="text">Those are the trucks we all see on the street, loading bikes at one station and dropping them at another.</p>' + NL, ""),
+               ('<p class="text">A truck is needed because some stations run out of bikes while others fill up.</p>' + NL, ""),
+               ('<p class="text muted">If we know that, the trucks can go to the right place at the right time.</p>' + NL, ""),
+               ('<p class="lead"><b>Our question:</b> where do bikes pile up, where do they run out, and why?</p>',
+                '<p class="stat-lab" style="margin:0 0 12px">Our question</p><p class="lead" style="font-size:52px;line-height:1.25;font-weight:700">Where do bikes pile up, where do they run out, and why?</p>')],
         aside="Where does the money go? According to Bike Magazine, 53% of the operating cost is staff time spent redistributing bikes. "
               "That is the work of the trucks you see on the street, picking up bikes at one station and dropping them off at another. "
               "They are needed because some stations run dry while others overflow. So our question is: where do bikes pile up, where do they "
@@ -59,7 +61,11 @@ SLIDES = {
     "factors": dict(
         eyebrow="WHAT MIGHT MATTER",
         title="What decides where a bike ends up?",
-        pairs=[("Nearby transit: distance to a subway station", "Transit: distance to the nearest subway station")],
+        # 1 and 2 keep only the factor; 3 and 4 keep only what is measured
+        pairs=[('class="q-text">Time of day: commuting or leisure?', 'class="q-text">Time of day'),
+               ('class="q-text">Weather: rain and temperature', 'class="q-text">Weather'),
+               ('class="q-text">Terrain: elevation and slope', 'class="q-text">Elevation and slope'),
+               ("Nearby transit: distance to a subway station", "Distance to the nearest subway station")],
         aside="Before looking at the data, we listed what might decide where a bike ends up. Time of day, because commuting and leisure trips "
               "look different. Weather: rain and temperature. Terrain, because pedalling uphill is hard. And transit, since many people ride to "
               "and from the subway. The first two tell us which days to study; the last two are possible explanations."),
