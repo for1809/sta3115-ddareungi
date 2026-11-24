@@ -7,7 +7,7 @@ Known TIN weakness: a triangle whose three corners are on the same contour is fl
 two lines of the same height); those stations are counted and reported.
 
 Run from the project root:  python scripts/17_tin_elevation.py
-Output: data/station_elevation_tin.csv  station_no, elev_tin_m, flat (1 if the triangle's corners share one height)
+Output: raw/derived/station_elevation_tin.csv  station_no, elev_tin_m, flat (1 if the triangle's corners share one height)
         raw/derived/dem_tin_15m.asc       the TIN on the 15 m grid of the IDW surface, cells within 600 m of a station
                                           (ESRI ASCII grid, read by scripts/17_tin_terrain.R for slopes)
 """
@@ -45,7 +45,7 @@ for k, (r, s) in enumerate(zip(rows, simp)):
     zz = z[v]
     out.append((r["station_no"], round(float(w.dot(zz)), 2), int(np.ptp(zz) == 0)))
 
-with open(ROOT / "data/station_elevation_tin.csv", "w", encoding="utf-8", newline="") as fh:
+with open(ROOT / "raw/derived/station_elevation_tin.csv", "w", encoding="utf-8", newline="") as fh:
     wr = csv.writer(fh)
     wr.writerow(["station_no", "elev_tin_m", "flat"])
     wr.writerows(out)

@@ -2,7 +2,7 @@
 # Three elevation sources: bare earth from the Seoul 1:5,000 contours (elev_bare_m, used in the final deck's terrain slides),
 # Copernicus DEM 30 m (elev30_m) and Open-Meteo / Copernicus 90 m (elev_m). Stations active in 2025: months_active > 0.
 # Run: Rscript analysis/elevation_stats.R > analysis/elevation_stats_log.txt
-# Output: data/station_elevation_stats.csv (one row per station), data/elevation_by_gu.csv
+# Output: the log only; per-station values are in data/station_master.csv
 suppressPackageStartupMessages(library(tidyverse))
 rd <- function(f) read_csv(f, col_types = cols(station_no = col_character()), show_col_types = FALSE)
 
@@ -40,8 +40,3 @@ gu <- act %>% group_by(gu) %>% summarise(stations = n(), mean_m = round(mean(ele
   max_m = round(max(elev_bare_m), 1), share_40m_plus = round(100 * mean(elev_bare_m >= 40), 1), .groups = "drop") %>% arrange(desc(median_m))
 cat("\n== by district (bare earth, active in 2025), highest median first ==\n")
 print(gu, n = Inf)
-
-write_csv(st %>% select(station_no, name, gu, lat, lon, docks, active_2025, elev_bare_m, elev30_m, elev90_m = elev_m, slope_bare_r300),
-          "data/station_elevation_stats.csv")
-write_csv(gu, "data/elevation_by_gu.csv")
-cat("\nwritten: data/station_elevation_stats.csv (", nrow(st), "rows), data/elevation_by_gu.csv (", nrow(gu), "rows)\n")

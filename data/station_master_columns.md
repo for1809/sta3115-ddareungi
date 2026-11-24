@@ -16,8 +16,7 @@ a station with no stock records).
 | docks | number of docks | snapshot |
 | active_2025, months_active | active in 2025; months of 2025 with trips | 06_aggregate_year.py |
 | role | low use / commute core / other, citywide thresholds (see 05_aggregate.py) | 06_aggregate_year.py |
-| elev_bare_m | ground elevation (m) from the Seoul 1:5,000 contours and spot heights, IDW on a 15 m grid; snaps to multiples of 5 m near contours | 12_dem_contour.R |
-| elev_tin_m, tin_flat | ground elevation (m) by linear interpolation on a triangulation of the same contours and spot heights; tin_flat = 1 where the triangle's three corners share one height | 17_tin_elevation.py |
+| elev_bare_m | ground elevation (m) from the Seoul 1:5,000 contours and spot heights, linear on a triangulation (TIN); 2 stations outside it keep the IDW value | 17_tin_terrain.R |
 | elev30_m | Copernicus DEM 30 m (surface model, buildings included) | 07_terrain.R |
 | elev90_m | Open-Meteo elevation (Copernicus 90 m, whole metres) | 01_fetch_features.py |
 | subway_m, subway_name | distance (m) to the nearest subway station and its name | 04_station_features.py |
@@ -29,7 +28,7 @@ a station with no stock records).
 | commute_share_2025 | share of weekday rentals in 07-09 h and 17-19 h | 06_aggregate_year.py |
 | am_empty_2025 | share of weekday 07, 08, 09 h stock snapshots with 0 bikes (all weather) | 06_aggregate_year.py |
 | parked_08_2025 | mean bikes parked at 08 h on weekdays | 06_aggregate_year.py |
-| slope_bare_r100, slope_bare_r300 | mean ground slope (degrees) within 100 m and 300 m, from the contour surface | 12_dem_contour.R |
+| slope_bare_r100, slope_bare_r300 | mean ground slope (degrees) within 100 m and 300 m, on the 15 m TIN grid | 17_tin_terrain.R |
 | slope_pt, slope_r100, slope_r300, tpi_500 | slope at the station and within 100 m / 300 m (degrees), and elevation minus mean elevation within 500 m (m), Copernicus 30 m | 07_terrain.R |
 | climb_bare, climb_bare_all | mean climb (m) of trips ending here: elevation here minus at the origin, bare elevation; without / with round trips | analysis/bare_compare.R |
 | aws_id, aws_m | nearest KMA AWS station and its distance (m) | 10_aggregate_dry.py |

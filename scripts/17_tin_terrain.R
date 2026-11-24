@@ -1,5 +1,5 @@
 # Step 1i (part 3): bare-earth station terrain from the TIN surface (scripts/17_tin_elevation.py), replacing the IDW one.
-# Inputs : raw/derived/dem_tin_15m.asc, data/station_elevation_tin.csv, data/stations_base.csv, data/station_terrain_bare.csv (IDW)
+# Inputs : raw/derived/dem_tin_15m.asc, raw/derived/station_elevation_tin.csv, data/stations_base.csv, data/station_terrain_bare.csv (IDW)
 # Output : data/station_terrain_bare.csv      station_no, elev_bare_m, slope_bare_r100, slope_bare_r300 (now from the TIN)
 #          data/station_terrain_bare_idw.csv  the earlier IDW values, kept for comparison
 # elev_bare_m is the station's TIN value (exact, from the triangulation); the 2 stations outside the triangulation keep
@@ -9,7 +9,7 @@ suppressPackageStartupMessages(library(terra))
 rd <- function(f) read.csv(f, colClasses = c(station_no = "character"))
 if (!file.exists("data/station_terrain_bare_idw.csv")) file.copy("data/station_terrain_bare.csv", "data/station_terrain_bare_idw.csv")
 idw <- rd("data/station_terrain_bare_idw.csv")
-tin <- rd("data/station_elevation_tin.csv")
+tin <- rd("raw/derived/station_elevation_tin.csv")
 con_crs <- crs(vect("raw/contour/contour/N3L_F001.shp"))
 dem <- rast("raw/derived/dem_tin_15m.asc"); crs(dem) <- con_crs
 slope <- terrain(dem, "slope", unit = "degrees")

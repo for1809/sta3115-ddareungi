@@ -79,7 +79,7 @@
 | 폴더 | 내용 |
 | --- | --- |
 | `scripts/` | 데이터 수집과 집계(Python 표준 라이브러리, R, Node.js, 01~10 순서) |
-| `data/` | 분석이 읽는 집계 파일과 각 단계 로그. 처음 만든 2025년 10월 한 달 결과는 `data/oct2025/`에 보관 |
+| `data/` | 분석이 읽는 집계 파일과 각 단계 로그, 대여소별 통합 표(`station_master.csv`) |
 | `analysis/` | R Markdown 탐색 분석(`eda_analysis.Rmd`, 13개 절)과 그림, 보강 분석 스크립트와 로그 |
 | `report/` | 논문형 보고서(HTML, PDF), 보고서용 그림 코드, PDF 생성 스크립트 |
 | `viz/` | 구별 시간대 대여 지도(HTML 한 장, `python viz/build_gu_hourly_map.py`로 생성) |
@@ -121,7 +121,7 @@ EDA 노트의 그림 가운데 발표 흐름에 맞는 것을 골라 큰 글씨�
 
 ### 대여소 고도 통계 (`analysis/elevation_stats.R`)
 
-고정한 대여소 2,736곳(2025년 운영 2,713곳)의 고도를 세 자료로 요약합니다(빈칸 0곳). 2025년 운영 대여소 기준 지표면(1:5,000 등고선) 고도는 평균 24.0m, 중앙값 20.2m, 범위 5~105m이고, 40m 이상이 318곳(11.7%)입니다(삼각망 기준). 구별 중앙값은 강북구 40m가 가장 높고 강서구 10m가 가장 낮습니다. 결과: `analysis/elevation_stats_log.txt`, 대여소별 `data/station_elevation_stats.csv`, 구별 `data/elevation_by_gu.csv`.
+고정한 대여소 2,736곳(2025년 운영 2,713곳)의 고도를 세 자료로 요약합니다(빈칸 0곳). 2025년 운영 대여소 기준 지표면(1:5,000 등고선) 고도는 평균 24.0m, 중앙값 20.2m, 범위 5~105m이고, 40m 이상이 318곳(11.7%)입니다(삼각망 기준). 구별 중앙값은 강북구 40m가 가장 높고 강서구 10m가 가장 낮습니다. 결과: `analysis/elevation_stats_log.txt`, 대여소별 값은 `data/station_master.csv`.
 
 ### 최종 발표 덱 (`slides/deck_final.html`, 2026-11-23)
 

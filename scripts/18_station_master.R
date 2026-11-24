@@ -24,11 +24,9 @@ m <- rd("data/stations.csv") %>%
                                day_out_inv_dry > 0 ~ "G3 morning in, day out",
                                TRUE ~ "G4 morning in, day back")) %>%
   left_join(rd("data/station_dong.csv"), by = "station_no")
-if (file.exists("data/station_elevation_tin.csv"))
-  m <- m %>% left_join(rd("data/station_elevation_tin.csv") %>% rename(tin_flat = flat), by = "station_no")
 
 m <- m %>% relocate(station_no, station_id, name, gu, adm_cd, adm_nm, lat, lon, docks, active_2025, months_active, role,
-                    any_of(c("elev_bare_m", "elev_tin_m", "tin_flat")), elev30_m, elev90_m)
+                    elev_bare_m, elev30_m, elev90_m)
 write_csv(m, "data/station_master.csv", na = "")
 cat("station_master.csv:", nrow(m), "rows,", ncol(m), "columns; active in 2025:", sum(m$active_2025), "\n")
 cat("2x2 groups:\n"); print(count(m, group_2x2))

@@ -84,5 +84,3 @@ correlation between sources: bare vs 30 m 0.975 ; bare vs 90 m 0.961 ; 30 m vs 9
 23 영등포구      166   13.1     12.6  40              0.6
 24 양천구        106   14.3     10.4  45.1            2.8
 25 강서구        193   11.8     10    36.7            0  
-
-written: data/station_elevation_stats.csv ( 2736 rows), data/elevation_by_gu.csv ( 25 rows)
