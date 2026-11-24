@@ -1,0 +1,6 @@
+station-days (readings at 00 h) by band: {'flat<20': 233143, 'mid20-40': 207290, 'hill40+': 58498, 'hill40+/G1': 17145, 'hill40+/G2': 19267}
+flat<20: other moves over the day -1.14 bikes; 01-06 h +0.00; empty at 06 h 5.5%, at 09 h 6.2%
+mid20-40: other moves over the day +1.14 bikes; 01-06 h -0.01; empty at 06 h 10.5%, at 09 h 13.4%
+hill40+: other moves over the day +4.38 bikes; 01-06 h -0.02; empty at 06 h 21.2%, at 09 h 30.4%
+hill40+/G1: other moves over the day +3.19 bikes; 01-06 h -0.02; empty at 06 h 14.1%, at 09 h 29.2%
+hill40+/G2: other moves over the day +4.36 bikes; 01-06 h -0.05; empty at 06 h 21.5%, at 09 h 39.7%

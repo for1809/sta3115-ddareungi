@@ -285,6 +285,7 @@ for a, b in zip(secs, secs[1:]):
     assert not out[a.end():b.start()].strip(), "text between sections"
 have = {re.search(r'id="([^"]+)"', m.group(0)).group(1): m.group(0) for m in secs}
 have.update(STORY.DRAFTS)
+have["when"] = STORY.when_slide(ROOT.parent / "data" / "hourly_refill_2025.csv")   # hourly version of STEP 7 (analysis/hourly_refill.py)
 assert set(have) == set(STORY.ORDER) and len(STORY.ORDER) == len(set(STORY.ORDER)), set(have) ^ set(STORY.ORDER)
 out = out[:secs[0].start()] + "\n\n".join(have[i].strip() for i in STORY.ORDER) + out[secs[-1].end():]
 

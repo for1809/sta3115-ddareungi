@@ -132,3 +132,75 @@ DRAFTS = {
         "that went down never come back up. Losing one or two is enough to empty it. Many stations lose bikes in the morning; only the hills "
         "cannot get them back."),
 }
+
+
+# ---- STEP "WHEN", redrawn from the hourly stock (analysis/hourly_refill.py -> data/hourly_refill_2025.csv):
+#      when are the hill-top stations empty, and when do bikes other than riders' arrive there, hour by hour
+def when_slide(csv_path):
+    import csv
+    rows = {(r["band"], int(r["hour"])): r for r in csv.DictReader(open(csv_path, encoding="utf-8"))}
+    hill, flat = "hill40+", "flat<20"
+    g = lambda b, h, k: float(rows[(b, h)][k])
+    W, H, L, RT = 1071, 557, 78, 16
+    bw = (W - L - RT) / 24
+    x = lambda h: L + h * bw
+    t1, b1 = 46, 236                          # empty share panel, 0 to 35 %
+    t2, b2 = 300, 512                         # refill panel, -0.4 to +0.8 bikes an hour
+    y1 = lambda v: b1 - v / 0.35 * (b1 - t1)
+    y2 = lambda v: t2 + (0.8 - v) / 1.2 * (b2 - t2)
+    RED, BLUE, GREY, MUTED, LINE = "#F04452", "#3182F6", "#B0B8C1", "#6B7684", "#E5E8EB"
+    o = [f'<svg viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" aria-label="Hill-top stations by hour on 2025 dry weekdays: '
+         f'share of stock readings with zero bikes, and bikes added by moves other than rides. No refill between 1 and 6 am; refills start at 8 am." '
+         f'style="font-family:inherit">']
+    o.append(f'<rect x="{x(7):.1f}" y="{t1 - 30}" width="{2 * bw:.1f}" height="{b2 - t1 + 30}" fill="#F4F8FF"/>')
+    o.append(f'<text x="{x(8):.1f}" y="{t1 - 12}" text-anchor="middle" font-size="18" font-weight="700" fill="{MUTED}">Morning rush</text>')
+    for v in (0, 0.1, 0.2, 0.3):
+        o.append(f'<line x1="{L}" x2="{W - RT}" y1="{y1(v):.1f}" y2="{y1(v):.1f}" stroke="{LINE}"/>'
+                 f'<text x="{L - 10}" y="{y1(v) + 6:.1f}" text-anchor="end" font-size="18" fill="{MUTED}">{int(v * 100)}%</text>')
+    for v in (-0.4, 0, 0.4, 0.8):
+        o.append(f'<line x1="{L}" x2="{W - RT}" y1="{y2(v):.1f}" y2="{y2(v):.1f}" stroke="{"#8B95A1" if v == 0 else LINE}"/>'
+                 f'<text x="{L - 10}" y="{y2(v) + 6:.1f}" text-anchor="end" font-size="18" fill="{MUTED}">{"0" if v == 0 else f"{v:+.1f}"}</text>')
+    o.append(f'<text x="{L}" y="{t1 - 12}" font-size="20" font-weight="700" fill="#191F28">Stations with zero bikes</text>')
+    o.append(f'<text x="{L}" y="{t2 - 16}" font-size="20" font-weight="700" fill="#191F28">Bikes added by trucks and other moves, per station per hour</text>')
+    for b, c, w in ((flat, GREY, 3), (hill, RED, 5)):
+        pts = " ".join(f"{x(h):.1f},{y1(g(b, h, 'empty_share')):.1f}" for h in range(24))
+        o.append(f'<polyline points="{pts}" fill="none" stroke="{c}" stroke-width="{w}" stroke-linejoin="round"/>')
+    o.append(f'<text x="{x(23) - 4:.1f}" y="{y1(g(hill, 23, "empty_share")) - 12:.1f}" text-anchor="end" font-size="18" font-weight="700" fill="{RED}">40 m and above</text>')
+    o.append(f'<text x="{x(23) - 4:.1f}" y="{y1(g(flat, 23, "empty_share")) - 10:.1f}" text-anchor="end" font-size="18" fill="{MUTED}">below 20 m</text>')
+    for h in range(23):
+        for b, c, dx in ((hill, BLUE, 0.12), (flat, GREY, 0.52)):
+            v = g(b, h, "other_in")
+            y0, yv = y2(0), y2(v)
+            o.append(f'<rect x="{x(h) + dx * bw:.1f}" y="{min(y0, yv):.1f}" width="{0.36 * bw:.1f}" height="{max(abs(yv - y0), 0.6):.1f}" fill="{c}" rx="2"/>')
+    o.append(f'<rect x="{W - RT - 330}" y="{t2 - 2}" width="16" height="16" fill="{BLUE}" rx="2"/><text x="{W - RT - 308}" y="{t2 + 12}" font-size="18" fill="#191F28">40 m and above</text>'
+             f'<rect x="{W - RT - 140}" y="{t2 - 2}" width="16" height="16" fill="{GREY}" rx="2"/><text x="{W - RT - 118}" y="{t2 + 12}" font-size="18" fill="{MUTED}">below 20 m</text>')
+    o.append(f'<text x="{(x(1) + x(7)) / 2:.1f}" y="{y2(0) - 14:.1f}" text-anchor="middle" font-size="18" font-weight="700" fill="{BLUE}">no refill overnight</text>')
+    for h in range(0, 25, 3):
+        o.append(f'<text x="{x(h):.1f}" y="{b2 + 32}" text-anchor="middle" font-size="18" fill="{MUTED}">{h % 24} h</text>')
+    o.append("</svg>")
+    night = sum(g(hill, h, "other_in") for h in range(1, 7))
+    morning = sum(g(hill, h, "other_in") for h in (8, 9, 10))
+    day = sum(g(hill, h, "other_in") for h in range(23))
+    e6, e9 = g(hill, 6, "empty_share"), g(hill, 9, "empty_share")
+    side = f"""<div class="side" style="gap:18px">
+<div class="stat"><p class="stat-num ink">{abs(night):.1f}</p><p class="stat-lab">bikes added to a hill-top station between 1 and 6 am: nobody refills the hills overnight</p></div>
+<div class="stat"><p class="stat-num blue">+{morning:.1f}</p><p class="stat-lab">of the {day:.1f} added each day arrive from 8 to 11 am, after the rush has started</p></div>
+<div class="stat"><p class="stat-num">{e6:.0%}</p><p class="stat-lab">of hill-top stations already empty at 6 am, {e9:.0%} by 9 am</p></div>
+<p class="note muted" style="font-size:20px">2025 dry weekdays, stations at 40 m and above (bare-earth elevation); hourly stock matched with trips. A reading is taken as the stock at the start of the hour.</p>
+</div>"""
+    note = (f"Do the trucks already fill the hills before the morning? We checked the stock at every station hour by hour. The red line is the share "
+            f"of hill-top stations with no bikes; the blue bars are bikes that arrive by something other than a ride, mostly trucks. Between 1 and 6 "
+            f"in the morning, almost nothing arrives: {abs(night):.1f} bikes. So already at 6 am, {e6:.0%} of the hill-top stations are empty, "
+            f"and by 9 it is {e9:.0%}. The trucks do come, about {day:.1f} bikes a day, but the first big refill is from 8 to 11, once the rush "
+            f"has already started, and the next one is in the afternoon. The hills are refilled every day, just not in time.")
+    return f"""<section id="when" data-transition="fade">
+<p class="eyebrow">WHEN THE TRUCKS COME</p>
+<h2>Nobody refills the hills overnight: the trucks arrive after 8 am</h2>
+<div class="body">
+<div class="figcard">{''.join(o)}</div>
+{side}
+</div>
+{FOOT}
+<aside>{note}</aside>
+</section>
+"""
