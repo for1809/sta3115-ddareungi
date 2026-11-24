@@ -5,7 +5,7 @@ STMAP  slide "stmap": the hills first (ground 50 m or higher shaded), then the s
 QUAD   slide "quad": the 2x2 as four tiles, each with its count and its typical day (D.prof), instead of a scatter
 GUMAP_REVEAL  slide "gumap": the losing and gaining districts appear together on the morning step
 STMAP_SIDE    the new side column of "stmap"
-cover_bikes() the cover: two bikes on the hill with dashed tracks from the top, instead of two loose arrows
+cover_map()   the cover: Seoul's contours as a topographic map, instead of the drawn hill and arrows
 """
 
 import math
@@ -142,45 +142,35 @@ GUMAP_REVEAL = ("        reveal(side, k + 1);\n      },\n    };\n    stop(box);\
                 "        reveal(side, k === 0 ? 1 : k === 1 ? 3 : side.length);   // losing and gaining together on the morning step\n"
                 "      },\n    };\n    stop(box);\n  })();\n\n  // ---------- elevation")
 
-# ---------- cover: two bikes rolling down the front hill, each leaving a dashed track from the top ----------
-COVER_OLD = re.compile(r'<g fill="none" stroke="#F04452" stroke-width="6"[^>]*>.*?</g>', re.S)
-HILL = [((0, 370), (300, 362), (560, 320), (820, 236)), ((820, 236), (1000, 176), (1120, 140), (1250, 146)),
-        ((1250, 146), (1400, 154), (1560, 250), (1720, 320)), ((1720, 320), (1800, 352), (1860, 362), (1920, 366))]
+# ---------- cover: Seoul's terrain as a quiet topographic map, instead of the drawn hill ----------
+COVER_OLD = re.compile(r'<svg class="cover-hill".*?</svg>', re.S)
 
 
-def _ground():
-    """Dense points along the front hill of the cover (the teammate's curve), left to right."""
-    pts = []
-    for p0, p1, p2, p3 in HILL:
-        for i in range(400):
-            s = i / 400
-            pts.append(tuple((1 - s) ** 3 * a + 3 * (1 - s) ** 2 * s * b + 3 * (1 - s) * s ** 2 * c + s ** 3 * d
-                             for a, b, c, d in zip(p0, p1, p2, p3)))
-    return pts
-
-
-def _at(pts, x):
-    j = min(range(len(pts) - 1), key=lambda i: abs(pts[i][0] - x))
-    (x0, y0), (x1, y1) = pts[j], pts[j + 1]
-    return pts[j], math.degrees(math.atan2(y1 - y0, x1 - x0))
-
-
-BIKE = ('<circle cx="-28" cy="-18" r="17"/><circle cx="28" cy="-18" r="17"/>'
-        '<path d="M-28 -18 L-2 -18 L-12 -42 Z M-2 -18 L17 -40 L-12 -40 M17 -40 L28 -18"/>'
-        '<path d="M-12 -42 L-12 -46 M-19 -47 L-6 -47 M17 -40 L14 -50 L23 -50"/>')
-
-
-def cover_bikes():
-    pts = _ground()
-    top = min(pts, key=lambda p: p[1])[0]
-    out = []
-    for x_end, flip in [(1750, False), (640, True)]:      # at the foot of each slope; the left bike is mirrored
-        (bx, by), ang = _at(pts, x_end)
-        lo, hi = sorted([top + (12 if not flip else -12), x_end + (-76 if not flip else 76)])
-        track = [p for p in pts if lo <= p[0] <= hi]
-        d = "M" + " L".join(f"{x:.0f} {y - 3:.0f}" for x, y in track)
-        out.append(f'<path d="{d}" fill="none" stroke="#F04452" stroke-width="5" stroke-linecap="round" stroke-dasharray="12 14"/>')
-        sc = "scale(-1,1) " if flip else ""
-        out.append(f'<g transform="translate({bx:.0f} {by - 1:.0f}) rotate({ang:.1f}) {sc}scale(1.55)" fill="none" '
-                   f'stroke="#F04452" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">{BIKE}</g>')
-    return "<g>" + "".join(out) + "</g>"
+def cover_map(D):
+    """Seoul's elevation from the deck's own 1 km terrain grid, softened, with the 100 and 200 m contours and the
+    25 district lines on top."""
+    F = D["frame"]
+    clip = "".join(f'<path d="{u["d"]}"/>' for u in D["gu"])
+    cells = []
+    for t in D["terrain"]:
+        op = min(1.0, max(0.0, (t["e"] - 25) / 260)) ** 0.75
+        if op > 0.02:
+            cells.append(f'<rect x="{t["x"] - 1}" y="{t["y"] - 1}" width="{F["cell"] + 2}" height="{F["cell"] + 2}" fill-opacity="{op:.2f}"/>')
+    g = [f'<defs><clipPath id="cv-seoul">{clip}</clipPath><filter id="cv-soft" x="-5%" y="-5%" width="110%" height="110%">'
+         f'<feGaussianBlur stdDeviation="7"/></filter></defs>',
+         f'<g clip-path="url(#cv-seoul)"><rect width="{F["w"]}" height="{F["h"]}" fill="#F4F8FF"/>'
+         f'<g fill="#3182F6" filter="url(#cv-soft)">{"".join(cells)}</g>']
+    for c in D["contours"]:
+        if c["level"] >= 100:
+            g.append(f'<path d="{c["d"]}" fill="none" stroke="#1B64DA" stroke-opacity=".35" stroke-width=".8" vector-effect="non-scaling-stroke"/>')
+    g.append("</g>")
+    for u in D["gu"]:
+        g.append(f'<path d="{u["d"]}" fill="none" stroke="#ffffff" stroke-width="1.2" vector-effect="non-scaling-stroke"/>')
+    H = 470
+    W = round(H * F["w"] / F["h"])
+    return (f'<div style="position:absolute;right:128px;top:540px;width:{W}px">'
+            f'<svg width="{W}" height="{H}" viewBox="0 0 {F["w"]} {F["h"]}" aria-hidden="true">{"".join(g)}</svg>'
+            f'<p style="margin:4px 0 0;font-size:18px;color:var(--muted);text-align:right">Seoul by ground elevation: darker is higher</p></div>'
+            + '<div style="position:absolute;left:128px;top:952px;width:900px;border-top:2px solid #e5e8eb;padding-top:18px">'
+              '<p style="margin:0;font-size:20px;line-height:1.5;color:var(--muted)">Data: every Seoul Bike trip in 2024 and 2025 (Seoul Open Data), '
+              'KMA hourly weather, and the Seoul 1:5,000 digital topographic map</p></div>')
