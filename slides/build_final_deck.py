@@ -97,10 +97,9 @@ assert WHY_SIDE_OLD, "why side not found"
 WHY_SIDE = """
 <div class="stat"><p class="stat-num ink">44.9M → 37.4M</p><p class="stat-lab">rides a year, 2023 → 2025; 2025 alone is −14.8%</p></div>
 <div class="stat"><p class="stat-num">₩17.6 bn</p><p class="stat-lab">operating deficit in 2025, almost double the ₩9.4 bn of 2022</p></div>
-<hr>
-<p class="note">Oct 2026: a newspaper reports the fleet may be cut to 30,000 bikes. The city denies it the same day, but says a study of the right size and running costs is under way.</p>
 """
-t = t[:WHY_SIDE_OLD.start(2)] + WHY_SIDE + t[WHY_SIDE_OLD.end(2):]
+t = (t[:WHY_SIDE_OLD.start(1)] + WHY_SIDE_OLD.group(1).replace('<div class="side">', '<div class="side" style="justify-content:center">')
+     + WHY_SIDE + t[WHY_SIDE_OLD.end(2):])   # two stats, centred in the column
 WHY_NOTE_OLD = re.search(r'(<section[^>]*id="why".*?<aside>)(.*?)(</aside>)', t, re.S)
 t = t[:WHY_NOTE_OLD.start(2)] + (
     "Ddareungi grew fast: from 32 million rides in 2021 to almost 45 million in 2023. Then it fell two years in a row, "
@@ -112,19 +111,18 @@ WHY_JS = r"""  // ---------- why: yearly rides 2021-2025 (left axis) and operati
   (function () {
     const box = document.getElementById('ix-ride'); if (!box) return;
     const YR = [2021, 2022, 2023, 2024, 2025], RIDES = [32.05, 40.95, 44.91, 43.85, 37.37], DEF = [10.3, 9.4, 10.9, 12.7, 17.6];
-    const YOY = ['', '+27.7%', '+9.7%', '−2.4%', '−14.8%'];
-    const W = 1071, H = 560, L = 96, R = 104, T = 78, B = 92, maxR = 50, maxD = 30;
+    const W = 1071, H = 560, L = 96, R = 104, T = 78, B = 92, minR = 20, maxR = 50, maxD = 40;   // rides axis starts at 20M so the rise and fall show
     const svg = makeSvg(box, W, H);
-    const y = v => H - B - v / maxR * (H - T - B), yd = v => H - B - v / maxD * (H - T - B), bw = (W - L - R) / YR.length;
-    axisY(svg, L, R, W, y, [0, 10, 20, 30, 40, 50], v => v + 'M');
+    const y = v => H - B - (v - minR) / (maxR - minR) * (H - T - B), yd = v => H - B - v / maxD * (H - T - B), bw = (W - L - R) / YR.length;
+    axisY(svg, L, R, W, y, [20, 30, 40, 50], v => v + 'M');
+    el('line', { x1: L, x2: W - R, y1: H - B, y2: H - B, stroke: C.muted, 'stroke-width': 1.5 }, svg);
     ylab(svg, 'Rides a year (million)', T, H, B);
     YR.forEach((yr, j) => {
       const cx = L + bw * (j + .5);
       const rx = cx - bw * .42, rw = bw * .42;   // rides on the left of each year, the deficit bar overlaps it slightly on the right
-      el('rect', { x: rx, width: rw, y: y(RIDES[j]), height: y(0) - y(RIDES[j]), rx: 8, fill: j === 4 ? C.blue : C.light }, svg);
+      el('rect', { x: rx, width: rw, y: y(RIDES[j]), height: y(minR) - y(RIDES[j]), rx: 8, fill: j === 4 ? C.blue : C.light }, svg);
       halo(txt(RIDES[j].toFixed(1) + 'M', { x: rx + rw / 2, y: y(RIDES[j]) - 12, 'text-anchor': 'middle', 'font-size': 20, 'font-weight': 700, fill: C.ink }, svg));
       txt(yr, { x: cx - bw * .06, y: H - B + 30, 'text-anchor': 'middle', 'font-size': 19, fill: C.ink }, svg);
-      if (YOY[j]) txt(YOY[j], { x: cx - bw * .06, y: H - B + 54, 'text-anchor': 'middle', 'font-size': 17, 'font-weight': 600, fill: YOY[j][0] === '+' ? C.muted : C.red }, svg);
     });
     const lg = el('g', {}, svg);
     el('rect', { x: L, y: 14, width: 18, height: 18, rx: 4, fill: C.blue }, lg);
@@ -132,14 +130,14 @@ WHY_JS = r"""  // ---------- why: yearly rides 2021-2025 (left axis) and operati
     const dl = el('g', {}, svg);
     el('rect', { x: L + 300, y: 14, width: 18, height: 18, rx: 4, fill: C.red }, dl);
     txt('Operating deficit, billion won (right axis)', { x: L + 326, y: 30, 'font-size': 19, fill: C.ink }, dl);
-    [0, 10, 20, 30].forEach(v => txt('₩' + v + 'B', { x: W - R + 14, y: yd(v) + 6, 'font-size': 17, fill: C.red }, dl));
+    [0, 10, 20, 30, 40].forEach(v => txt('₩' + v + 'B', { x: W - R + 14, y: yd(v) + 6, 'font-size': 17, fill: C.red }, dl));
     txt('Operating deficit (billion won)', { x: 0, y: 0, transform: `translate(${W - 16} ${(T + H - B) / 2}) rotate(90)`, 'text-anchor': 'middle', 'font-size': 19, fill: C.red }, dl);
     DEF.forEach((v, j) => {
       const dx = L + bw * (j + .5) - bw * .06, dw = bw * .36;
       el('rect', { x: dx, width: dw, y: yd(v), height: yd(0) - yd(v), rx: 8, fill: j === 4 ? C.red : '#FFC9CE', stroke: '#fff', 'stroke-width': 3 }, dl);
       halo(txt('₩' + v.toFixed(1) + 'B', { x: dx + dw / 2, y: yd(v) - 12, 'text-anchor': 'middle', 'font-size': 19, 'font-weight': 700, fill: C.red }, dl));
     });
-    txt('Rides: Seoul Open Data. Deficit: Seoul Facilities Corporation figures as reported in the press.', { x: L, y: H - 4, 'font-size': 14, fill: C.muted }, svg);
+    txt('Left axis starts at 20M. Rides: Seoul Open Data. Deficit: Seoul Facilities Corporation figures as reported in the press.', { x: L, y: H - 30, 'font-size': 14, fill: C.muted }, svg);
     const side = sideItems('why');
     IX.why = {
       steps: 2,
