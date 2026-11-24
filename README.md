@@ -80,6 +80,7 @@
 | --- | --- |
 | `scripts/` | 데이터 수집과 집계(Python 표준 라이브러리, R, Node.js, 01~10 순서) |
 | `data/` | 분석이 읽는 집계 파일과 각 단계 로그, 대여소별 통합 표(`station_master.csv`) |
+| `data/od_2024_2025/` | 팀 분석 기간(2024~2025년)의 이동 기록 집계: 대여소 × 날짜, 대여소 요약과 2×2, 이동 쌍, 1km 흐름 벡터, 대여소 정보 5개 시점(팀원 지호, 설명은 그 폴더의 README) |
 | `analysis/` | R Markdown 탐색 분석(`eda_analysis.Rmd`, 13개 절)과 그림, 보강 분석 스크립트와 로그 |
 | `report/` | 논문형 보고서(HTML, PDF), 보고서용 그림 코드, PDF 생성 스크립트 |
 | `viz/` | 구별 시간대 대여 지도(HTML 한 장, `python viz/build_gu_hourly_map.py`로 생성) |
