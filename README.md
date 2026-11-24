@@ -111,6 +111,10 @@ EDA 노트의 그림 가운데 발표 흐름에 맞는 것을 골라 큰 글씨�
 `b4_logit_calibration.png`(로지스틱 적합 점검).
 색은 덱과 같은 팔레트(파랑 #3182F6, 품절은 빨강 #F04452, 회색 계열)를 씁니다.
 
+### 대여소 고도 통계 (`analysis/elevation_stats.R`)
+
+고정한 대여소 2,736곳(2025년 운영 2,713곳)의 고도를 세 자료로 요약합니다(빈칸 0곳). 2025년 운영 대여소 기준 지표면(1:5,000 등고선) 고도는 평균 24.2m, 중앙값 20m, 범위 5~106m이고, 40m 이상이 344곳(12.7%)입니다. 구별 중앙값은 강북구 40m가 가장 높고 강서구 10m가 가장 낮습니다. 결과: `analysis/elevation_stats_log.txt`, 대여소별 `data/station_elevation_stats.csv`, 구별 `data/elevation_by_gu.csv`.
+
 ### 최종 발표 덱 (`slides/deck_final.html`, 2026-11-23)
 
 웹에서 보기: https://for1809.github.io/sta3115-ddareungi-deck/ (덱 한 파일만 담은 공개 저장소 for1809/sta3115-ddareungi-deck의 GitHub Pages. `python slides/publish_deck.py`가 덱을 다시 만들고, 바뀌었으면 그 저장소에 올립니다. 공개 저장소에는 덱 한 파일만 갑니다.)
@@ -130,7 +134,8 @@ EDA 노트의 그림 가운데 발표 흐름에 맞는 것을 골라 큰 글씨�
 - 1장(표지): 손그림 언덕과 화살표 대신 덱 데이터의 1km 고도 격자로 그린 서울 고도 지도(높을수록 진한 파랑, 100m와 200m 등고선, 구 경계)와 데이터 출처 한 줄을 둡니다.
 - 3장: 월별 비교 대신 2021~2025년 연간 이용 막대와 운영 적자 막대를 해마다 나란히, 살짝 겹쳐 그립니다(왼쪽 축 이용은 2천만 건부터 시작해 증감이 잘 보이게, 오른쪽 축 적자는 0부터; 오른쪽 칸은 이용과 적자 숫자 둘만; 팀 표: 이용 3,205만, 4,095만, 4,491만, 4,385만, 3,737만 건, 적자 103억, 94억, 109억, 127억, 176억 원). 2022~2025년 이용은 `data/monthly_age.csv`와, 2023과 2024년 적자는 보도와 맞습니다.
 - 4장: 제목 "Our Question"과 가운데 큰 질문 "Where do bikes pile up, where do they run out, and why?"만 둡니다. 53%와 트럭 설명은 발표자 노트에만 있습니다.
-- 5장: 제목은 "Possible Factors", 요인 넷을 짧게(Time of day, Weather, Elevation and slope, Distance to the nearest subway station).
+- 5장: 제목은 "Possible Factors", 요인 넷을 짧게(Time of day, Weather, Elevation, Distance to the nearest subway station).
+- 6, 7장: 위 작은 제목을 5장 요인 번호에 맞춰 "FACTOR 1. TIME OF DAY", "FACTOR 2. WEATHER"로(구성 개편 중).
 - 7장: 점 480개는 2024~2025년 평일(공휴일 제외 490일)에서 기록이 안 맞는 10일을 뺀 날입니다. 8장의 맑은 평일 378일과 7장의 373일은 빠진 10일 중 5일이 맑은 날이면 맞아떨어지지만, 팀원 코드로 확인이 필요합니다.
 - 9장: 시간대별 이용 지도는 순유출 지도의 파랑과 헷갈리지 않게 초록으로 칠합니다.
 - 9장: 출근 시간 단계에서 잃는 구와 얻는 구가 함께 나오고, 하루 전체 순유출은 다음 단계로 따로 둡니다.

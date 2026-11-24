@@ -61,14 +61,14 @@ SLIDES = {
         # 1 and 2 keep only the factor; 3 and 4 keep only what is measured
         pairs=[('class="q-text">Time of day: commuting or leisure?', 'class="q-text">Time of day'),
                ('class="q-text">Weather: rain and temperature', 'class="q-text">Weather'),
-               ('class="q-text">Terrain: elevation and slope', 'class="q-text">Elevation and slope'),
+               ('class="q-text">Terrain: elevation and slope', 'class="q-text">Elevation'),
                ("Nearby transit: distance to a subway station", "Distance to the nearest subway station")],
         aside="Before looking at the data, we listed what might decide where a bike ends up. Time of day, because commuting and leisure trips "
               "look different. Weather: rain and temperature. Terrain, because pedalling uphill is hard. And transit, since many people ride to "
               "and from the subway. The first two tell us which days to study; the last two are possible explanations."),
 
     "hours": dict(
-        eyebrow="STEP 1. CHOOSING THE DAYS",
+        eyebrow="FACTOR 1. TIME OF DAY",
         title="Weekdays follow a clear commute pattern; weekends do not",
         pairs=[("two sharp weekday peaks: 11,300 and 13,200 rides in the hour", "two sharp weekday peaks, with 11,300 and 13,200 rides in the hour"),
                ('<p class="stat-num">One hill</p><p class="stat-lab">on weekends and holidays, peaking at 5 pm with 6,900</p>',
@@ -81,7 +81,7 @@ SLIDES = {
               "from 7 to 9 am."),
 
     "weather": dict(
-        eyebrow="STEP 1. CHOOSING THE DAYS",
+        eyebrow="FACTOR 2. WEATHER",
         title="Rainy days are too irregular to model, so we set them aside",
         pairs=[('<p class="stat-num blue">Smooth</p><p class="stat-lab">on dry weekdays: rides rise with temperature and dip in the hottest weeks (LOESS, span 0.75)</p>',
                 '<p class="stat-num blue">Dry days</p><p class="stat-lab">follow a smooth curve: rides rise with temperature and dip in the hottest weeks (LOESS, span 0.75)</p>'),
