@@ -59,11 +59,10 @@ SLIDES = {
               "run out, and why? If the data can answer that, trucks can be sent to the right place at the right time."),
 
     "factors": dict(
-        # no eyebrow: "What might matter" is the title, kept at the height of the other titles
+        eyebrow="WHAT MIGHT MATTER",
+        title="Possible factors",
         # 1 and 2 keep only the factor; 3 and 4 keep only what is measured
-        pairs=[('<p class="eyebrow">WHAT COULD MATTER</p>' + NL, ""),
-               ("<h2>What shapes where a bike ends up?</h2>", '<h2 style="padding-top:47px">What might matter</h2>'),
-               ('class="q-text">Time of day: commuting or leisure?', 'class="q-text">Time of day'),
+        pairs=[('class="q-text">Time of day: commuting or leisure?', 'class="q-text">Time of day'),
                ('class="q-text">Weather: rain and temperature', 'class="q-text">Weather'),
                ('class="q-text">Terrain: elevation and slope', 'class="q-text">Elevation and slope'),
                ("Nearby transit: distance to a subway station", "Distance to the nearest subway station")],
