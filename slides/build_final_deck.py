@@ -13,10 +13,10 @@ Changes, all made here so the original stays as received:
   6. slide "weather": every station's mean rentals by 5 C band of its local daily maximum, 2024-2025 weekdays (data/station_tmax_band.csv)
   7. slide "gumap": the hourly-use map in green, so it is not confused with the blue of the net-flow maps
   0. a "What is Ddareungi" slide after the cover
-  10. storyline (slides/final_deck_story.py): the new question on slide 4, slide order in four acts, eyebrows, and
+  10. storyline draft (slides/final_deck_story.py), only in deck_draft.html: the new question on slide 4, slide order in four acts, eyebrows, and
       text drafts (ids d_*) for the slides still to be drawn
 Run from the project root:  python slides/build_final_deck.py
-Output: slides/deck_final.html
+Output: slides/deck_final.html (steps 0-9) and slides/deck_draft.html (steps 0-10, the storyline draft)
 """
 import base64
 import importlib.util
@@ -27,6 +27,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 SRC = ROOT / "team" / "deck_ddareungi_teammate.html"
 OUT = ROOT / "deck_final.html"
+DRAFT = ROOT / "deck_draft.html"   # storyline draft (step 10), kept apart from the final deck
 FIG = ROOT / "figures_en" / "10b_rebalance_bare.png"   # bare-earth elevation bands, as in the teammate deck
 
 t = SRC.read_text(encoding="utf-8")
@@ -261,7 +262,9 @@ for a, b in COPY.JS:
     js = js.replace(a, b)
 out = out[:js0] + js + out[js1:]
 
-# ---- 10. storyline (slides/final_deck_story.py): the question, slide order, eyebrows, and text drafts for slides to come
+# ---- 10. storyline draft (slides/final_deck_story.py), written to a separate file; deck_final.html stays as it was
+#      the new question, slide order, eyebrows, and text drafts for slides to come
+final = out
 sspec = importlib.util.spec_from_file_location("final_deck_story", ROOT / "final_deck_story.py")
 STORY = importlib.util.module_from_spec(sspec)
 sspec.loader.exec_module(STORY)
@@ -286,16 +289,19 @@ assert set(have) == set(STORY.ORDER) and len(STORY.ORDER) == len(set(STORY.ORDER
 out = out[:secs[0].start()] + "\n\n".join(have[i].strip() for i in STORY.ORDER) + out[secs[-1].end():]
 
 # page numbers: section n resets the counter to n - 1 (hidden slides do not count)
-n = 0
+def renumber(html):
+    n = 0
+
+    def one(m):
+        nonlocal n
+        n += 1
+        tag = re.sub(r'\sstyle="counter-reset: page \d+"', "", m.group(0))
+        return tag.replace("<section ", f'<section style="counter-reset: page {n - 1}" ', 1)
+
+    return re.sub(r"<section\b[^>]*>", one, html), n
 
 
-def renumber(m):
-    global n
-    n += 1
-    tag = re.sub(r'\sstyle="counter-reset: page \d+"', "", m.group(0))
-    return tag.replace("<section ", f'<section style="counter-reset: page {n - 1}" ', 1)
-
-
-out = re.sub(r"<section\b[^>]*>", renumber, out)
-OUT.write_text(out, encoding="utf-8")
-print(n, "slides ->", OUT, round(OUT.stat().st_size / 1e6, 2), "MB")
+for html, path in ((final, OUT), (out, DRAFT)):
+    html, n = renumber(html)
+    path.write_text(html, encoding="utf-8")
+    print(n, "slides ->", path, round(path.stat().st_size / 1e6, 2), "MB")

@@ -152,7 +152,7 @@ EDA 노트의 그림 가운데 발표 흐름에 맞는 것을 골라 큰 글씨�
 - 15장: 산점도 대신 두 질문으로 나눈 2×2 타일 네 개에 대여소 수와 그룹별 하루(시간대 순유출 선)를 그리고, 마지막 단계에서 아침에 비는 1,596곳 중 703곳은 회복, 893곳은 못 함을 강조합니다(`slides/final_deck_charts.py`).
 - 문구: 내용, 숫자, 순서는 그대로 두고 모든 장의 제목, 숫자 칸, 카드, 발표자 노트, 단계별 대사, 그래프 속 그룹 이름을 자연스러운 영어로 다시 썼습니다(`slides/final_deck_copy.py`). 그룹 이름: G1 Stays short, G2 Refills by night, G3 Collects bikes, G4 Office hub. 제목: "Where do all the Ddareungi go?"
 
-**스토리라인 개편 시안 (2026-11-25, `slides/final_deck_story.py`)**: 한 줄 결론은 "아침에 자전거를 잃는 곳은 많지만, 되찾지 못하는 곳은 언덕뿐"입니다. 4장 질문을 "Many stations lose bikes every morning. Why do only some run out?"로 바꾸고, 장 순서를 네 막으로 다시 놓았습니다(본편 26장, 부록 3장).
+**스토리라인 개편 시안 (2026-11-25, `slides/final_deck_story.py`)**: 최종 덱(`slides/deck_final.html`)은 그대로 두고, 같은 빌드가 시안을 `slides/deck_draft.html`로 따로 만듭니다. 한 줄 결론은 "아침에 자전거를 잃는 곳은 많지만, 되찾지 못하는 곳은 언덕뿐"입니다. 4장 질문을 "Many stations lose bikes every morning. Why do only some run out?"로 바꾸고, 장 순서를 네 막으로 다시 놓았습니다(본편 26장, 부록 3장).
 1. 질문: 표지, 소개, 적자, 질문
 2. 요인 하나씩: 요인 넷, 시간대, 두 척도(순유출과 품절), 날씨, 고도, 지하철 거리
 3. 요인 함께: 고도 × 지하철, 고도 × 날씨, 요인 표, 내리막 흐름, 재고 여유
