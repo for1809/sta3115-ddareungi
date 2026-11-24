@@ -13,6 +13,8 @@ Changes, all made here so the original stays as received:
   6. slide "weather": every station's mean rentals by 5 C band of its local daily maximum, 2024-2025 weekdays (data/station_tmax_band.csv)
   7. slide "gumap": the hourly-use map in green, so it is not confused with the blue of the net-flow maps
   0. a "What is Ddareungi" slide after the cover
+  10. storyline (slides/final_deck_story.py): the new question on slide 4, slide order in four acts, eyebrows, and
+      text drafts (ids d_*) for the slides still to be drawn
 Run from the project root:  python slides/build_final_deck.py
 Output: slides/deck_final.html
 """
@@ -258,6 +260,30 @@ for a, b in COPY.JS:
     assert js.count(a) >= 1, a[:60]
     js = js.replace(a, b)
 out = out[:js0] + js + out[js1:]
+
+# ---- 10. storyline (slides/final_deck_story.py): the question, slide order, eyebrows, and text drafts for slides to come
+sspec = importlib.util.spec_from_file_location("final_deck_story", ROOT / "final_deck_story.py")
+STORY = importlib.util.module_from_spec(sspec)
+sspec.loader.exec_module(STORY)
+m = re.search(r'<section\b[^>]*id="cost".*?</section>', out, re.S)
+s = m.group(0)
+s, k = re.subn(r'<p style="margin:0;font-size:76px.*?</p>', lambda _: STORY.QUESTION, s, count=1, flags=re.S)
+assert k == 1
+s, k = re.subn(r"<aside>.*?</aside>", lambda _: f"<aside>{STORY.QUESTION_NOTE}</aside>", s, count=1, flags=re.S)
+assert k == 1
+out = out[:m.start()] + s + out[m.end():]
+for sid, eb in STORY.EYEBROWS.items():
+    m = re.search(r'<section\b[^>]*id="%s".*?</section>' % sid, out, re.S)
+    s, k = re.subn(r'<p class="eyebrow">.*?</p>', f'<p class="eyebrow">{eb}</p>', m.group(0), count=1)
+    assert k == 1, sid
+    out = out[:m.start()] + s + out[m.end():]
+secs = list(re.finditer(r"<section\b.*?</section>", out, re.S))
+for a, b in zip(secs, secs[1:]):
+    assert not out[a.end():b.start()].strip(), "text between sections"
+have = {re.search(r'id="([^"]+)"', m.group(0)).group(1): m.group(0) for m in secs}
+have.update(STORY.DRAFTS)
+assert set(have) == set(STORY.ORDER) and len(STORY.ORDER) == len(set(STORY.ORDER)), set(have) ^ set(STORY.ORDER)
+out = out[:secs[0].start()] + "\n\n".join(have[i].strip() for i in STORY.ORDER) + out[secs[-1].end():]
 
 # page numbers: section n resets the counter to n - 1 (hidden slides do not count)
 n = 0
