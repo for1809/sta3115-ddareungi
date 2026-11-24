@@ -85,7 +85,18 @@ def main(bikelist_csv, key_file, out_dir):
             w.writerow([s["station_no"], z])
     print(f"elevations: {len(elev):,} (min {min(elev)}, max {max(elev)})")
 
+def frozen_guard(*outs):
+    """The data are frozen (see data/source/README.md): refuse to overwrite saved API outputs unless --refetch is given."""
+    if "--refetch" in sys.argv:
+        sys.argv.remove("--refetch")
+        return
+    have = [str(p) for p in outs if Path(p).exists()]
+    if have:
+        raise SystemExit("frozen data, not fetching again: " + ", ".join(have) + "  (add --refetch to overwrite)")
+
 
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")
+    args = [a for a in sys.argv[1:] if a != "--refetch"]
+    frozen_guard(*[Path(args[2]) / f for f in ("stations_base.csv", "subway_stations.csv", "station_elevation.csv")])
     main(*sys.argv[1:4])

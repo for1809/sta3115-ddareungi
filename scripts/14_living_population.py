@@ -64,7 +64,17 @@ def main(key_file, out_dir):
     idx = sorted(o["res_index"] for o in out if o["res_index"] != "")
     print(f"dongs {len(out)}; res_index min {idx[0]}, median {idx[len(idx) // 2]}, max {idx[-1]}")
 
+def frozen_guard(*outs):
+    """The data are frozen (see data/source/README.md): refuse to overwrite saved API outputs unless --refetch is given."""
+    if "--refetch" in sys.argv:
+        sys.argv.remove("--refetch")
+        return
+    have = [str(p) for p in outs if Path(p).exists()]
+    if have:
+        raise SystemExit("frozen data, not fetching again: " + ", ".join(have) + "  (add --refetch to overwrite)")
+
 
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")
+    frozen_guard(*[Path(a) / "dong_living_pop.csv" for a in sys.argv[2:3] if a != "--refetch"])
     main(*sys.argv[1:3])

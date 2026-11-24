@@ -51,7 +51,17 @@ def main(key_file, out_csv):
     found = sum(1 for o in out if o["lat"])
     print(f"\nfound {found}/{len(out)}")
 
+def frozen_guard(*outs):
+    """The data are frozen (see data/source/README.md): refuse to overwrite saved API outputs unless --refetch is given."""
+    if "--refetch" in sys.argv:
+        sys.argv.remove("--refetch")
+        return
+    have = [str(p) for p in outs if Path(p).exists()]
+    if have:
+        raise SystemExit("frozen data, not fetching again: " + ", ".join(have) + "  (add --refetch to overwrite)")
+
 
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")
+    frozen_guard(*[a for a in sys.argv[2:3] if a != "--refetch"])
     main(*sys.argv[1:3])

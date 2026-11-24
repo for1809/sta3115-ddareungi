@@ -56,7 +56,7 @@
 
 까다로웠던 점:
 - 이동 데이터에는 같은 이용이 출발 기준과 도착 기준으로 두 번 들어 있습니다. 대여는 출발 기준 행만, 반납은 도착 기준 행만 셉니다.
-- 이동 데이터(ST-xxx)와 재고 데이터(5자리 번호)의 대여소 ID 체계가 달라 실시간 대여정보 API로 연결했습니다.
+- 이동 데이터(ST-xxx)와 재고 데이터(5자리 번호)의 대여소 ID 체계가 달라 실시간 대여정보 API의 대여소 목록(2026-11-03에 한 번 받아 `data/source/`에 고정)으로 연결했습니다.
 - 2025년 7월 파일만 영어 열 이름이고, 파일마다 인코딩(cp949, utf-8)이 섞여 있어 파일별로 판별합니다.
 
 ## 방법
@@ -235,20 +235,18 @@ EDA 노트의 그림 가운데 발표 흐름에 맞는 것을 골라 큰 글씨�
    | `raw/od_5min/` | 202501.zip ~ 202512.zip | OA-21229 |
    | `raw/inv_1h/` | 2025Q1.zip ~ 2025Q4.zip | OA-22382 |
    | `raw/usage_monthly/` | 월별 이용 CSV | OA-15248 |
-   | `raw/stations/csv/` | info_2606__대여소현황.csv | OA-13252 |
-   | `raw/map/` | bikelist_map.csv(실시간 대여정보 API의 대여소 ID와 번호) | OA-15493 |
    | `raw/dem/` | cop30_N37_00_E126_00.tif, cop30_N37_00_E127_00.tif | Copernicus DEM GLO-30 |
    | `raw/contour/` | 서울시 1:5000 수치지도 등고선(N3L_F001), 표고점(N3P_F002) 셰이프파일 | 서울 열린데이터광장 "서울시 경사도"(현재 서비스 종료) |
    | `raw/admdong/` | HangJeongDong_ver20250701.geojson(행정동 경계) | github.com/vuski/admdongkor |
    | `raw/weather/` | aws_202501.csv ~ aws_202512.csv(`scripts/08_fetch_kma_aws.mjs`로 받음) | 기상청 방재기상관측 |
 
-2. 대여소 특성을 만들고 집계합니다. 인증키는 파일 경로로만 넘기고 화면에 출력하지 않습니다.
+2. 대여소 특성을 만들고 집계합니다. 자료는 2026-11-24 기준으로 고정했습니다. 대여소 목록 스냅샷(실시간 대여정보 API, 2026-11-03)과 대여소 정보 파일은 `data/source/`에 있고, API로 받은 결과(지하철역, 고도, 대학, 생활인구)도 `data/`에 저장돼 있어 다시 받지 않습니다. 01, 02, 14번 스크립트는 결과 파일이 있으면 멈추고, `--refetch`를 붙여야 다시 받습니다(`data/source/README.md`). 인증키는 파일 경로로만 넘기고 화면에 출력하지 않습니다.
 
    ```
-   python scripts/01_fetch_features.py raw/map/bikelist_map.csv <인증키 파일> data
+   python scripts/01_fetch_features.py data/source/bikelist_map_20261103.csv <인증키 파일> data   (고정 자료가 있으면 건너뜀)
    python scripts/02_universities.py <인증키 파일> data/universities.csv
    python scripts/03_clean_universities.py data/universities.csv data/universities_clean.csv
-   python scripts/04_station_features.py data "raw/stations/csv/info_2606__대여소현황.csv"
+   python scripts/04_station_features.py data data/source/station_info_2606.csv
    python scripts/05_aggregate.py data raw/od_5min/202510.zip raw/inv_1h/2025Q4.zip raw/usage_monthly
    python scripts/06_aggregate_year.py data raw/od_5min raw/inv_1h
    Rscript scripts/07_terrain.R
