@@ -113,6 +113,8 @@ EDA 노트의 그림 가운데 발표 흐름에 맞는 것을 골라 큰 글씨�
 
 ### 최종 발표 덱 (`slides/deck_final.html`, 2026-11-23)
 
+웹에서 보기: https://for1809.github.io/sta3115-ddareungi-deck/ (덱 한 파일만 담은 공개 저장소 for1809/sta3115-ddareungi-deck의 GitHub Pages. 덱을 고친 뒤에는 그 저장소의 `index.html`을 `slides/deck_final.html`로 바꿔 올리면 됩니다.)
+
 최종 발표는 팀원이 팀 아이디어 문서의 흐름("Where are all the Ddareungi at?")대로 만든 덱을 바탕으로 합니다.
 받은 원본은 `slides/team/deck_ddareungi_teammate.html`에 그대로 두고, `python slides/build_final_deck.py`가 원본에 아래를
 더해 최종본을 만듭니다(24장, 그림과 데이터가 들어 있어 HTML 하나로 열림).
