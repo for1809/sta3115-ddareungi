@@ -10,7 +10,7 @@ Changes, all made here so the original stays as received:
   3. limits, item 1: trucks are now seen, but only as the part of stock change rides do not explain
   4. page numbers: each slide's counter is reset to its new place
   5. slide "why": yearly rides 2021-2025 and the operating deficit as side-by-side bars (team's table)
-  6. slide "weather": a line saying the 480 dots are the 2024-2025 weekdays without holidays, minus 10 bad days
+  6. slide "weather": rides by temperature only, all 480 weekdays with the mean of each 5 C band (rain left out for now)
   7. slide "gumap": the hourly-use map in green, so it is not confused with the blue of the net-flow maps
   0. a "What is Ddareungi" slide after the cover
 Run from the project root:  python slides/build_final_deck.py
@@ -154,15 +154,6 @@ i1 = t.find("  // ---------- hours:", i0)
 assert i0 > 0 and i1 > i0, "why chart block not found"
 t = t[:i0] + WHY_JS + t[i1:]
 
-# ---- 6. slide "weather": say what the 480 weekdays are. The side column reveals one child per step, so the note
-#      goes inside the first item (shown from the first step) instead of becoming a fourth item that never shows
-WX_OLD = ('<div class="stat"><p class="stat-num blue">Smooth</p><p class="stat-lab">on dry weekdays: rides rise with temperature '
-          'and dip in the hottest weeks (LOESS, span 0.75)</p></div>')
-assert t.count(WX_OLD) == 1, "weather first stat changed"
-WX_NOTE = ('<p class="stat-lab" style="font-size:20px;margin-top:10px">Each dot is one of 480 weekdays: every Monday to Friday of 2024 '
-           'and 2025 except public holidays (490), minus 10 days whose rentals and returns did not match.</p>')
-t = t.replace(WX_OLD, WX_OLD[:-len("</div>")] + WX_NOTE + "</div>")
-
 # ---- 7. slide "gumap": the hourly-use map in green, so it is not read as the blue "gains bikes" of the net-flow maps
 GREEN = "#12a150"
 gi = t.find("// ---------- gu map:")
@@ -194,6 +185,12 @@ ST = re.search(r'(<section[^>]*id="stmap".*?<div class="side">)(.*?)(</div>\n</d
 assert ST, "stmap side not found"
 t = t[:ST.start(2)] + CH.STMAP_SIDE + t[ST.end(2):]
 assert len(CH.COVER_OLD.findall(t)) == 1, "cover hill not found"
+WX = re.search(r'(<section[^>]*id="weather".*?<div class="side">)(.*?)(</div>\n</div>\n<div class="foot">)', t, re.S)
+assert WX, "weather side not found"
+t = t[:WX.start(2)] + CH.WEATHER_SIDE + t[WX.end(2):]
+w0 = t.find("  // ---------- weather: temperature vs rides"); w1 = t.find("  // ----------", w0 + 20)
+assert w0 > 0 and w1 > w0, "weather chart not found"
+t = t[:w0] + CH.WEATHER + t[w1:]
 IXD = json.loads(re.search(r'<script[^>]*id="ixdata"[^>]*>(.*?)</script>', t, re.S).group(1))
 t = CH.COVER_OLD.sub(lambda m: CH.cover_map(IXD), t)
 

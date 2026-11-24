@@ -174,3 +174,51 @@ def cover_map(D):
             + '<div style="position:absolute;left:128px;top:952px;width:900px;border-top:2px solid #e5e8eb;padding-top:18px">'
               '<p style="margin:0;font-size:20px;line-height:1.5;color:var(--muted)">Data: every Seoul Bike trip in 2024 and 2025 (Seoul Open Data), '
               'KMA hourly weather, and the Seoul 1:5,000 digital topographic map</p></div>')
+
+# ---------- slide "weather": rides by temperature only (rain left out for now; factor interactions come later) ----------
+WEATHER_SIDE = """
+<div class="stat"><p class="stat-num blue">150k</p><p class="stat-lab">rides a weekday at 15–25 °C, the best band</p></div>
+<div class="stat"><p class="stat-num">3×</p><p class="stat-lab">the 50k of days below −5 °C</p></div>
+<div class="stat"><p class="stat-num ink">131k</p><p class="stat-lab">above 30 °C: rides dip again in the hottest days</p><p class="stat-lab" style="font-size:20px;margin-top:10px">Each dot is one weekday: 480 in all, every Monday to Friday in 2024 and 2025 except public holidays (490), minus 10 days with mismatched records.</p></div>
+"""
+
+WEATHER = r"""  // ---------- weather: rides by daily mean temperature, all weekdays ----------
+  (function () {
+    const box = document.getElementById('ix-wx'); if (!box) return;
+    const P = D.weather.pts, W = 1071, H = 580, L = 96, R = 24, T = 60, B = 80;
+    const svg = makeSvg(box, W, H);
+    const x = t => L + (t + 12) / 44 * (W - L - R);
+    const y = v => H - B - v / 20 * (H - T - B);
+    axisY(svg, L, R, W, y, [0, 5, 10, 15, 20], v => (v * 10) + 'k');
+    [-10, 0, 10, 20, 30].forEach(t => txt(t + '°C', { x: x(t), y: H - B + 28, 'text-anchor': 'middle', 'font-size': 17, fill: C.muted }, svg));
+    txt('Daily mean temperature', { x: (L + W - R) / 2, y: H - B + 60, 'text-anchor': 'middle', 'font-size': 19, fill: C.ink }, svg);
+    ylab(svg, 'Rides on the day (weekdays)', T, H, B);
+    const pg = el('g', {}, svg);
+    P.forEach(p => el('circle', { cx: x(p.t), cy: y(p.n), r: 4.2, fill: C.blue, 'fill-opacity': .35 }, pg));
+    // mean rides in 5 °C bands; the coldest and hottest bands are open-ended
+    const edges = [-Infinity, -5, 0, 5, 10, 15, 20, 25, 30, Infinity], lab = ['< −5', '−5–0', '0–5', '5–10', '10–15', '15–20', '20–25', '25–30', '30+'];
+    const bands = lab.map((s, j) => { const v = P.filter(p => p.t >= edges[j] && p.t < edges[j + 1]);
+      return { s, n: v.length, m: v.reduce((a, p) => a + p.n, 0) / v.length, t: v.reduce((a, p) => a + p.t, 0) / v.length }; });
+    const bg = el('g', {}, svg);
+    bands.forEach((b, j) => {
+      const x0 = x(Math.max(edges[j], -12)), x1 = x(Math.min(edges[j + 1], 32));
+      el('line', { x1: x0 + 6, x2: x1 - 6, y1: y(b.m), y2: y(b.m), stroke: C.navy, 'stroke-width': 6, 'stroke-linecap': 'round' }, bg);
+      halo(txt((b.m * 10).toFixed(0) + 'k', { x: (x0 + x1) / 2, y: y(b.m) - 14, 'text-anchor': 'middle', 'font-size': 18, 'font-weight': 700, fill: C.navy }, bg));
+      txt(b.n + ' days', { x: (x0 + x1) / 2, y: H - B - 10, 'text-anchor': 'middle', 'font-size': 13, fill: C.muted }, bg);
+    });
+    const lg = el('g', {}, svg);
+    el('circle', { cx: L + 10, cy: 22, r: 7, fill: C.blue, 'fill-opacity': .5 }, lg); txt('One weekday (480)', { x: L + 24, y: 28, 'font-size': 19, fill: C.ink }, lg);
+    const lgb = el('g', {}, svg);
+    el('line', { x1: L + 240, x2: L + 272, y1: 22, y2: 22, stroke: C.navy, 'stroke-width': 6, 'stroke-linecap': 'round' }, lgb);
+    txt('Mean rides in each 5 °C band', { x: L + 284, y: 28, 'font-size': 19, fill: C.ink }, lgb);
+    const side = sideItems('weather');
+    IX.weather = {
+      steps: 2,
+      cues: ['Each dot is one weekday: temperature across, rides up. Warmer days have more rides.',
+             'The mean in each 5 °C band: about 50k rides below −5 °C, three times that at 15–25 °C, and a dip again above 30 °C.'],
+      set(k) { fade(bg, k >= 1, 600); fade(lgb, k >= 1); reveal(side, k === 0 ? 0 : side.length); },
+    };
+    stop(box);
+  })();
+
+"""

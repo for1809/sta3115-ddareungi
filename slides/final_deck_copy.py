@@ -82,20 +82,12 @@ SLIDES = {
 
     "weather": dict(
         eyebrow="FACTOR 2. WEATHER",
-        title="Rainy days are too irregular to model, so we set them aside",
-        pairs=[('<p class="stat-num blue">Smooth</p><p class="stat-lab">on dry weekdays: rides rise with temperature and dip in the hottest weeks (LOESS, span 0.75)</p>',
-                '<p class="stat-num blue">Dry days</p><p class="stat-lab">follow a smooth curve: rides rise with temperature and dip in the hottest weeks (LOESS, span 0.75)</p>'),
-               ("Each dot is one of 480 weekdays: every Monday to Friday of 2024 and 2025 except public holidays (490), minus 10 days whose rentals and returns did not match.",
-                "Each dot is one weekday: 480 in all, every Monday to Friday in 2024 and 2025 except public holidays (490), minus 10 days with mismatched records."),
-               ('<p class="stat-num">Scattered</p><p class="stat-lab">on rainy weekdays (1 mm or more)</p>',
-                '<p class="stat-num">Rainy days</p><p class="stat-lab">(1 mm or more) scatter far from any curve</p>'),
-               ("the residual spread: SD 37k rides on rainy days vs 13k on dry days, and it grows with temperature",
-                "larger residual spread on rainy days (SD 37k vs 13k rides), and it grows with temperature")],
-        aside="Next, weather. Each dot is one weekday, with temperature across and total rides up. On dry days the points follow a smooth "
-              "LOESS curve: rides rise with temperature and dip a little in the hottest weeks. On days with 1 millimetre of rain or more, rides "
-              "fall and the points scatter. The residuals make this clear: on dry days they are small and even, with a standard deviation of "
-              "about 13,000 rides. On rainy days the spread is three times larger and grows with temperature. So the effect of rain depends on "
-              "things our data does not capture, such as when and how hard it rains. That is why we set rainy days aside and keep dry weekdays."),
+        title="Warmer days bring more rides, up to about 25 °C",
+        # the side column and the chart are replaced in build_final_deck.py (final_deck_charts.WEATHER*)
+        aside="Next, weather, and for now only temperature. Each dot is one weekday, with the daily mean temperature across and total rides "
+              "up. The line in each 5-degree band is the mean. Below minus 5 degrees there are about 50,000 rides a day. Between 15 and 25 "
+              "degrees there are about 150,000, three times as many. Above 30 degrees rides dip again, to about 131,000. Later we put the "
+              "factors together to see how they interact."),
 
     "scope": dict(
         pairs=[("Rentals minus returns at a station. Positive: the station loses bikes. Negative: it gains them.",
@@ -296,11 +288,6 @@ JS = GROUPS + [
     ("'Weekdays: two sharp peaks, 8 am and 6 pm. That is commuting.'", "'Weekdays: two sharp peaks at 8 am and 6 pm. That is commuting.'"),
     ("'Weekends and holidays: one soft hill in the afternoon. No commute pattern.'", "'Weekends and holidays: one broad afternoon peak, with no commute pattern.'"),
     ("'So from here on: weekdays, and the two commute windows.'", "'From here on we study weekdays and the two commute windows.'"),
-    ("'Dry weekdays: rides rise with temperature and dip in the hottest weeks. The points hug the LOESS curve.'",
-     "'Dry weekdays: rides rise with temperature and dip in the hottest weeks. The points stay close to the LOESS curve.'"),
-    ("'Rainy weekdays: far fewer rides, and the points scatter widely.'", "'Rainy weekdays: far fewer rides, and the points scatter widely.'"),
-    ("'Residuals: rainy days are three times as noisy, and the noise grows with temperature. Temperature alone cannot explain them.'",
-     "'Residuals: rainy days vary three times as much, and more so when it is warm. Temperature alone cannot explain them.'"),
     ("'Rentals per station at each hour. Drag the slider: the whole city lights up at 8 am and 6 pm.'",
      "'Rentals per station in each hour. Drag the slider: every district peaks at 8 am and 6 pm.'"),
     ("'Over the whole day the colours do not cancel out. That leftover is what the trucks have to move.'",
