@@ -180,7 +180,7 @@ GU_STAT = '<div class="stat"><p class="stat-num blue">8 am, 6 pm</p><p class="st
 assert t.count(GU_STAT) == 1
 t = t.replace(GU_STAT, GU_STAT.replace('class="stat-num blue"', f'class="stat-num" style="color:{GREEN}"'))
 
-# ---- 9. charts: stmap and quad redrawn, gumap shows losing and gaining together (slides/final_deck_charts.py)
+# ---- 9. charts: stmap and quad redrawn, gumap shows losing and gaining together, cover bikes (slides/final_deck_charts.py)
 cspec = importlib.util.spec_from_file_location("final_deck_charts", ROOT / "final_deck_charts.py")
 CH = importlib.util.module_from_spec(cspec)
 cspec.loader.exec_module(CH)
@@ -195,6 +195,8 @@ for start, end, new in [("  // ---------- station map with contours ----------",
 ST = re.search(r'(<section[^>]*id="stmap".*?<div class="side">)(.*?)(</div>\n</div>\n<div class="foot">)', t, re.S)
 assert ST, "stmap side not found"
 t = t[:ST.start(2)] + CH.STMAP_SIDE + t[ST.end(2):]
+assert len(CH.COVER_OLD.findall(t)) == 1, "cover arrows not found"
+t = CH.COVER_OLD.sub(lambda m: CH.cover_bikes(), t)
 
 secs = list(re.finditer(r"<section\b.*?</section>\s*", t, re.S))
 ids = [re.search(r'id="([^"]+)"', m.group(0)).group(1) for m in secs]
