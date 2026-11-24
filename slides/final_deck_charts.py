@@ -186,10 +186,10 @@ WEATHER_SIDE = """
 WEATHER = r"""  // ---------- weather: every station, rentals by 5 °C band of its local daily maximum (jittered) ----------
   (function () {
     const box = document.getElementById('ix-wx'); if (!box) return;
-    const TB = __TMAX_BAND__, W = 1071, H = 580, L = 96, R = 24, T = 60, B = 80, YMAX = 200;
+    const TB = __TMAX_BAND__, W = 1071, H = 580, L = 96, R = 24, T = 60, B = 80, YMAX = 120;   // the top 5% or so of busy stations are drawn at the top, so the medians stand apart
     const svg = makeSvg(box, W, H);
     const nb = TB.length, bw = (W - L - R) / nb, cx = j => L + bw * (j + .5), y = v => H - B - Math.min(v, YMAX) / YMAX * (H - T - B);
-    axisY(svg, L, R, W, y, [0, 50, 100, 150, 200], v => v);
+    axisY(svg, L, R, W, y, [0, 30, 60, 90, 120], v => v);
     TB.forEach((b, j) => txt(b.lab, { x: cx(j), y: H - B + 28, 'text-anchor': 'middle', 'font-size': 17, fill: C.muted }, svg));
     txt('Daily maximum temperature at the station (°C, nearest KMA weather station)', { x: (L + W - R) / 2, y: H - B + 60, 'text-anchor': 'middle', 'font-size': 19, fill: C.ink }, svg);
     ylab(svg, 'Mean rentals per weekday at the station', T, H, B);
@@ -203,7 +203,7 @@ WEATHER = r"""  // ---------- weather: every station, rentals by 5 °C band of i
       halo(txt(Math.round(b.med), { x: cx(j), y: y(b.med) - 14, 'text-anchor': 'middle', 'font-size': 19, 'font-weight': 700, fill: C.navy }, med));
     });
     const top = TB.reduce((a, b) => a + b.v.filter(v => v > YMAX).length, 0), all = TB.reduce((a, b) => a + b.v.length, 0);
-    txt(`One dot = one station in one band (${all.toLocaleString('en')}); bar = median. ${top} dots above ${YMAX} are drawn at the top.`,
+    txt(`One dot = one station in one band (${all.toLocaleString('en')}); bar = median. ${top.toLocaleString('en')} dots above ${YMAX} (${(100 * top / all).toFixed(0)}%) are drawn at the top.`,
         { x: L + 8, y: T - 30, 'font-size': 16, fill: C.muted }, svg);
     const side = sideItems('weather');
     IX.weather = {
