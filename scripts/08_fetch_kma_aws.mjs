@@ -1,8 +1,8 @@
-// Step 1f: hourly weather (temperature, precipitation, wind speed) for the 29 Seoul AWS stations, 2025.
+// Step 1f: hourly weather (temperature, precipitation, wind speed) for the 29 Seoul AWS stations, 2025 (and 2024 with KMA_YEAR=2024).
 //
 // Source: KMA 기상자료개방포털, 방재기상관측(AWS) 시간 자료 (https://data.kma.go.kr, login required).
 // The portal times out on a one-year request, so this asks for one month at a time through a logged-in
-// browser session and saves each month as UTF-8 CSV in raw/weather/aws_2025MM.csv.
+// browser session and saves each month as UTF-8 CSV in raw/weather/aws_YYYYMM.csv (year from the KMA_YEAR environment variable, default 2025).
 //
 // How to run (Windows, Node 22+):
 //   1. Start Edge with remote debugging and log in to data.kma.go.kr in that window:
@@ -69,6 +69,7 @@ const monthJs = (stnIds, elementCds, groupSns, y, m) => {
 };
 
 const [cmd, ...args] = process.argv.slice(2);
+const YEAR = Number(process.env.KMA_YEAR || 2025);
 const pg = await page();
 try {
   if (cmd === "eval") {
@@ -79,11 +80,11 @@ try {
     mkdirSync(OUT, { recursive: true });
     for (let m = a; m <= (b || a); m++) {
       const t0 = Date.now();
-      const txt = await pg.evaluate(monthJs(stnIds, elementCds, groupSns, 2025, m));
-      if (txt.startsWith("ERROR")) { console.log(`2025-${m}: ${txt}`); continue; }
-      const file = `${OUT}/aws_2025${String(m).padStart(2, "0")}.csv`;
+      const txt = await pg.evaluate(monthJs(stnIds, elementCds, groupSns, YEAR, m));
+      if (txt.startsWith("ERROR")) { console.log(`${YEAR}-${m}: ${txt}`); continue; }
+      const file = `${OUT}/aws_${YEAR}${String(m).padStart(2, "0")}.csv`;
       writeFileSync(file, txt, "utf8");
-      console.log(`2025-${m}: ${txt.split("\n").length - 1} lines, ${(txt.length / 1e6).toFixed(2)} M chars, ${((Date.now() - t0) / 1000).toFixed(0)} s -> ${file}`);
+      console.log(`${YEAR}-${m}: ${txt.split("\n").length - 1} lines, ${(txt.length / 1e6).toFixed(2)} M chars, ${((Date.now() - t0) / 1000).toFixed(0)} s -> ${file}`);
     }
   } else if (cmd === "stations") {
     // station coordinates from the portal's station detail popup -> data/aws_stations.csv

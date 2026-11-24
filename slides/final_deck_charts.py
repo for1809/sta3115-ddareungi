@@ -175,48 +175,42 @@ def cover_map(D):
               '<p style="margin:0;font-size:20px;line-height:1.5;color:var(--muted)">Data: every Seoul Bike trip in 2024 and 2025 (Seoul Open Data), '
               'KMA hourly weather, and the Seoul 1:5,000 digital topographic map</p></div>')
 
-# ---------- slide "weather": rides by temperature only (rain left out for now; factor interactions come later) ----------
+# ---------- slide "weather": each station's rentals by 5 C band of its local daily maximum (2024-2025 weekdays) ----------
+# data: data/station_tmax_band.csv from scripts/19_station_tmax.py, injected by build_final_deck.py as __TMAX_BAND__
 WEATHER_SIDE = """
-<div class="stat"><p class="stat-num blue">150k</p><p class="stat-lab">rides a weekday at 15–25 °C, the best band</p></div>
-<div class="stat"><p class="stat-num">3×</p><p class="stat-lab">the 50k of days below −5 °C</p></div>
-<div class="stat"><p class="stat-num ink">131k</p><p class="stat-lab">above 30 °C: rides dip again in the hottest days</p><p class="stat-lab" style="font-size:20px;margin-top:10px">Each dot is one weekday: 480 in all, every Monday to Friday in 2024 and 2025 except public holidays (490), minus 10 days with mismatched records.</p></div>
+<div class="stat"><p class="stat-num">13 → 41</p><p class="stat-lab">median rentals a weekday per station, from highs below 0&nbsp;°C to highs of 20–25&nbsp;°C</p></div>
+<div class="stat"><p class="stat-num blue">Flat</p><p class="stat-lab">from 20&nbsp;°C to 35&nbsp;°C (about 40); only above 35&nbsp;°C a small dip, to 36</p></div>
+<div class="stat"><p class="stat-lab" style="font-size:20px">Each dot is one station in one band: its mean rentals on the weekdays of 2024 and 2025 whose maximum, at the nearest of 27 KMA weather stations, fell in that band (bands with 5 or more such days; 25,225 dots from 2,878 stations). Dots are spread sideways within the band so they do not overlap.</p></div>
 """
 
-WEATHER = r"""  // ---------- weather: rides by daily mean temperature, all weekdays ----------
+WEATHER = r"""  // ---------- weather: every station, rentals by 5 °C band of its local daily maximum (jittered) ----------
   (function () {
     const box = document.getElementById('ix-wx'); if (!box) return;
-    const P = D.weather.pts, W = 1071, H = 580, L = 96, R = 24, T = 60, B = 80;
+    const TB = __TMAX_BAND__, W = 1071, H = 580, L = 96, R = 24, T = 60, B = 80, YMAX = 200;
     const svg = makeSvg(box, W, H);
-    const x = t => L + (t + 12) / 44 * (W - L - R);
-    const y = v => H - B - v / 20 * (H - T - B);
-    axisY(svg, L, R, W, y, [0, 5, 10, 15, 20], v => (v * 10) + 'k');
-    [-10, 0, 10, 20, 30].forEach(t => txt(t + '°C', { x: x(t), y: H - B + 28, 'text-anchor': 'middle', 'font-size': 17, fill: C.muted }, svg));
-    txt('Daily mean temperature', { x: (L + W - R) / 2, y: H - B + 60, 'text-anchor': 'middle', 'font-size': 19, fill: C.ink }, svg);
-    ylab(svg, 'Rides on the day (weekdays)', T, H, B);
+    const nb = TB.length, bw = (W - L - R) / nb, cx = j => L + bw * (j + .5), y = v => H - B - Math.min(v, YMAX) / YMAX * (H - T - B);
+    axisY(svg, L, R, W, y, [0, 50, 100, 150, 200], v => v);
+    TB.forEach((b, j) => txt(b.lab, { x: cx(j), y: H - B + 28, 'text-anchor': 'middle', 'font-size': 17, fill: C.muted }, svg));
+    txt('Daily maximum temperature at the station (°C, nearest KMA weather station)', { x: (L + W - R) / 2, y: H - B + 60, 'text-anchor': 'middle', 'font-size': 19, fill: C.ink }, svg);
+    ylab(svg, 'Mean rentals per weekday at the station', T, H, B);
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;   // fixed jitter, same every time
     const pg = el('g', {}, svg);
-    P.forEach(p => el('circle', { cx: x(p.t), cy: y(p.n), r: 4.2, fill: C.blue, 'fill-opacity': .35 }, pg));
-    // mean rides in 5 °C bands; the coldest and hottest bands are open-ended
-    const edges = [-Infinity, -5, 0, 5, 10, 15, 20, 25, 30, Infinity], lab = ['< −5', '−5–0', '0–5', '5–10', '10–15', '15–20', '20–25', '25–30', '30+'];
-    const bands = lab.map((s, j) => { const v = P.filter(p => p.t >= edges[j] && p.t < edges[j + 1]);
-      return { s, n: v.length, m: v.reduce((a, p) => a + p.n, 0) / v.length, t: v.reduce((a, p) => a + p.t, 0) / v.length }; });
-    const bg = el('g', {}, svg);
-    bands.forEach((b, j) => {
-      const x0 = x(Math.max(edges[j], -12)), x1 = x(Math.min(edges[j + 1], 32));
-      el('line', { x1: x0 + 6, x2: x1 - 6, y1: y(b.m), y2: y(b.m), stroke: C.navy, 'stroke-width': 6, 'stroke-linecap': 'round' }, bg);
-      halo(txt((b.m * 10).toFixed(0) + 'k', { x: (x0 + x1) / 2, y: y(b.m) - 14, 'text-anchor': 'middle', 'font-size': 18, 'font-weight': 700, fill: C.navy }, bg));
-      txt(b.n + ' days', { x: (x0 + x1) / 2, y: H - B - 10, 'text-anchor': 'middle', 'font-size': 13, fill: C.muted }, bg);
+    TB.forEach((b, j) => b.v.forEach(v => el('circle', { cx: cx(j) + (rnd() - .5) * bw * .8, cy: y(v), r: 1.7,
+      fill: b.lo >= 20 ? C.blue : C.light, 'fill-opacity': .28 }, pg)));
+    const med = el('g', {}, svg);
+    TB.forEach((b, j) => {
+      el('line', { x1: cx(j) - bw * .42, x2: cx(j) + bw * .42, y1: y(b.med), y2: y(b.med), stroke: C.navy, 'stroke-width': 6, 'stroke-linecap': 'round' }, med);
+      halo(txt(Math.round(b.med), { x: cx(j), y: y(b.med) - 14, 'text-anchor': 'middle', 'font-size': 19, 'font-weight': 700, fill: C.navy }, med));
     });
-    const lg = el('g', {}, svg);
-    el('circle', { cx: L + 10, cy: 22, r: 7, fill: C.blue, 'fill-opacity': .5 }, lg); txt('One weekday (480)', { x: L + 24, y: 28, 'font-size': 19, fill: C.ink }, lg);
-    const lgb = el('g', {}, svg);
-    el('line', { x1: L + 240, x2: L + 272, y1: 22, y2: 22, stroke: C.navy, 'stroke-width': 6, 'stroke-linecap': 'round' }, lgb);
-    txt('Mean rides in each 5 °C band', { x: L + 284, y: 28, 'font-size': 19, fill: C.ink }, lgb);
+    const top = TB.reduce((a, b) => a + b.v.filter(v => v > YMAX).length, 0), all = TB.reduce((a, b) => a + b.v.length, 0);
+    txt(`One dot = one station in one band (${all.toLocaleString('en')}); bar = median. ${top} dots above ${YMAX} are drawn at the top.`,
+        { x: L + 8, y: T - 30, 'font-size': 16, fill: C.muted }, svg);
     const side = sideItems('weather');
     IX.weather = {
       steps: 2,
-      cues: ['Each dot is one weekday: temperature across, rides up. Warmer days have more rides.',
-             'The mean in each 5 °C band: about 50k rides below −5 °C, three times that at 15–25 °C, and a dip again above 30 °C.'],
-      set(k) { fade(bg, k >= 1, 600); fade(lgb, k >= 1); reveal(side, k === 0 ? 0 : side.length); },
+      cues: ['Every station, in every 5-degree band of the day’s maximum temperature where it stands: each dot is its mean rentals on those weekdays.',
+             'The bars are the medians: 13 rentals a day on days below zero, rising to 41 at 20 to 25 degrees, then flat up to 35 degrees. Only above 35 a small dip.'],
+      set(k) { fade(med, k >= 1, 600); reveal(side, k === 0 ? 0 : side.length); },
     };
     stop(box);
   })();

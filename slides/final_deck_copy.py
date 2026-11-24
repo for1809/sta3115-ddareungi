@@ -82,12 +82,14 @@ SLIDES = {
 
     "weather": dict(
         eyebrow="FACTOR 2. WEATHER",
-        title="Warmer days bring more rides, up to about 25 °C",
+        title="Rides climb with the day’s high up to about 20 °C, then stay flat",
         # the side column and the chart are replaced in build_final_deck.py (final_deck_charts.WEATHER*)
-        aside="Next, weather, and for now only temperature. Each dot is one weekday, with the daily mean temperature across and total rides "
-              "up. The line in each 5-degree band is the mean. Below minus 5 degrees there are about 50,000 rides a day. Between 15 and 25 "
-              "degrees there are about 150,000, three times as many. Above 30 degrees rides dip again, to about 131,000. Later we put the "
-              "factors together to see how they interact."),
+        aside="Next, weather, and for now only temperature. We use the day's maximum temperature where each station is, from the "
+              "nearest of 27 KMA weather stations in Seoul, because a daily mean is pulled down by the night. Each dot is one station in "
+              "one 5-degree band of that maximum: its mean rentals on the weekdays of 2024 and 2025 that fell in the band. The bars are "
+              "the medians. On days with a high below zero the typical station sees 13 rentals. That rises to 41 at highs of 20 to 25 "
+              "degrees, and then it stays flat up to 35 degrees; only above 35 there is a small dip. So it is cold that keeps people off "
+              "the bikes, more than summer heat. Later we put the factors together to see how they interact."),
 
     "scope": dict(
         pairs=[("Rentals minus returns at a station. Positive: the station loses bikes. Negative: it gains them.",

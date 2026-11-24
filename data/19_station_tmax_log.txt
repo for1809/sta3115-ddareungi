@@ -1,0 +1,36 @@
+aws_202401.csv: 20,032 rows, temperature missing 91
+aws_202402.csv: 18,710 rows, temperature missing 24
+aws_202403.csv: 19,921 rows, temperature missing 135
+aws_202404.csv: 19,433 rows, temperature missing 18
+aws_202405.csv: 19,893 rows, temperature missing 7
+aws_202406.csv: 19,380 rows, temperature missing 4
+aws_202407.csv: 20,049 rows, temperature missing 3
+aws_202408.csv: 20,077 rows, temperature missing 7
+aws_202409.csv: 19,205 rows, temperature missing 13
+aws_202410.csv: 20,051 rows, temperature missing 154
+aws_202411.csv: 19,400 rows, temperature missing 16
+aws_202412.csv: 20,048 rows, temperature missing 6
+aws_202501.csv: 20,088 rows, temperature missing 35
+aws_202502.csv: 18,140 rows, temperature missing 175
+aws_202503.csv: 20,088 rows, temperature missing 142
+aws_202504.csv: 19,340 rows, temperature missing 45
+aws_202505.csv: 20,087 rows, temperature missing 3
+aws_202506.csv: 19,437 rows, temperature missing 3
+aws_202507.csv: 20,084 rows, temperature missing 2
+aws_202508.csv: 20,037 rows, temperature missing 8
+aws_202509.csv: 19,336 rows, temperature missing 28
+aws_202510.csv: 20,051 rows, temperature missing 189
+aws_202511.csv: 19,440 rows, temperature missing 0
+aws_202512.csv: 20,034 rows, temperature missing 4
+AWS-days 19,710; with >= 20 temperature hours 19,595
+AWS in the weather files 27, without coordinates []
+weekday station-days 1,321,233 on 482 weekdays; station without coordinates 0; nearest AWS 1,313,150; a farther AWS (nearest had no valid day) 8,083; no AWS 0
+binned station-days 1,321,233; bins -11 to 38 C
+  max -99 to 0   C:   47,423 station-days, mean rentals 18.57
+  max   0 to 10  C:  316,173 station-days, mean rentals 27.58
+  max  10 to 20  C:  287,225 station-days, mean rentals 42.14
+  max  20 to 25  C:  200,507 station-days, mean rentals 53.77
+  max  25 to 30  C:  220,935 station-days, mean rentals 52.89
+  max  30 to 33  C:  147,887 station-days, mean rentals 53.65
+  max  33 to 99  C:  101,083 station-days, mean rentals 53.49
+station x 5 C band rows with >= 5 weekdays: 25,225 of 25,706; stations 2,878

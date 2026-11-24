@@ -10,7 +10,7 @@ Changes, all made here so the original stays as received:
   3. limits, item 1: trucks are now seen, but only as the part of stock change rides do not explain
   4. page numbers: each slide's counter is reset to its new place
   5. slide "why": yearly rides 2021-2025 and the operating deficit as side-by-side bars (team's table)
-  6. slide "weather": rides by temperature only, all 480 weekdays with the mean of each 5 C band (rain left out for now)
+  6. slide "weather": every station's mean rentals by 5 C band of its local daily maximum, 2024-2025 weekdays (data/station_tmax_band.csv)
   7. slide "gumap": the hourly-use map in green, so it is not confused with the blue of the net-flow maps
   0. a "What is Ddareungi" slide after the cover
 Run from the project root:  python slides/build_final_deck.py
@@ -190,7 +190,14 @@ assert WX, "weather side not found"
 t = t[:WX.start(2)] + CH.WEATHER_SIDE + t[WX.end(2):]
 w0 = t.find("  // ---------- weather: temperature vs rides"); w1 = t.find("  // ----------", w0 + 20)
 assert w0 > 0 and w1 > w0, "weather chart not found"
-t = t[:w0] + CH.WEATHER + t[w1:]
+import csv as _csv
+import statistics as _st
+_band = {}
+for r in _csv.DictReader(open(ROOT.parent / "data" / "station_tmax_band.csv", encoding="utf-8")):
+    _band.setdefault(int(r["band"]), []).append(round(float(r["mean_rent"]), 1))
+_lab = {-5: "< 0", 35: "35+"}
+TMAX = [{"lo": b, "lab": _lab.get(b, f"{b}–{b + 5}"), "med": _st.median(v), "v": v} for b, v in sorted(_band.items())]
+t = t[:w0] + CH.WEATHER.replace("__TMAX_BAND__", json.dumps(TMAX, separators=(",", ":"), ensure_ascii=False)) + t[w1:]
 IXD = json.loads(re.search(r'<script[^>]*id="ixdata"[^>]*>(.*?)</script>', t, re.S).group(1))
 t = CH.COVER_OLD.sub(lambda m: CH.cover_map(IXD), t)
 
