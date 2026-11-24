@@ -27,3 +27,6 @@ slides/deck_standalone.html
 
 # Claude Code local preview settings
 .claude/
+
+# 공개 덱 저장소(for1809/sta3115-ddareungi-deck)의 로컬 사본. slides/publish_deck.py가 쓴다
+.deck_site/
