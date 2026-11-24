@@ -45,14 +45,11 @@ SLIDES = {
               "to 17.6 billion won in 2025, nearly twice as much."),
 
     "cost": dict(
-        title="Over half the operating cost goes to moving bikes around",
-        # only the number and the question stay on the slide; the speaker says the rest (notes below)
-        pairs=[("of operating cost is labour for redistributing bikes", "of the operating cost goes to redistributing bikes"),
-               ('<p class="text">Those are the trucks we all see on the street, loading bikes at one station and dropping them at another.</p>' + NL, ""),
-               ('<p class="text">A truck is needed because some stations run out of bikes while others fill up.</p>' + NL, ""),
-               ('<p class="text muted">If we know that, the trucks can go to the right place at the right time.</p>' + NL, ""),
-               ('<p class="lead"><b>Our question:</b> where do bikes pile up, where do they run out, and why?</p>',
-                '<p class="stat-lab" style="margin:0 0 12px">Our question</p><p class="lead" style="font-size:52px;line-height:1.25;font-weight:700">Where do bikes pile up, where do they run out, and why?</p>')],
+        # only the question, centred; the 53% and the trucks are in the speaker notes
+        pairs=[('<p class="eyebrow">WHERE THE MONEY GOES</p>' + NL, ""),
+               ('<h2>More than half the running cost is moving bikes around</h2>', '<h2 style="padding-top:47px">Our Question</h2>'),
+               ('<div class="cols">\n<div class="col">\n<div class="stat"><p class="big">53%</p><p class="big-lab">of operating cost is labour for redistributing bikes</p></div>\n<p class="text">Those are the trucks we all see on the street, loading bikes at one station and dropping them at another.</p>\n</div>\n<div class="col">\n<p class="text">A truck is needed because some stations run out of bikes while others fill up.</p>\n<p class="lead"><b>Our question:</b> where do bikes pile up, where do they run out, and why?</p>\n<p class="text muted">If we know that, the trucks can go to the right place at the right time.</p>\n</div>\n</div>\n',
+                '<div style="flex:1;display:flex;align-items:center;justify-content:center;padding-bottom:80px"><p style="margin:0;font-size:76px;line-height:1.25;font-weight:700;letter-spacing:-1.5px;text-align:center;color:var(--ink)">Where do bikes pile up,<br>where do they run out,<br>and <span style="color:var(--blue)">why</span>?</p></div>\n')],
         aside="Where does the money go? According to Bike Magazine, 53% of the operating cost is staff time spent redistributing bikes. "
               "That is the work of the trucks you see on the street, picking up bikes at one station and dropping them off at another. "
               "They are needed because some stations run dry while others overflow. So our question is: where do bikes pile up, where do they "
