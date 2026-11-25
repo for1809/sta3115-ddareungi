@@ -304,6 +304,9 @@ assert have["weather"].count(NEW.WEATHER_LEAD[0]) == 1
 have["weather"] = have["weather"].replace(*NEW.WEATHER_LEAD)
 have["intro"] = NEW.intro(have["intro"])
 have["when"] = STORY.when_slide(ROOT.parent / "data" / "hourly_refill_2025.csv")   # hourly version of STEP 7 (analysis/hourly_refill.py)
+for sid, title in NEW.TITLES.items():                    # short titles
+    have[sid], k = re.subn(r"<h2([^>]*)>.*?</h2>", lambda m: f"<h2{m.group(1)}>{title}</h2>", have[sid], count=1, flags=re.S)
+    assert k == 1, sid
 assert set(have) == set(STORY.ORDER) and len(STORY.ORDER) == len(set(STORY.ORDER)), set(have) ^ set(STORY.ORDER)
 out = out[:secs[0].start()] + "\n\n".join(have[i].strip() for i in STORY.ORDER) + out[secs[-1].end():]
 

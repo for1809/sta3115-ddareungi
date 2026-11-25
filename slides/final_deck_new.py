@@ -1,6 +1,7 @@
 """Slides of the storyline written here: five drawn from the data, and the DATA slide (read by slides/build_final_deck.py, step 10).
 
   scope         DATA: the days, the stations and the sources (text only)
+TITLES: short slide titles, applied last.
   traits        FACTORS TOGETHER: logistic model of running out (the 20% line) on elevation, relief and subway distance
 NOTES and WEATHER_LEAD: speaker notes of current slides that follow the new order.
 intro(): the "What is Ddareungi" slide with an icon strip in place of four text cards.
@@ -448,5 +449,34 @@ NOTES = {
 }
 WEATHER_LEAD = ("Next, weather, and for now only temperature.",
                 "Next, weather. Rain cuts rides sharply, which is why we keep dry days; here we look at temperature.")
+
+# short slide titles (noun phrases; the findings stay in the side numbers and the speaker notes)
+TITLES = {
+    "intro": "How Ddareungi works",
+    "why": "A growing operating deficit",
+    "scope": "378 dry weekdays, 2,843 stations",
+    "d_measures": "Losing bikes vs running out",
+    "hours": "Rides by hour",
+    "weather": "Rides by daily high temperature",
+    "elev": "Elevation and net outflow",
+    "stmap": "Stations that lose bikes, on the map",
+    "d_subway": "Outflow and empty share by subway distance",
+    "d_cop_subway": "Elevation × subway distance",
+    "d_wx_elev": "Elevation × morning temperature",
+    "traits": "Station features and running out",
+    "vec": "Downhill flow",
+    "d_buffer": "Morning stock buffer",
+    "hypo": "Does every hill need a truck?",
+    "quad": "Four station groups",
+    "tmap": "The four groups on the map",
+    "g12": "G1 vs G2",
+    "when": "Refill timing on the hills",
+    "conclusion": "Key findings",
+    "limits": "Limits of this analysis",
+    "appendix": "Backup slides",
+    "gumap": "Morning net flow by district",
+    "a_pass": "Weekday rides by pass type",
+    "a_inc": "District income and station use",
+}
 
 SLIDES = {"traits": TRAITS, "why": WHY, "scope": SCOPE, "d_measures": s1, "d_subway": s2, "d_cop_subway": s3, "d_wx_elev": s4, "d_buffer": s5}
