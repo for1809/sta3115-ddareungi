@@ -356,38 +356,22 @@ To explore that, we classified stations using morning and full-day net outflow.<
 </section>
 
 <section style="counter-reset: page 14" id="quad" data-transition="fade">
-<p class="eyebrow">WHICH STATIONS NEED A TRUCK</p>
+<p class="eyebrow">MORNING AND FULL-DAY NET FLOW</p>
 <h2>Two questions sort the stations into four groups</h2>
 <div class="body">
 <div class="figcard"><div id="ix-quad" style="position:relative;width:1071px;height:600px"></div></div>
 <div class="side">
-<div class="stat"><p class="stat-num ink">2 questions</p><p class="stat-lab">emptied 7–9 am? still short at night? (net outflow above zero or not, in bikes)</p></div>
+<div class="stat"><p class="stat-num ink">2 questions</p><p class="stat-lab">Morning net outflow > 0? Full-day net outflow > 0?</p></div>
 <div class="stat"><p class="stat-num ink">2,843</p><p class="stat-lab">stations, each sorted by its two answers</p></div>
-<div class="stat"><p class="stat-num">1,005 vs 766</p><p class="stat-lab">G1 stays short and needs a truck; G2 refills by night and does not</p></div>
-<div class="stat"><p class="stat-num ink">1,771</p><p class="stat-lab">stations are emptied in the morning. Why do fewer than half of them recover?</p></div>
+<div class="stat"><p class="stat-num">1,005 vs 766</p><p class="stat-lab">G1: morning loss remains over the full day. G2: later net returns offset it.</p></div>
+<div class="stat"><p class="stat-num ink">1,771</p><p class="stat-lab">stations have positive mean morning net outflow. Do later net returns offset it?</p></div>
 </div>
 </div>
 <div class="foot"><p class="foot-l">STA3115 Exploratory Data Analysis, Group 1</p><p class="foot-r"></p></div>
-<aside>Here are the two questions as a grid. The columns ask whether a station is emptied during the morning commute; the rows ask whether it is still short at the end of the day. Top right is G1, which stays short: 1,005 stations, 35%. Bottom right is G2, which refills by night: 766. Bottom left is G3, which collects bikes all day, and top left is G4, an office hub that fills in the morning and empties during the day. Each tile also shows a typical day for its group: up means bikes leave, down means bikes arrive. Now look at the right column: 1,771 stations lose bikes every morning. 766 of them get their bikes back by night; 1,005 never do. Why?</aside>
+<aside>We classify stations using two signs: average net outflow during 7–9 am, and average net outflow over the full day. Positive means rentals exceed returns. G1 and G2 both lose bikes in the morning. For G1, full-day net outflow remains positive; for G2, later net returns offset the morning loss, so the full-day total is zero or negative. G3 has no net loss in either window; G4 has no morning net loss but has positive full-day net outflow. We focus on G1 and G2: 1,005 and 766 stations. These groups describe average user flow, not whether a station is empty or needs a truck.</aside>
 </section>
 
-<section style="counter-reset: page 15" id="tmap" data-transition="fade">
-<p class="eyebrow">WHICH STATIONS NEED A TRUCK</p>
-<h2>Each group occupies its own part of the city</h2>
-<div class="body">
-<div class="figcard"><div id="ix-tmap" style="position:relative;width:680px;height:640px"></div></div>
-<div class="side">
-<div class="stat"><p class="stat-num">G1 Stays short</p><p class="stat-lab">1,005 stations, 35%: across the city, densest on hillsides</p></div>
-<div class="stat"><p class="stat-num" style="color:#ff9f1c">G2 Refills by night</p><p class="stat-lab">766, 27%: flat residential areas</p></div>
-<div class="stat"><p class="stat-num blue">G3 Collects bikes</p><p class="stat-lab">574, 20%: along streams and on low ground</p></div>
-<div class="stat"><p class="stat-num" style="color:#8b5cf6">G4 Office hub</p><p class="stat-lab">498, 18%: business districts</p></div>
-</div>
-</div>
-<div class="foot"><p class="foot-l">STA3115 Exploratory Data Analysis, Group 1</p><p class="foot-r"></p></div>
-<aside>On the map, each group occupies its own part of the city. G1, which stays short, sits on the hills: the northern foothills, Gwanak, Seodaemun and Eunpyeong. In Seodaemun, 59% of the stations are G1, the highest share of any district. G2, which refills by night, is found in flat residential areas such as Nowon, Gangdong and Songpa. G3, which collects bikes, lines the streams: Jungnangcheon, Anyangcheon and Tancheon. G4 sits in the business districts: Yeouido, Gwanghwamun and the Guro Digital Complex.</aside>
-</section>
-
-<section style="counter-reset: page 16" id="g12" data-transition="fade">
+<section style="counter-reset: page 15" id="g12" data-transition="fade">
 <p class="eyebrow">WHICH STATIONS NEED A TRUCK</p>
 <h2>Same morning, different evening: the difference is the hill</h2>
 <div class="body" style="margin-top:16px">
@@ -402,7 +386,7 @@ To explore that, we classified stations using morning and full-day net outflow.<
 <aside>To see why, we compare the two groups hour by hour. G2, in orange: bikes leave in the morning and the evening commute brings them back, so by night the station is full again. G1, in red: the same morning drain, but only a trickle comes back in the evening, about 1.2 bikes per station against 5.3 for G2. What separates them? Elevation. G1 stations sit at a median of 29 metres, G2 stations at 19. Distance to the subway is almost the same, 480 against 460 metres. People ride down to the station in the morning, and in the evening few of them ride back up the hill.</aside>
 </section>
 
-<section style="counter-reset: page 17" id="when" data-transition="fade">
+<section style="counter-reset: page 16" id="when" data-transition="fade">
 <p class="eyebrow">WHEN THE TRUCKS COME</p>
 <h2>Nobody refills the hills overnight: the trucks arrive after 8 am</h2>
 <div class="body">
@@ -418,7 +402,7 @@ To explore that, we classified stations using morning and full-day net outflow.<
 <aside>Do the trucks already fill the hills before the morning? We checked the stock at every station hour by hour. The red line is the share of hill-top stations with no bikes; the blue bars are bikes that arrive by something other than a ride, mostly trucks. Between 1 and 6 in the morning, almost nothing arrives: 0.0 bikes. So already at 6 am, 21% of the hill-top stations are empty, and by 9 it is 30%. The trucks do come, about 4.4 bikes a day, but the first big refill is from 8 to 11, once the rush has already started, and the next one is in the afternoon. The hills are refilled every day, just not in time.</aside>
 </section>
 
-<section style="counter-reset: page 18" id="conclusion" class="accent" data-transition="fade">
+<section style="counter-reset: page 17" id="conclusion" class="accent" data-transition="fade">
 <p class="eyebrow">CONCLUSION</p>
 <h2>Get bikes up the hills before the morning rush, and leave alone the stations that refill themselves</h2>
 <div class="take">
@@ -430,7 +414,7 @@ To explore that, we classified stations using morning and full-day net outflow.<
 <aside>To sum up. Bikes roll downhill in the morning and are not ridden back up. Because of that, an empty station at 9 am is not always a problem: 766 stations get their bikes back by night without any help. The stations that really need a truck are the 1,005 G1 stations on the hills, and they are already refilled every day, just not before the morning rush. So the plan is about timing: take bikes from the 574 G3 stations on low ground, which collect bikes all day, and have them on the hills before 7 am. One more point for the debate about cutting the system: if you merge the least-used stations on ride counts alone, half of the hill-top candidates are stations that are already empty in the morning. Their low use may mean no bikes, not no demand.</aside>
 </section>
 
-<section style="counter-reset: page 19" id="limits" class="alt compact" data-transition="fade">
+<section style="counter-reset: page 18" id="limits" class="alt compact" data-transition="fade">
 <p class="eyebrow">LIMITS</p>
 <h2>What this analysis cannot tell us</h2>
 <div class="qlist">
@@ -443,14 +427,14 @@ To explore that, we classified stations using morning and full-day net outflow.<
 <aside>Some limits. First, we see the trucks only indirectly, as the change in stock that rides do not explain, so we cannot tell when each truck arrives. Second, an empty station records no rentals, so demand on the hills is probably higher than our numbers show. Third, we looked only at dry weekdays. And fourth, this is an exploratory study: we describe the pattern, but we do not estimate how much a new truck schedule would save.</aside>
 </section>
 
-<section style="counter-reset: page 20" id="thanks" class="dark" data-transition="fade">
+<section style="counter-reset: page 19" id="thanks" class="dark" data-transition="fade">
 <p class="eyebrow">THANK YOU</p>
 <h1>Questions?</h1>
 <p class="byline">Group 1, STA3115 Exploratory Data Analysis. Data: Seoul Open Data, KMA, Seoul digital topographic map</p>
 <aside>Thank you for listening. We are happy to take questions.</aside>
 </section>
 
-<section style="counter-reset: page 21" id="appendix" class="dark wideq" data-transition="fade">
+<section style="counter-reset: page 20" id="appendix" class="dark wideq" data-transition="fade">
 <p class="eyebrow">APPENDIX</p>
 <h2>Backup slides for questions</h2>
 <div class="qlist">
@@ -460,7 +444,7 @@ To explore that, we classified stations using morning and full-day net outflow.<
 <aside>Backup slides for questions.</aside>
 </section>
 
-<section style="counter-reset: page 22" id="gumap" data-transition="fade">
+<section style="counter-reset: page 21" id="gumap" data-transition="fade">
 <p class="eyebrow">WHERE BIKES LEAVE</p>
 <h2>Each morning, some districts empty out while others fill up</h2>
 <div class="body">
@@ -477,7 +461,7 @@ To explore that, we classified stations using morning and full-day net outflow.<
 <aside>Now, where. First, plain use: rentals per station in each hour. Drag the slider and you can see every district peak at 8 am and 6 pm. Next, net flow during the morning commute. Red districts lose bikes and blue districts gain them. Gwangjin, Seodaemun and Dongdaemun lose bikes, while the office areas of Seongdong, the city centre and Yeouido gain them. Over the whole day the colours do not cancel out, and what is left over is exactly what the trucks have to move. But a district is a large unit. What is it about a station that makes it lose bikes?</aside>
 </section>
 
-<section style="counter-reset: page 23" id="factors" class="dark" data-transition="fade">
+<section style="counter-reset: page 22" id="factors" class="dark" data-transition="fade">
 <p class="eyebrow">WHAT MIGHT MATTER</p>
 <h2>Possible Factors</h2>
 <div class="qlist">
@@ -490,7 +474,7 @@ To explore that, we classified stations using morning and full-day net outflow.<
 <aside>What is it about a station? We listed four candidates. Time of day, because commuting and leisure trips look different. Weather: rain and temperature. Terrain, because pedalling uphill is hard. And transit, since many people ride to and from the subway. The first two explain the days we chose; the last two are possible reasons why some stations run out. We look at them one at a time, then together.</aside>
 </section>
 
-<section style="counter-reset: page 24" id="weather" data-transition="fade">
+<section style="counter-reset: page 23" id="weather" data-transition="fade">
 <p class="eyebrow">FACTOR 2. WEATHER</p>
 <h2>Rides climb with the day’s high up to about 20 °C, then stay flat</h2>
 <div class="body">
@@ -505,7 +489,7 @@ To explore that, we classified stations using morning and full-day net outflow.<
 <aside>Next, weather. Rain cuts rides sharply, which is why we keep dry days; here we look at temperature. We use the day's maximum temperature where each station is, from the nearest of 27 KMA weather stations in Seoul, because a daily mean is pulled down by the night. Each dot is one station in one 5-degree band of that maximum: its mean rentals on the weekdays of 2024 and 2025 that fell in the band. The bars are the medians. On days with a high below zero the typical station sees 13 rentals. That rises to 41 at highs of 20 to 25 degrees, and then it stays flat up to 35 degrees; only above 35 there is a small dip. So it is cold that keeps people off the bikes, more than summer heat. Later we put the factors together to see how they interact.</aside>
 </section>
 
-<section style="counter-reset: page 25" id="d_cop_subway" data-transition="fade">
+<section style="counter-reset: page 24" id="d_cop_subway" data-transition="fade">
 <p class="eyebrow">FACTORS TOGETHER</p>
 <h2>Near the subway or far from it, the hill-top stations run out</h2>
 <div class="body">
@@ -516,7 +500,7 @@ To explore that, we classified stations using morning and full-day net outflow.<
 <aside>Now two factors together. Each panel holds the stations in one quarter of subway distance, from the closest on the left to the farthest on the right, and the red curve is a LOESS fit of empty share on elevation. The shape is the same in every panel: about 5 percent on flat ground and 24% to 31% on the hills. Near the subway or far from it, what decides whether a station runs out is the hill.</aside>
 </section>
 
-<section style="counter-reset: page 26" id="d_wx_elev" data-transition="fade">
+<section style="counter-reset: page 25" id="d_wx_elev" data-transition="fade">
 <p class="eyebrow">FACTORS TOGETHER</p>
 <h2>At every temperature, the hills lose bikes and the flat ground gains them</h2>
 <div class="body">
@@ -525,6 +509,22 @@ To explore that, we classified stations using morning and full-day net outflow.<
 </div>
 <div class="foot"><p class="foot-l">STA3115 Exploratory Data Analysis, Group 1</p><p class="foot-r"></p></div>
 <aside>Earlier we saw that weather changes how many people ride. Does it change where the bikes go? No. In every temperature band, from below zero to above 25 degrees, hill-top stations lose bikes, between 1.1 and 2.1 a morning, and flat stations gain them. Warm mornings move a few more bikes, cold mornings fewer, but always in the same direction.</aside>
+</section>
+
+<section style="counter-reset: page 26" id="tmap" data-transition="fade">
+<p class="eyebrow">WHICH STATIONS NEED A TRUCK</p>
+<h2>Each group occupies its own part of the city</h2>
+<div class="body">
+<div class="figcard"><div id="ix-tmap" style="position:relative;width:680px;height:640px"></div></div>
+<div class="side">
+<div class="stat"><p class="stat-num">G1 Stays short</p><p class="stat-lab">1,005 stations, 35%: across the city, densest on hillsides</p></div>
+<div class="stat"><p class="stat-num" style="color:#ff9f1c">G2 Refills by night</p><p class="stat-lab">766, 27%: flat residential areas</p></div>
+<div class="stat"><p class="stat-num blue">G3 Collects bikes</p><p class="stat-lab">574, 20%: along streams and on low ground</p></div>
+<div class="stat"><p class="stat-num" style="color:#8b5cf6">G4 Office hub</p><p class="stat-lab">498, 18%: business districts</p></div>
+</div>
+</div>
+<div class="foot"><p class="foot-l">STA3115 Exploratory Data Analysis, Group 1</p><p class="foot-r"></p></div>
+<aside>On the map, each group occupies its own part of the city. G1, which stays short, sits on the hills: the northern foothills, Gwanak, Seodaemun and Eunpyeong. In Seodaemun, 59% of the stations are G1, the highest share of any district. G2, which refills by night, is found in flat residential areas such as Nowon, Gangdong and Songpa. G3, which collects bikes, lines the streams: Jungnangcheon, Anyangcheon and Tancheon. G4 sits in the business districts: Yeouido, Gwanghwamun and the Guro Digital Complex.</aside>
 </section>
 
 <section style="counter-reset: page 27" id="a_buffer" data-transition="fade">
@@ -990,22 +990,22 @@ To explore that, we classified stations using morning and full-day net outflow.<
     const tot = D.stations.length;
     const PR = {}; D.prof.forEach(r => { (PR[r.ty] = PR[r.ty] || [])[r.h] = r.net; });
     const hdr = el('g', {}, svg);
-    [['Not emptied in the morning', 0], ['Emptied in the morning (7–9 am)', 1]].forEach(([s, c]) =>
+    [['No morning net loss (≤0)', 0], ['Morning net loss (>0)', 1]].forEach(([s, c]) =>
       txt(s, { x: L + c * (TW + GAP) + TW / 2, y: T - 20, 'text-anchor': 'middle', 'font-size': 21, 'font-weight': 700, fill: C.ink }, hdr));
-    [['Still short', 'at night', 0], ['Back to normal', 'by night', 1]].forEach(([a, b, r]) => {
+    [['Net loss', 'over full day', 0], ['No net loss', 'over full day', 1]].forEach(([a, b, r]) => {
       const cy = T + r * (TH + GAP) + TH / 2;
       txt(a, { x: L - 16, y: cy - 4, 'text-anchor': 'end', 'font-size': 20, 'font-weight': 700, fill: C.ink }, hdr);
       txt(b, { x: L - 16, y: cy + 22, 'text-anchor': 'end', 'font-size': 20, 'font-weight': 700, fill: C.ink }, hdr);
     });
-    const CELL = { G4: [0, 0, 'fills in the morning, empties during the day'], G1: [1, 0, 'drained in the morning, never refilled'],
-                   G3: [0, 1, 'gains bikes over the whole day'], G2: [1, 1, 'drained in the morning, back by evening'] };
+    const CELL = { G4: [0, 0, 'no morning net loss; full-day net loss'], G1: [1, 0, 'morning net loss; full-day net loss'],
+                   G3: [0, 1, 'no morning net loss; no full-day net loss'], G2: [1, 1, 'morning net loss; no full-day net loss'] };
     const tiles = {};
     Object.entries(CELL).forEach(([t, [c, r, desc]]) => {
       const x0 = L + c * (TW + GAP), y0 = T + r * (TH + GAP);
       el('rect', { x: x0, y: y0, width: TW, height: TH, rx: 22, fill: '#f7f9fc', stroke: C.grid, 'stroke-width': 1.5 }, svg);
       const card = el('g', {}, svg);
       el('rect', { x: x0, y: y0, width: TW, height: TH, rx: 22, fill: TYC[t], 'fill-opacity': .1, stroke: TYC[t], 'stroke-width': 2 }, card);
-      txt(TYL[t], { x: x0 + 24, y: y0 + 40, 'font-size': 24, 'font-weight': 700, fill: TYC[t] }, card);
+      txt(t, { x: x0 + 24, y: y0 + 40, 'font-size': 24, 'font-weight': 700, fill: TYC[t] }, card);
       txt(desc, { x: x0 + 24, y: y0 + 68, 'font-size': 17, fill: C.ink2 }, card);
       txt(cnt[t].toLocaleString('en'), { x: x0 + TW - 22, y: y0 + 50, 'text-anchor': 'end', 'font-size': 40, 'font-weight': 700, fill: TYC[t] }, card);
       txt(`${Math.round(100 * cnt[t] / tot)}% of stations`, { x: x0 + 24, y: y0 + 92, 'font-size': 16, fill: C.muted }, card);
@@ -1015,20 +1015,20 @@ To explore that, we classified stations using morning and full-day net outflow.<
       el('line', { x1: sx(0), x2: sx(23), y1: z, y2: z, stroke: C.muted, 'stroke-width': 1 }, day);
       el('path', { d: 'M' + PR[t].map((v, h) => sx(h).toFixed(1) + ',' + sy(v).toFixed(1)).join('L'), fill: 'none', stroke: TYC[t], 'stroke-width': 3.5, 'stroke-linejoin': 'round' }, day);
       [0, 6, 12, 18].forEach(h => txt(h + ':00', { x: sx(h), y: y0 + TH - 10, 'text-anchor': 'middle', 'font-size': 13, fill: C.muted }, day));
-      txt('a typical day: ↑ bikes leave, ↓ bikes arrive', { x: sx(23), y: z - 40, 'text-anchor': 'end', 'font-size': 13, fill: C.muted }, day);
+      txt('hourly mean net outflow: + loss, − gain', { x: sx(23), y: z - 40, 'text-anchor': 'end', 'font-size': 13, fill: C.muted }, day);
       [card, day].forEach(g => { g.style.transition = 'opacity 450ms'; g.style.opacity = 0; });
       tiles[t] = { card, day };
     });
     const bal = txt(`Only the sign counts: every station falls in one of the four groups`, { x: L, y: H - 12, 'font-size': 17, fill: C.muted }, svg);
-    const call = txt(`${(cnt.G1 + cnt.G2).toLocaleString('en')} stations are emptied every morning: ${cnt.G2.toLocaleString('en')} recover by night, ${cnt.G1.toLocaleString('en')} do not`,
+    const call = txt(`${(cnt.G1 + cnt.G2).toLocaleString('en')} have morning net loss: ${cnt.G2.toLocaleString('en')} offset the loss by day end; ${cnt.G1.toLocaleString('en')} do not`,
                      { x: L, y: H - 12, 'font-size': 20, 'font-weight': 700, fill: C.red }, svg);
     const side = sideItems('quad');
     IX.quad = {
       steps: 4,
-      cues: ['Two questions for every station: is it emptied during the 7–9 am commute (columns), and is it still short at the end of the day (rows)?',
+      cues: ['Is average morning net outflow positive (columns)? Is average full-day net outflow positive (rows)?',
              'Sorted by their answers, the stations fall into four groups.',
-             'Each tile shows a typical day for its group: up means bikes leave, down means bikes arrive. The blue band is 7–9 am.',
-             'The right column is the 1,771 stations emptied every morning. 766 recover by night; 1,005 never do. Why?'],
+             'Each tile shows mean hourly net outflow: positive means net loss and negative means net gain. The blue band marks the morning window.',
+             'The right column has 1,771 stations with morning net loss. For 766, later net returns offset it; for 1,005, they do not.'],
       set(k) {
         Object.entries(tiles).forEach(([t, o]) => {
           const dim = k === 3 && (t === 'G3' || t === 'G4');

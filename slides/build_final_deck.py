@@ -311,6 +311,7 @@ yspec = importlib.util.spec_from_file_location("final_deck_yonsei", ROOT / "fina
 YONSEI = importlib.util.module_from_spec(yspec)
 yspec.loader.exec_module(YONSEI)
 out = YONSEI.apply(out)
+out = CH.classification_wording(out)
 
 # page numbers: section n resets the counter to n - 1 (hidden slides do not count)
 def renumber(html):

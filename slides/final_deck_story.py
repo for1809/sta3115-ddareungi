@@ -14,8 +14,8 @@ data/od_2024_2025/od/s0_station_daily.csv.gz (07-09 h net outflow, rentals minus
 ORDER = ["cover", "intro", "why", "cost", "scope", "d_measures",
          "hours", "elev", "stmap", "d_subway",
          "traits", "vec", "d_buffer",
-         "hypo", "quad", "tmap", "g12", "when", "conclusion", "limits", "thanks",
-         "appendix", "gumap", "factors", "weather", "d_cop_subway", "d_wx_elev", "a_buffer", "a_pass", "a_inc"]
+         "hypo", "quad", "g12", "when", "conclusion", "limits", "thanks",
+         "appendix", "gumap", "factors", "weather", "d_cop_subway", "d_wx_elev", "tmap", "a_buffer", "a_pass", "a_inc"]
 
 EYEBROWS = {"scope": "DATA", "gumap": "WHERE BIKES LEAVE",
             "elev": "FACTOR 3. ELEVATION", "stmap": "FACTOR 3. ELEVATION",

@@ -10,6 +10,63 @@ cover_map()   the cover: Seoul's contours as a topographic map, instead of the d
 
 import math
 import re
+import json
+
+
+def classification_wording(html):
+    """Describe user-flow signs without inferring empty stock or truck needs."""
+    data = json.loads(re.search(r'<script[^>]*id="ixdata"[^>]*>(.*?)</script>', html, re.S)[1])
+    count = {r['ty']: r['N'] for r in data['tcount']}
+    morning = count['G1'] + count['G2']
+    section = re.search(r'<section\b[^>]*id="quad".*?</section>', html, re.S)
+    revised = section[0]
+    pairs = [
+        ('WHICH STATIONS NEED A TRUCK', 'MORNING AND FULL-DAY NET FLOW'),
+        ('emptied 7–9 am? still short at night? (net outflow above zero or not, in bikes)',
+         'Morning net outflow > 0? Full-day net outflow > 0?'),
+        ('G1 stays short and needs a truck; G2 refills by night and does not',
+         'G1: morning loss remains over the full day. G2: later net returns offset it.'),
+        ('stations are emptied in the morning. Why do fewer than half of them recover?',
+         'stations have positive mean morning net outflow. Do later net returns offset it?'),
+    ]
+    for old, new in pairs:
+        assert revised.count(old) == 1, old
+        revised = revised.replace(old, new)
+    note = (f'We classify stations using two signs: average net outflow during 7–9 am, and average net outflow over the full day. '
+            f'Positive means rentals exceed returns. G1 and G2 both lose bikes in the morning. '
+            f'For G1, full-day net outflow remains positive; for G2, later net returns offset the morning loss, so the full-day total is zero or negative. '
+            f'G3 has no net loss in either window; G4 has no morning net loss but has positive full-day net outflow. '
+            f'We focus on G1 and G2: {count["G1"]:,} and {count["G2"]:,} stations. '
+            'These groups describe average user flow, not whether a station is empty or needs a truck.')
+    revised = re.sub(r'<aside>.*?</aside>', lambda _: f'<aside>{note}</aside>', revised, count=1, flags=re.S)
+    html = html[:section.start()] + revised + html[section.end():]
+    start = html.index('  // ---------- the 2x2 as four tiles')
+    end = html.index('  // ----------', start + 10)
+    chart = html[start:end]
+    pairs = [
+        ('Not emptied in the morning', 'No morning net loss (≤0)'),
+        ('Emptied in the morning (7–9 am)', 'Morning net loss (>0)'),
+        ("[['Still short', 'at night', 0], ['Back to normal', 'by night', 1]]",
+         "[['Net loss', 'over full day', 0], ['No net loss', 'over full day', 1]]"),
+        ('fills in the morning, empties during the day', 'no morning net loss; full-day net loss'),
+        ('drained in the morning, never refilled', 'morning net loss; full-day net loss'),
+        ('gains bikes over the whole day', 'no morning net loss; no full-day net loss'),
+        ('drained in the morning, back by evening', 'morning net loss; no full-day net loss'),
+        ('txt(TYL[t],', 'txt(t,'),
+        ('a typical day: ↑ bikes leave, ↓ bikes arrive', 'hourly mean net outflow: + loss, − gain'),
+        ('stations are emptied every morning:', 'have morning net loss:'),
+        ('recover by night,', 'offset the loss by day end;'),
+        ('Two questions for every station: is it emptied during the 7–9 am commute (columns), and is it still short at the end of the day (rows)?',
+         'Is average morning net outflow positive (columns)? Is average full-day net outflow positive (rows)?'),
+        ('Each tile shows a typical day for its group: up means bikes leave, down means bikes arrive. The blue band is 7–9 am.',
+         'Each tile shows mean hourly net outflow: positive means net loss and negative means net gain. The blue band marks the morning window.'),
+        (f'The right column is the {morning:,} stations emptied every morning. {count["G2"]:,} recover by night; {count["G1"]:,} never do. Why?',
+         f'The right column has {morning:,} stations with morning net loss. For {count["G2"]:,}, later net returns offset it; for {count["G1"]:,}, they do not.'),
+    ]
+    for old, new in pairs:
+        assert chart.count(old) == 1, old
+        chart = chart.replace(old, new)
+    return html[:start] + chart + html[end:]
 
 
 def map_only(html):
