@@ -13,7 +13,7 @@ GROUPS = [("G1 Never refilled", "G1 Stays short"), ("G2 Refills itself", "G2 Ref
 SLIDES = {
     "cover": dict(
         pairs=[('<p class="kicker">Where are all the Ddareungi at?</p>', '<p class="kicker">Where do all the Ddareungi go?</p>'),
-               ("<h1>Bikes roll down the hills<br>and do not come back up</h1>", "<h1>Bikes roll downhill,<br>and nobody rides them back up</h1>")],
+               ("<h1>Bikes roll down the hills<br>and do not come back up</h1>", "<h1>Exploring Bicycle Imbalances</h1>")],
         aside="Hello, we are Group 1. Our topic is Ddareungi, Seoul’s public bike system. We asked a simple question: "
               "where do all the bikes go? The short answer is in the title. In the morning, bikes roll downhill, and nobody rides them back up."),
 
