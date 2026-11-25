@@ -550,7 +550,38 @@ def final_fixes(html):
     a = html.index("  // ---------- flow field (whole city) and the zoom ----------")
     b = html.index("  // ----------", a + 20)
     html = html[:a] + _VEC_JS + html[b:]
+    html = _quad_side(html, D)
     return html
+
+
+# slide 15 right column: one item per step (questions, groups, the lines, the G1/G2 split); no caption under the grid
+def _quad_side(html, D):
+    from collections import Counter
+    n = Counter(p["t"] for p in D["stations"]); g1, g2 = n["G1"], n["G2"]; tot = sum(n.values())
+    ORANGE = "#ff9f1c"
+    q = lambda tag, text: (f'<div style="display:flex;align-items:baseline;gap:16px;margin-top:10px"><span style="flex:0 0 118px;font-size:18px;font-weight:700;'
+                           f'letter-spacing:.06em;color:var(--muted)">{tag}</span><span style="font-size:26px;font-weight:600;color:var(--ink)">{text}</span></div>')
+    head = lambda t: f'<p style="margin:0;font-size:19px;font-weight:700;letter-spacing:.08em;color:var(--blue)">{t}</p>'
+    items = [
+        '<div>' + head("TWO QUESTIONS") + q("COLUMNS", "Loses bikes 7–9 am?") + q("ROWS", "Loses bikes over the full day?") + '</div>',
+        '<div>' + head("FOUR GROUPS") + f'<p style="margin:10px 0 0;font-size:26px;font-weight:600;color:var(--ink)">{tot:,} stations by both answers</p></div>',
+        '<div>' + head("THE LINES") + '<p style="margin:10px 0 0;font-size:26px;font-weight:600;color:var(--ink);line-height:1.4">Hourly net outflow, not stock</p>'
+        '<p style="margin:4px 0 0;font-size:21px;color:var(--ink2)">Above 0: losing bikes. Below 0: gaining.</p></div>',
+        '<div style="padding-top:6px;border-top:2px solid var(--line)">'
+        f'<p style="margin:18px 0 0;font-size:84px;line-height:1;font-weight:700;color:var(--ink)">{g1 + g2:,}</p>'
+        '<p style="margin:8px 0 18px;font-size:24px;color:var(--ink2)">lose bikes in the morning</p>'
+        f'<div style="display:flex;gap:6px;border-radius:12px;overflow:hidden"><div style="flex:{g1};background:var(--red);height:56px;display:flex;align-items:center;'
+        f'padding:0 16px;color:#fff;font-size:24px;font-weight:700">G1<span style="font-weight:500;margin-left:12px">{g1:,}</span></div><div style="flex:{g2};background:{ORANGE};height:56px;display:flex;'
+        f'align-items:center;padding:0 16px;color:#fff;font-size:24px;font-weight:700">G2<span style="font-weight:500;margin-left:12px">{g2:,}</span></div></div>'
+        f'<div style="display:flex;gap:6px;margin-top:10px;font-size:20px;line-height:1.35;color:var(--ink2)"><div style="flex:{g1};padding-right:10px">still a net loss by day end</div>'
+        f'<div style="flex:{g2}">later returns offset it</div></div></div>',
+    ]
+    m = re.search(r'(<section[^>]*id="quad".*?<div class="side">)(.*?)(</div>\s*</div>\s*<div class="foot">)', html, re.S)
+    html = html[:m.start(2)] + "\n" + "\n".join(items) + "\n" + html[m.end(2):]
+    # the red caption under the grid says the same as the last item
+    old = "fade(bal, k >= 1 && k < 3); fade(call, k === 3); reveal(side, k + 1);"
+    assert html.count(old) == 1
+    return html.replace(old, "fade(bal, k >= 1 && k < 3); fade(call, false); reveal(side, k + 1);")
 
 
 _RAMP = lambda e: "#f8fafc" if e < 20 else "#f1f0ea" if e < 40 else "#e7e1d3" if e < 70 else "#dbcfb8" if e < 120 else "#cdbb9a"
