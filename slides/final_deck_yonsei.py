@@ -131,13 +131,20 @@ def inset(data):
     assert sinchon, 'Sinchon station landmark missing'
     px, py = xy(np.mean([r['x'] for r in sinchon]), np.mean([r['y'] for r in sinchon]))
     labels.append(dict(en='Sinchon Station', x=px, y=py))
+    # Approximate outline of the Yonsei Sinchon campus with Severance (drawn by hand from the
+    # street grid: Seongsan-ro on the south, the West Gate road, the Ansan foothill on the north).
+    # The campus has no Ddareungi station inside, so the stations ring this outline.
+    campus_ll = [(37.5596, 126.9360), (37.5600, 126.9395), (37.5608, 126.9422), (37.5648, 126.9440),
+                 (37.5698, 126.9426), (37.5716, 126.9386), (37.5700, 126.9340), (37.5652, 126.9329),
+                 (37.5612, 126.9330)]
+    campus = [xy(*project(lon, lat)) for lat, lon in campus_ll]
     terrain = []
     for r in data['terrain']:
         px, py = xy((r['x'] - bx) / ax, (r['y'] - by) / ay)
         terrain.append(dict(x=px, y=py, e=r['e']))
     return dict(h=round((y1-y0)*unit), arrows=arrows,
                 contours=[dict(level=r['level'], d=remap(r['d'])) for r in data['contours']],
-                gu=[dict(en=r['en'], d=remap(r['d'])) for r in data['gu']], labels=labels,
+                gu=[dict(en=r['en'], d=remap(r['d'])) for r in data['gu']], labels=labels, campus=campus,
                 terrain=terrain, cell=round(data['frame']['cell'] / ax * unit, 2),
                 meta=dict(bounds=list(BOUNDS), stations=len(selected), internal_trips=trip_total,
                           selection='top 30 positive net flows between 500 m cells; both endpoints inside bounds',
