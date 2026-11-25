@@ -421,27 +421,50 @@ We wanted to provide insights by understanding the factors associated with bicyc
 </section>"""
 
 
-# ================= slide "scope" as DATA: the days, the stations and the sources (the measures are defined on d_measures)
+# ================= slide "scope" as DATA: how the days and stations were chosen (a funnel), and the sources as icons
+# counts: data/od_2024_2025/od/s0_qa.txt (720 days with clean records; 378 dry weekdays, 238 weekends and holidays, 104 rainy weekdays;
+# 2,878 stations, 2,843 with at least 50 dry weekdays)
+_STEPS = [(731, "Calendar days, 2024–2025", ""),
+          (720, "Clean records", "−11 with incomplete records"),
+          (482, "Weekdays", "−238 weekends and public holidays"),
+          (378, "Dry weekdays", "−104 with 1 mm of rain or more")]
+_fw, _bh, _gap = 640, 62, 34
+_rows = []
+for k, (n, lab, cut_) in enumerate(_STEPS):
+    yy = 20 + k * (_bh + _gap); w = n / _STEPS[0][0] * _fw; last = k == len(_STEPS) - 1
+    _rows.append(f'<rect x="0" y="{yy}" width="{w:.1f}" height="{_bh}" rx="12" fill="{BLUE if last else "#DCE8FD"}"/>'
+                 + t(20, yy + 42, f"{n:,}", 32, "#fff" if last else INK, "start", 700)
+                 + t(w + 24, yy + 28, lab, 24, INK, "start", 700)
+                 + (t(w + 24, yy + 54, cut_, 19, MUTED) if cut_ else ""))
+_funnel = svg(1060, 20 + 4 * (_bh + _gap), "Days kept at each step: 731 calendar days, 720 with clean records, 482 weekdays, 378 dry weekdays.", _rows)
+_G = 'stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"'
+_SRC = [("Trips", "5-minute records", f'<path d="M18 26 H44 M38 20 L44 26 L38 32 M46 38 H20 M26 32 L20 38 L26 44" {_G}/>'),
+        ("Bikes at stations", "hourly, 2025", f'<rect x="18" y="34" width="6" height="12" fill="#fff"/><rect x="29" y="24" width="6" height="22" fill="#fff"/><rect x="40" y="30" width="6" height="16" fill="#fff"/>'),
+        ("Weather", "27 KMA stations, hourly", f'<path d="M22 36 a8 8 0 0 1 2-15 a10 10 0 0 1 19 3 a7 7 0 0 1-1 12 Z" {_G}/><path d="M26 42 l-2 5 M34 42 l-2 5 M42 42 l-2 5" {_G}/>'),
+        ("Elevation", "1:5,000 contour map", f'<path d="M14 46 L28 24 L36 35 L41 29 L50 46 Z" {_G}/>'),
+        ("Subway", "every station in Seoul", f'<rect x="21" y="16" width="22" height="26" rx="5" {_G}/><path d="M21 31 H43 M26 48 L29 42 M38 48 L35 42" {_G}/><circle cx="27" cy="36" r="1.6" fill="#fff"/><circle cx="37" cy="36" r="1.6" fill="#fff"/>')]
+_chips = "".join(f'<div style="display:flex;align-items:center;gap:16px;flex:1">'
+                 f'<svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true" style="flex:0 0 auto"><circle cx="32" cy="32" r="32" fill="{BLUE}"/>{g}</svg>'
+                 f'<div><p style="font-size:22px;font-weight:700;margin:0;color:var(--ink)">{h}</p><p style="font-size:18px;margin:2px 0 0;color:var(--muted)">{sub}</p></div></div>'
+                 for h, sub, g in _SRC)
 SCOPE = f"""<section id="scope" data-transition="fade">
 <p class="eyebrow">DATA</p>
-<h2>378 dry weekdays, 2,843 stations, every trip</h2>
-<div class="cols">
-<div class="card">
-<p class="card-title">Days</p>
-<p class="card-body">Weekdays in 2024 and 2025 that are not public holidays and have under 1 mm of rain: 378 days.</p>
-<p class="card-small">We dropped ten days on which rentals and returns did not match.</p>
-</div>
-<div class="card">
-<p class="card-title">Data</p>
-<p class="card-body">Every station-to-station trip in 2024–2025 (Seoul Open Data, 5-minute records), hourly bikes at every station (2025), hourly KMA weather, station elevation from 1:5,000 contour maps and subway stations.</p>
-<p class="card-small">Stations: the 2,843 with records on at least 50 of those days.</p>
+<h2>378 dry weekdays, 2,843 stations</h2>
+<div style="display:flex;gap:40px;margin-top:36px;align-items:center">
+<div style="flex:0 0 1060px">{_funnel}</div>
+<div style="flex:1;background:var(--tint);border-radius:24px;padding:32px 34px">
+<p style="font-size:24px;font-weight:700;margin:0;color:var(--ink)">Stations</p>
+<p style="font-size:72px;font-weight:700;line-height:1.1;margin:10px 0 0;color:var(--blue)">2,843</p>
+<p style="font-size:21px;line-height:1.45;margin:10px 0 0;color:var(--ink2)">with records on at least 50 of the 378 days, of 2,878 in the trip data</p>
 </div>
 </div>
+<div style="display:flex;gap:24px;margin-top:34px;padding:22px 30px;border-top:2px solid var(--line)">{_chips}</div>
 {FOOT}
-<aside>To answer it, we use every trip between Seoul's bike stations in 2024 and 2025. We keep weekdays that are not public holidays and
-have under 1 mm of rain: 378 days. Factors one and two will show why: weekends follow a different pattern from the commute, and rain changes how
-many people ride. That leaves 2,843 stations with records on at least 50 of those days. For the stock at each station we also use the hourly
-records of 2025. Next: what we measure on those days.</aside>
+<aside>To answer it, we use every trip between Seoul's bike stations in 2024 and 2025. Of the 731 days, 720 have clean records: we dropped
+ten days where rentals and returns did not match, and one empty file. Then we keep weekdays that are not public holidays, 482 days, and of those
+the dry ones, under 1 mm of rain: 378 days. Weekends follow a different pattern from the commute, and rain changes how many people ride. That leaves
+2,843 stations with records on at least 50 of those days. We also use the hourly bikes at every station in 2025, weather from 27 weather stations,
+elevation from the city's contour map, and the subway stations. Next: what we measure on those days.</aside>
 </section>"""
 
 # ================= slide "intro": the four text cards become a three-step strip; title without a colon
