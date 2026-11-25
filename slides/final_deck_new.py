@@ -581,40 +581,47 @@ def _vec_section(D, note):
     CW = 780; CH = round(CW * F["h"] / 1000)
     city_svg = (f'<svg width="{CW}" height="{CH}" viewBox="0 0 1000 {F["h"]}" role="img" aria-label="Net bicycle flow across Seoul, one arrow per 1 km cell, '
                 f'over the terrain; red arrows run downhill, blue uphill.">' + "".join(city) + "</svg>")
-    # ---- right bottom: Yonsei–Sinchon, the 30 strongest net connections between 500 m cells
+    # ---- right bottom: Yonsei–Sinchon, the 30 strongest net connections between 500 m cells (cropped to where they are)
     zmax = max(a["net"] for a in Z["arrows"])
-    ins = ['<defs><clipPath id="vec-inset"><rect x="0" y="0" width="1000" height="%d" rx="40"/></clipPath></defs><g clip-path="url(#vec-inset)">' % Z["h"],
-           f'<rect x="0" y="0" width="1000" height="{Z["h"]}" fill="#fbfbf9"/>']
-    ins += [f'<rect x="{t["x"]}" y="{t["y"]}" width="{Z["cell"]}" height="{Z["cell"]}" fill="{_RAMP(t["e"])}" opacity=".55"/>' for t in Z["terrain"]
-            if -Z["cell"] < t["x"] < 1000 and -Z["cell"] < t["y"] < Z["h"]]
-    ins += [f'<path d="{c["d"]}" fill="none" stroke="#a08360" stroke-width="{1.4 if c["level"] == 50 else .8}" stroke-opacity=".35" vector-effect="non-scaling-stroke"/>'
+    Y0 = 280; ZH = Z["h"] - Y0
+    near = lambda x, y: min(Z["terrain"], key=lambda t: (t["x"] + Z["cell"] / 2 - x) ** 2 + (t["y"] + Z["cell"] / 2 - y) ** 2)["e"]
+    ins = [f'<defs><clipPath id="vec-inset"><rect x="0" y="{Y0}" width="1000" height="{ZH}" rx="36"/></clipPath></defs><g clip-path="url(#vec-inset)">',
+           f'<rect x="0" y="{Y0}" width="1000" height="{ZH}" fill="#f8fafc"/>']
+    ins += [f'<rect x="{t["x"]:.1f}" y="{t["y"]:.1f}" width="{Z["cell"] + 1:.1f}" height="{Z["cell"] + 1:.1f}" fill="{_RAMP(t["e"])}"/>' for t in Z["terrain"]
+            if -Z["cell"] < t["x"] < 1000 and Y0 - Z["cell"] < t["y"] < Z["h"]]
+    ins += [f'<path d="{c["d"]}" fill="none" stroke="#8a6d4b" stroke-width="{1.6 if c["level"] == 50 else 1}" stroke-opacity=".45" vector-effect="non-scaling-stroke"/>'
             for c in Z["contours"]]
     halos, lines, heads = [], [], []
-    for a in reversed(Z["arrows"]):
+    for a in sorted(Z["arrows"], key=lambda a: (a["c"] == "down", a["net"])):
         dx, dy = a["x2"] - a["x1"], a["y2"] - a["y1"]; n = math.hypot(dx, dy)
         if not n:
             continue
         ux, uy = dx / n, dy / n; hx, hy = -uy, ux
-        head = min(48, n * .3); half = head * .55
+        main = a["c"] in ("down", "up")
+        w = (7 + 14 * a["net"] / zmax) * (1 if main else .6)
+        head = min(52, n * .3, 3.2 * w + 18); half = head * .55
         x1, y1 = a["x1"] + ux * 8, a["y1"] + uy * 8
         tx, ty = a["x2"] - ux * 10, a["y2"] - uy * 10
         bx, by = tx - ux * head, ty - uy * head
-        c = RED if a["c"] == "down" else BLUE if a["c"] == "up" else "#8b95a1"
-        w = 6 + 12 * a["net"] / zmax
+        c = RED if a["c"] == "down" else BLUE if a["c"] == "up" else "#b0b8c1"
         halos.append(f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{bx:.1f}" y2="{by:.1f}" stroke="#fff" stroke-width="{w + 8:.1f}" stroke-linecap="round"/>')
         lines.append(f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{bx:.1f}" y2="{by:.1f}" stroke="{c}" stroke-width="{w:.1f}" stroke-linecap="round"/>')
         heads.append(f'<polygon points="{tx:.1f},{ty:.1f} {bx + hx * half:.1f},{by + hy * half:.1f} {bx - hx * half:.1f},{by - hy * half:.1f}" fill="{c}" stroke="#fff" stroke-width="3"/>')
     ins += halos + lines + heads
-    ins += [f'<text x="{l["x"]}" y="{l["y"]}" text-anchor="middle" font-size="56" font-weight="700" fill="{INK2}" stroke="#fff" stroke-width="12" '
-            f'paint-order="stroke" stroke-linejoin="round">{l["en"]}</text>' for l in Z["labels"]]
-    ins.append("</g>" + f'<rect x="2" y="2" width="996" height="{Z["h"] - 4}" rx="40" fill="none" stroke="#e5e8eb" stroke-width="4"/>')
-    IH = 350; IW = round(IH * 1000 / Z["h"])
-    inset_svg = (f'<svg width="{IW}" height="{IH}" viewBox="0 0 1000 {Z["h"]}" style="flex:0 0 auto" role="img" aria-label="Yonsei–Sinchon: the 30 strongest net connections '
-                 f'between 500 m cells over the terrain; most strong ones run downhill.">' + "".join(ins) + "</svg>")
+    for l in Z["labels"]:
+        e = near(l["x"], l["y"])
+        ins.append(f'<text x="{l["x"]}" y="{l["y"]}" text-anchor="middle" font-size="58" font-weight="700" fill="{INK}" stroke="#fff" stroke-width="14" '
+                   f'paint-order="stroke" stroke-linejoin="round">{l["en"]}<tspan x="{l["x"]}" dy="62" font-size="48" font-weight="600" fill="{INK2}">{e} m</tspan></text>')
+    ins.append("</g>" + f'<rect x="2" y="{Y0 + 2}" width="996" height="{ZH - 4}" rx="36" fill="none" stroke="#d1d6db" stroke-width="4"/>')
+    IH = 380; IW = round(IH * 1000 / ZH)
+    inset_svg = (f'<svg width="{IW}" height="{IH}" viewBox="0 {Y0} 1000 {ZH}" style="flex:0 0 auto" role="img" aria-label="Yonsei–Sinchon: the 30 strongest net '
+                 f'connections between 500 m cells over the terrain; most run downhill.">' + "".join(ins) + "</svg>")
+    n_down = sum(a["c"] == "down" for a in Z["arrows"]); n_up = sum(a["c"] == "up" for a in Z["arrows"]); n_all = len(Z["arrows"])
     # ---- right top: the share of net flow on sloping ground (whole day)
     sh = {r["cls"]: r["share"] for r in D["vshare"] if r["daytype"] == "day"}
-    seg = lambda c, colr_, lab, fg: (f'<div style="flex:{sh[c]:.3f};background:{colr_};height:46px;display:flex;align-items:center;padding:0 14px;'
-                                     f'color:{fg};font-size:20px;font-weight:700;white-space:nowrap;overflow:hidden">{lab}</div>')
+    seg = lambda c, colr_: f'<div style="flex:{sh[c]:.3f};background:{colr_};height:40px"></div>'
+    key = lambda colr_, lab: (f'<span style="display:inline-flex;align-items:center;gap:9px"><span style="width:16px;height:16px;border-radius:4px;'
+                              f'background:{colr_}"></span>{lab}</span>')
     leg = lambda c, s: f'<span style="display:inline-flex;align-items:center;gap:8px"><span style="width:26px;height:5px;border-radius:3px;background:{c}"></span>{s}</span>'
     return f"""<section id="vec" data-transition="fade">
 <p class="eyebrow">FACTORS TOGETHER</p>
@@ -624,16 +631,19 @@ def _vec_section(D, note):
 <div style="display:flex;gap:26px;font-size:19px;color:var(--ink2);margin:0 0 8px">{leg(RED, "Downhill")}{leg(BLUE, "Uphill")}{leg("#d1d6db", "Across the slope / flat")}</div>
 {city_svg}
 </div>
-<div style="flex:1;display:flex;flex-direction:column;gap:44px;padding-top:30px">
+<div style="flex:1;display:flex;flex-direction:column;gap:40px;padding-top:24px">
 <div class="v-s1" style="opacity:0">
-<p style="margin:0;font-size:104px;line-height:1;font-weight:700;color:var(--red)">{sh["down"]:.0%}</p>
-<p style="margin:10px 0 18px;font-size:24px;line-height:1.4;color:var(--ink2)">of net flow on sloping ground runs downhill; {sh["up"]:.0%} runs uphill</p>
-<div style="display:flex;border-radius:12px;overflow:hidden">{seg("down", RED, "Downhill", "#fff")}{seg("side", "#E5E8EB", "Across", INK2)}{seg("up", BLUE, "", "#fff")}</div>
+<p style="margin:0;font-size:92px;line-height:1;font-weight:700;color:var(--red)">{sh["down"]:.0%}</p>
+<p style="margin:10px 0 16px;font-size:24px;line-height:1.4;color:var(--ink2)">of the bikes' net movement on sloping ground goes downhill</p>
+<div style="display:flex;border-radius:10px;overflow:hidden">{seg("down", RED)}{seg("side", "#E5E8EB")}{seg("up", BLUE)}</div>
+<div style="display:flex;gap:28px;margin-top:12px;font-size:20px;color:var(--ink2)">{key(RED, f"Downhill {sh['down']:.0%}")}{key("#E5E8EB", f"Across the slope {sh['side']:.0%}")}{key(BLUE, f"Uphill {sh['up']:.0%}")}</div>
 </div>
-<div class="v-s2" style="opacity:0;display:flex;gap:32px;align-items:flex-start">
+<div class="v-s2" style="opacity:0;display:flex;gap:30px;align-items:center">
 {inset_svg}
-<div style="padding-top:6px"><p style="margin:0;font-size:28px;font-weight:700;color:var(--ink)">Yonsei–Sinchon</p>
-<p style="margin:10px 0 0;font-size:21px;line-height:1.45;color:var(--muted)">The 30 strongest net connections between 500 m cells. Red runs downhill, blue uphill.</p></div>
+<div><p style="margin:0;font-size:26px;font-weight:700;color:var(--ink)">Yonsei–Sinchon up close</p>
+<p style="margin:12px 0 0;font-size:56px;line-height:1;font-weight:700;color:var(--red)">{n_down} of {n_all}</p>
+<p style="margin:8px 0 0;font-size:21px;line-height:1.45;color:var(--ink2)">strongest local connections run downhill; {n_up} run uphill</p>
+<p style="margin:14px 0 0;font-size:18px;line-height:1.45;color:var(--muted)">Darker ground is higher.</p></div>
 </div>
 </div>
 </div>
