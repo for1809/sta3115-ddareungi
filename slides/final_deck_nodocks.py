@@ -197,7 +197,7 @@ def apply(html):
         ('<p class="stat-num">+42%</p><p class="stat-lab">40 m and above: 91% end the day short</p>',
          f'<p class="stat-num">{f1(B[2]["mean"])}</p><p class="stat-lab">bikes a day at 40 m and above: {B[2]["out"]:.0%} end the day short</p>'),
         ("Every one of the 143 stations at 50 m or higher loses bikes.",
-         f"{l50} of the {n50} stations at 50 m or higher lose bikes; the last one breaks even."),
+         f"{l50} of the {n50} stations at 50 m or higher lose bikes."),
         ("Each dot is a station, with elevation across and daily net outflow up, as a share of its docks. Below 20 metres, stations gain bikes on average, "
          "15% of their docks a day. Between 20 and 40 metres they are roughly balanced. At 40 metres and above, they lose 42% of their docks every day, "
          "and 91% of them end the day short. Every one of the 143 stations above 50 metres loses bikes. The red LOESS curve sits just below zero on low "

@@ -320,6 +320,7 @@ yspec.loader.exec_module(YONSEI)
 out = YONSEI.apply(out)
 out = CH.classification_wording(out)
 out = CH.recovery_wording(out)
+out = NEW.final_fixes(out)                               # last fixes (slides/final_deck_new.py)
 
 # page numbers: section n resets the counter to n - 1 (hidden slides do not count)
 def renumber(html):

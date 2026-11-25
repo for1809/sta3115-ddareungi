@@ -174,8 +174,7 @@ s2 = slide("d_subway", "FACTOR 4. DISTANCE TO THE NEAREST SUBWAY STATION",
            "Farther from the subway, more bikes leave", c2,
            sidebox(stat(f"{qnet[3]:+.1f}", f"bikes a morning at stations {cut[2]} m or more from the subway; {qnet[0]:+.1f} within {cut[0]} m".replace("-", "−"), "ink"),
                    stat(f"{qemp[0]:.1%} → {qemp[3]:.1%}", "morning empty share, nearest → farthest quarter"),
-                   '<p class="note">A clearer contrast in <b>net movement</b> than in <b>shortage frequency</b>.</p>',
-                   note=f"{sum(len(v) for v in byq.values()):,} stations in four equal quarters of distance. Net outflow: trips, 2024–2025 clear weekdays; empty share: hourly stock, 2025 dry weekdays."),
+                   '<p class="note">A clearer contrast in <b>net movement</b> than in <b>shortage frequency</b>.</p>'),
            f"Next, we looked at subway distance. Stations within about {cut[0]} metres of the subway gain bikes on average in the morning, "
            f"while those {cut[2]} metres or farther away lose almost three. This is consistent with people riding toward the subway. "
            f"Empty share rises from {qemp[0]:.1%} to {qemp[3]:.1%}, a less pronounced contrast than we saw across elevation groups. "
@@ -524,6 +523,47 @@ def cover(sec):
             '<h1 style="max-width:800px">Exploring Bicycle Imbalances</h1>'
             '<p class="byline">Group 1, November 26, 2026</p></div>'
             + note + '</section>')
+
+
+# ================= last fixes on the built deck (applied in build_final_deck.py after the teammates' passes)
+_CLIP = ("const _cp = el('clipPath', { id: '%s' }, el('defs', {}, %s)); "
+         "D.gu.forEach(u => el('path', { d: u.d }, _cp)); ")
+
+
+def final_fixes(html):
+    def rep(old, new, n=1):
+        nonlocal html
+        assert html.count(old) == n, (old[:70], html.count(old))
+        html = html.replace(old, new)
+
+    # slide 8: no "hover" hint on the slide (the presenter shows it)
+    rep('<p class="note muted" style="font-size:24px">Hover over a dot to name the station.</p>', '')
+    # slide 9: ground 50 m and higher clipped to Seoul's outline
+    rep("const hill = el('g', {}, svg);",
+        "const hill = el('g', {}, svg); " + _CLIP % ("clip-stmap", "svg") + "hill.setAttribute('clip-path', 'url(#clip-stmap)');")
+    # slide 12: terrain clipped to Seoul; only downhill and uphill stand out; inset caption over the inset
+    rep("const tg = el('g', {}, left);",
+        "const tg = el('g', {}, left); " + _CLIP % ("clip-vec", "left") + "tg.setAttribute('clip-path', 'url(#clip-vec)');")
+    rep("const AC = { down: C.red, up: C.blue, side: '#8b95a1', flat: '#b0b8c1' };",
+        "const AC = { down: C.red, up: C.blue, side: '#d1d6db', flat: '#e5e8eb' };")
+    rep("[[C.red, 'Downhill'], [C.blue, 'Uphill'], ['#8b95a1', 'Across the slope / flat']]",
+        "[[C.red, 'Downhill'], [C.blue, 'Uphill'], ['#d1d6db', 'Across the slope / flat']]")
+    rep("{ x: MW + 100, y: 26,", "{ x: MW + (W - MW - ZWW) / 2, y: 26,")
+    # slide 12 bottom: the share of net flow on sloping ground as one 100% bar (whole day)
+    import json
+    D = json.loads(re.search(r'<script[^>]*id="ixdata"[^>]*>(.*?)</script>', html, re.S).group(1))
+    sh = {r["cls"]: r["share"] for r in D["vshare"] if r["daytype"] == "day"}
+    am = {r["cls"]: r["share"] for r in D["vshare"] if r["daytype"] == "am"}
+    seg = lambda c, col, lab, fg: (f'<div style="flex:{sh[c]:.3f};background:{col};height:64px;display:flex;align-items:center;padding:0 18px;'
+                                   f'color:{fg};font-size:24px;font-weight:700;white-space:nowrap;overflow:hidden">{lab} {sh[c]:.0%}</div>')
+    bar = ('<div class="stat" style="width:1180px"><div style="display:flex;border-radius:14px;overflow:hidden">'
+           + seg("down", RED, "Downhill", "#fff") + seg("side", "#E5E8EB", "Across / flat", INK2) + seg("up", BLUE, "", "#fff")
+           + '</div><p class="stat-lab" style="margin-top:12px">Share of net flow on sloping ground, whole day: '
+           f'{sh["down"]:.0%} downhill, {sh["up"]:.0%} uphill (morning 7–9 am: {am["down"]:.0%} vs {am["up"]:.0%})</p></div>')
+    m = re.search(r'(<section[^>]*id="vec".*?<div class="side rowstats">)(.*?)(</div>\s*<div class="foot">)', html, re.S)
+    items = ('<div class="stat" style="width:400px"><p class="stat-num ink">Arrows</p><p class="stat-lab">net flow out of each 1 km cell</p></div>' + bar)
+    html = html[:m.start(2)] + items + html[m.end(2):]
+    return html
 
 
 # speaker notes of current slides that change with the order (data and measures now come before the factors)
