@@ -1,6 +1,7 @@
 """Slides of the storyline written here: five drawn from the data, and the DATA slide (read by slides/build_final_deck.py, step 10).
 
   scope         DATA: the days, the stations and the sources (text only)
+NOTES and WEATHER_LEAD: speaker notes of current slides that follow the new order.
   d_measures    WHAT WE MEASURE: every station, morning net outflow against empty share (losing bikes is not running out)
   d_subway      FACTOR 4: net outflow and empty share by quarter of subway distance
   d_cop_subway  FACTORS TOGETHER: coplot of empty share on elevation, one panel per quarter of subway distance
@@ -130,7 +131,7 @@ s1 = slide("d_measures", "WHAT WE MEASURE", "Losing bikes is not the same as run
            f"empty share: how often the station has no bike at all at 7, 8 or 9 am. Each dot is one station. Everything right of the line loses bikes in the morning: "
            f"{len(lose) / n_all:.0%} of all stations. But only the red ones, above the dashed line, are empty in at least one in five readings, and that is "
            f"just {len(lose_out) / len(lose):.0%} of the stations that lose bikes. Most blue stations lose bikes every morning and still never run out. "
-           "So from here on we look at both measures, and ask what makes the red stations different.")
+           "We keep both measures from here on. First: where do the bikes leave each morning?")
 
 # ================= 2. subway: net outflow and empty share by quarter
 W, H = 1071, 600
@@ -302,9 +303,22 @@ SCOPE = f"""<section id="scope" data-transition="fade">
 </div>
 </div>
 {FOOT}
-<aside>Factors one and two tell us which days to study. Weekends and holidays follow a different pattern from the commute, and rain changes how many
-people ride, so we keep dry weekdays. That leaves 378 dry weekdays in 2024 and 2025, and 2,843 stations, with every trip between them. For the
-stock at each station we also use the hourly records of 2025. Next: what we measure on those days.</aside>
+<aside>To answer it, we use every trip between Seoul's bike stations in 2024 and 2025. We keep weekdays that are not public holidays and
+have under 1 mm of rain: 378 days. Factors one and two will show why: weekends follow a different pattern from the commute, and rain changes how
+many people ride. That leaves 2,843 stations with records on at least 50 of those days. For the stock at each station we also use the hourly
+records of 2025. Next: what we measure on those days.</aside>
 </section>"""
+
+# speaker notes of current slides that change with the order (data and measures now come before the factors)
+NOTES = {
+    "factors": "What is it about a station? We listed four candidates. Time of day, because commuting and leisure trips look different. "
+               "Weather: rain and temperature. Terrain, because pedalling uphill is hard. And transit, since many people ride to and from the subway. "
+               "The first two explain the days we chose; the last two are possible reasons why some stations run out. We look at them one at a time, then together.",
+    "hours": "First, time of day. This chart shows the average number of rides started in each hour. On weekdays there are two sharp peaks, at 8 in "
+             "the morning and 6 in the evening: that is commuting. On weekends and holidays there is a single broad peak in the afternoon. This is why "
+             "we study weekdays, and especially the morning commute, from 7 to 9 am.",
+}
+WEATHER_LEAD = ("Next, weather, and for now only temperature.",
+                "Next, weather. Rain cuts rides sharply, which is why we keep dry days; here we look at temperature.")
 
 SLIDES = {"scope": SCOPE, "d_measures": s1, "d_subway": s2, "d_cop_subway": s3, "d_wx_elev": s4, "d_buffer": s5}

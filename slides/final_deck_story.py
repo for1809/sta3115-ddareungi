@@ -2,8 +2,8 @@
 
 Read by slides/build_final_deck.py after the wording pass. The deck tells one story:
   "Many stations lose bikes every morning; only the hill-top stations cannot get them back."
-  Act 1  the question            cover, intro, why, cost (Our Question)
-  Act 2  one factor at a time    factors; 1 time of day; 2 weather; data; what we measure; where bikes leave; 3 elevation; 4 subway distance
+  Act 1  the question            cover, intro, why, cost (Our Question); data; what we measure; where bikes leave
+  Act 2  one factor at a time    factors; 1 time of day; 2 weather; 3 elevation; 4 subway distance
   Act 3  factors together        elevation x subway, elevation x weather, feature table, downhill flow, stock buffer
   Act 4  what to do              which stations need a truck (2x2), when the trucks come, conclusion, limits
 Slides whose id starts with "d_" are drawn by slides/final_deck_new.py; DRAFTS below keeps their first text versions.
@@ -11,8 +11,8 @@ Numbers on the drafts: data/station_master.csv (empty share, stock, groups; 2025
 data/od_2024_2025/od/s0_station_daily.csv.gz (07-09 h net outflow, rentals minus returns, 2024-2025 dry weekdays).
 """
 
-ORDER = ["cover", "intro", "why", "cost", "factors",
-         "hours", "weather", "scope", "d_measures", "gumap", "elev", "stmap", "d_subway",
+ORDER = ["cover", "intro", "why", "cost", "scope", "d_measures", "gumap", "factors",
+         "hours", "weather", "elev", "stmap", "d_subway",
          "d_cop_subway", "d_wx_elev", "traits", "vec", "d_buffer",
          "hypo", "quad", "tmap", "g12", "when", "conclusion", "limits", "thanks",
          "appendix", "a_pass", "a_inc"]

@@ -297,6 +297,11 @@ nspec2 = importlib.util.spec_from_file_location("final_deck_new", ROOT / "final_
 NEW = importlib.util.module_from_spec(nspec2)
 nspec2.loader.exec_module(NEW)
 have.update(NEW.SLIDES)                                   # the five new slides drawn from the data
+for sid, note in NEW.NOTES.items():
+    have[sid], k = re.subn(r"<aside>.*?</aside>", lambda _: f"<aside>{note}</aside>", have[sid], count=1, flags=re.S)
+    assert k == 1, sid
+assert have["weather"].count(NEW.WEATHER_LEAD[0]) == 1
+have["weather"] = have["weather"].replace(*NEW.WEATHER_LEAD)
 have["when"] = STORY.when_slide(ROOT.parent / "data" / "hourly_refill_2025.csv")   # hourly version of STEP 7 (analysis/hourly_refill.py)
 assert set(have) == set(STORY.ORDER) and len(STORY.ORDER) == len(set(STORY.ORDER)), set(have) ^ set(STORY.ORDER)
 out = out[:secs[0].start()] + "\n\n".join(have[i].strip() for i in STORY.ORDER) + out[secs[-1].end():]
