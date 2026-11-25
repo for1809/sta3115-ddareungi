@@ -3,7 +3,7 @@
 Read by slides/build_final_deck.py after the wording pass. The deck tells one story:
   "Many stations lose bikes every morning; only the hill-top stations cannot get them back."
   Act 1  the question            cover, intro, why, cost (Our Question)
-  Act 2  one factor at a time    factors; 1 time of day; 2 weather; what we measure; 3 elevation; 4 subway distance
+  Act 2  one factor at a time    factors; 1 time of day; 2 weather; data; what we measure; where bikes leave; 3 elevation; 4 subway distance
   Act 3  factors together        elevation x subway, elevation x weather, feature table, downhill flow, stock buffer
   Act 4  what to do              which stations need a truck (2x2), when the trucks come, conclusion, limits
 Slides whose id starts with "d_" are drawn by slides/final_deck_new.py; DRAFTS below keeps their first text versions.
@@ -17,7 +17,7 @@ ORDER = ["cover", "intro", "why", "cost", "factors",
          "hypo", "quad", "tmap", "g12", "when", "conclusion", "limits", "thanks",
          "appendix", "a_pass", "a_inc"]
 
-EYEBROWS = {"scope": "WHAT WE MEASURE", "gumap": "WHAT WE MEASURE",
+EYEBROWS = {"scope": "DATA", "gumap": "WHERE BIKES LEAVE",
             "elev": "FACTOR 3. ELEVATION", "stmap": "FACTOR 3. ELEVATION",
             "traits": "FACTORS TOGETHER", "vec": "FACTORS TOGETHER",
             "quad": "WHICH STATIONS NEED A TRUCK", "tmap": "WHICH STATIONS NEED A TRUCK", "g12": "WHICH STATIONS NEED A TRUCK",

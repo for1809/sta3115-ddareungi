@@ -1,5 +1,6 @@
-"""Five slides of the storyline, drawn from the data (read by slides/build_final_deck.py, step 10).
+"""Slides of the storyline written here: five drawn from the data, and the DATA slide (read by slides/build_final_deck.py, step 10).
 
+  scope         DATA: the days, the stations and the sources (text only)
   d_measures    WHAT WE MEASURE: every station, morning net outflow against empty share (losing bikes is not running out)
   d_subway      FACTOR 4: net outflow and empty share by quarter of subway distance
   d_cop_subway  FACTORS TOGETHER: coplot of empty share on elevation, one panel per quarter of subway distance
@@ -118,13 +119,15 @@ o.append(t(x(-XM) + 8, T + 28, f"gains bikes: {gain:,}", 20, MUTED, "start", 700
 c1 = svg(W, H, f"Each dot is a station: morning net outflow against empty share. {len(lose):,} of {n_all:,} stations lose bikes each morning; "
          f"only {len(lose_out):,} of them are empty in at least one in five morning readings.", o)
 s1 = slide("d_measures", "WHAT WE MEASURE", "Losing bikes is not the same as running out", c1,
-           sidebox(stat(f"{len(lose) / n_all:.0%}", f"of stations lose bikes every morning: net outflow above 0 ({len(lose):,} of {n_all:,})", "blue"),
+           sidebox('<p class="note"><b>Net outflow</b>: rentals minus returns, in bikes. Above 0, the station loses bikes; below 0, it gains them.<br>'
+                   '<b>Empty share</b>: how often the station has zero bikes at 7, 8 or 9 am.</p>',
+                   stat(f"{len(lose) / n_all:.0%}", f"of stations lose bikes every morning: net outflow above 0 ({len(lose):,} of {n_all:,})", "blue"),
                    stat(f"{len(lose_out) / len(lose):.0%}", f"of those actually run out: empty in at least one in five readings from 7 to 9 am ({len(lose_out):,})", "red"),
-                   '<p class="note">So we track both: <b>net outflow</b>, where bikes leave, and <b>empty share</b>, where they run out.</p>',
-                   note="Net outflow: rentals minus returns 7 to 9 am, dry weekdays 2024 to 2025 (team table). "
-                        "Empty share: share of hourly stock readings at 7, 8 and 9 am with zero bikes, dry weekdays 2025."),
-           f"Net outflow tells us where bikes leave. But our question is where they run out, so we add a second measure: the empty share, how often "
-           f"the station has no bike at all at 7, 8 or 9 am. Each dot is one station. Everything right of the line loses bikes in the morning: "
+                   note="Net outflow: 7 to 9 am, dry weekdays 2024 to 2025 (team table). Empty share: hourly stock, dry weekdays 2025."),
+           f"We use two measures. The first is net outflow: rentals minus returns, counted in bikes. When it is positive, the station loses bikes; when "
+           f"it is negative, it gains them. We compute it for the whole day and for the morning commute; a daily net outflow of plus 4 means the station "
+           f"ends every day four bikes short. Net outflow tells us where bikes leave. But our question is where they run out, so the second measure is the "
+           f"empty share: how often the station has no bike at all at 7, 8 or 9 am. Each dot is one station. Everything right of the line loses bikes in the morning: "
            f"{len(lose) / n_all:.0%} of all stations. But only the red ones, above the dashed line, are empty in at least one in five readings, and that is "
            f"just {len(lose_out) / len(lose):.0%} of the stations that lose bikes. Most blue stations lose bikes every morning and still never run out. "
            "So from here on we look at both measures, and ask what makes the red stations different.")
@@ -282,4 +285,26 @@ s5 = slide("d_buffer", "FACTORS TOGETHER", "Flat stations lose bikes but keep a 
            "down never ride back up. Losing one or two is enough to empty it. Many stations lose bikes in the morning; only the hills cannot get them back.")
 
 
-SLIDES = {"d_measures": s1, "d_subway": s2, "d_cop_subway": s3, "d_wx_elev": s4, "d_buffer": s5}
+# ================= slide "scope" as DATA: the days, the stations and the sources (the measures are defined on d_measures)
+SCOPE = f"""<section id="scope" data-transition="fade">
+<p class="eyebrow">DATA</p>
+<h2>378 dry weekdays, 2,843 stations, every trip</h2>
+<div class="cols">
+<div class="card">
+<p class="card-title">Days</p>
+<p class="card-body">Weekdays in 2024 and 2025 that are not public holidays and have under 1 mm of rain: 378 days.</p>
+<p class="card-small">We dropped ten days on which rentals and returns did not match.</p>
+</div>
+<div class="card">
+<p class="card-title">Data</p>
+<p class="card-body">Every station-to-station trip in 2024–2025 (Seoul Open Data, 5-minute records), hourly bikes at every station (2025), hourly KMA weather, station elevation from 1:5,000 contour maps and subway stations.</p>
+<p class="card-small">Stations: the 2,843 with records on at least 50 of those days.</p>
+</div>
+</div>
+{FOOT}
+<aside>Factors one and two tell us which days to study. Weekends and holidays follow a different pattern from the commute, and rain changes how many
+people ride, so we keep dry weekdays. That leaves 378 dry weekdays in 2024 and 2025, and 2,843 stations, with every trip between them. For the
+stock at each station we also use the hourly records of 2025. Next: what we measure on those days.</aside>
+</section>"""
+
+SLIDES = {"scope": SCOPE, "d_measures": s1, "d_subway": s2, "d_cop_subway": s3, "d_wx_elev": s4, "d_buffer": s5}

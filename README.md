@@ -133,7 +133,7 @@ EDA 노트의 그림 가운데 발표 흐름에 맞는 것을 골라 큰 글씨�
 한 줄 결론은 "아침에 자전거를 잃는 곳은 많지만, 되찾지 못하는 곳은 언덕뿐"이고, 4장 질문은 "Many stations lose bikes every morning. Why do only some run out?"입니다. 순서는 네 막입니다(`slides/final_deck_story.py`).
 
 1. 질문(1~5장): 표지, What is Ddareungi, 이용 감소와 적자, 질문, 요인 넷(Time of day, Weather, Elevation, Distance to the nearest subway station)
-2. 요인 하나씩(6~13장): FACTOR 1 시간대, FACTOR 2 날씨, WHAT WE MEASURE(분석 범위, 두 척도, 구별 지도), FACTOR 3 고도(산점도, 대여소 지도), FACTOR 4 지하철 거리
+2. 요인 하나씩(6~13장): FACTOR 1 시간대, FACTOR 2 날씨, DATA(맑은 평일 378일, 대여소 2,843곳, 자료), WHAT WE MEASURE(순유출과 품절 두 척도의 정의), WHERE BIKES LEAVE(구별 지도), FACTOR 3 고도(산점도, 대여소 지도), FACTOR 4 지하철 거리
 3. 요인 함께(14~18장): 고도 × 지하철 coplot, 고도 × 날씨, 대여소 특성 표, 내리막 흐름, 재고 여유
 4. 해결(19~25장): 언덕마다 트럭이 필요한가, 2×2, 그룹 지도, G1 대 G2, 트럭이 오는 시간, 결론, 한계
 
