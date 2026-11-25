@@ -167,9 +167,9 @@ SLIDES = {
         title="Does every hill-top station need a truck every morning?",
         pairs=[("Many stations are emptied by the 7–9 am commute.", "Many stations are emptied during the 7–9 am commute."),
                ("But if residents ride back in the evening, the station refills itself by night, and no truck is needed.",
-                "But if residents ride back in the evening, the station refills by night and needs no truck."),
+                "Redistribution is not needed if riders return bikes on their way back home from work"),
                ("Split stations on two questions: emptied in the morning? Still short at night?",
-                "So we ask two questions of every station: is it emptied in the morning, and is it still short at night?")],
+                "Two criteria for station classification: Is it empty in the morning and is it empty at the end of the day?")],
         aside="What does this mean for the trucks? Should a truck rush to every station that is emptied in the morning? Not necessarily. "
               "If residents ride back home in the evening, the station refills by night and needs no truck. We call this the self-balancing "
               "hypothesis. To test it, we ask two questions of every station: is it emptied in the morning, and is it still short at the end "
