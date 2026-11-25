@@ -257,7 +257,8 @@ SLIDES = {
               "do not estimate how much a new truck schedule would save."),
 
     "thanks": dict(
-        pairs=[('<p class="byline">Group 1 · STA3115 Exploratory Data Analysis · Data: Seoul Open Data, KMA, Seoul digital topographic map</p>',
+        pairs=[('<h1>Questions?</h1>', '<h1>Thank you</h1>'),
+               ('<p class="byline">Group 1 · STA3115 Exploratory Data Analysis · Data: Seoul Open Data, KMA, Seoul digital topographic map</p>',
                 '<p class="byline">Group 1, STA3115 Exploratory Data Analysis. Data: Seoul Open Data, KMA, Seoul digital topographic map</p>')],
         aside="Thank you for listening. We are happy to take questions."),
 
