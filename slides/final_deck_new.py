@@ -116,7 +116,7 @@ o.append(f'<line x1="{L}" x2="{W - RT}" y1="{y(TH):.1f}" y2="{y(TH):.1f}" stroke
 o.append(t(x(XM) - 8, T + 28, f"loses bikes and runs out: {len(lose_out):,}", 20, RED, "end", 700))
 HALO = ' stroke="#fff" stroke-width="6" stroke-linejoin="round" paint-order="stroke"'
 o.append(t(x(-XM) + 8, y(TH) - 12, "empty in 1 of 5 readings or more", 17, INK2, "start", None, HALO))
-o.append(t(x(XM) - 8, y(0.14), f"loses bikes, still has bikes: {len(lose) - len(lose_out):,}", 20, BLUE, "end", 700, HALO))
+o.append(t(x(XM) - 8, y(0.14), f"loses bikes; empty share <20%: {len(lose) - len(lose_out):,}", 20, BLUE, "end", 700, HALO))
 o.append(t(x(-XM) + 8, T + 28, f"gains bikes: {gain:,}", 20, MUTED, "start", 700))
 c1 = svg(W, H, f"Each dot is a station: morning net outflow against empty share. {len(lose):,} of {n_all:,} stations lose bikes each morning; "
          f"only {len(lose_out):,} of them are empty in at least one in five morning readings.", o)
@@ -124,15 +124,16 @@ s1 = slide("d_measures", "WHAT WE MEASURE", "Losing bikes is not the same as run
            sidebox('<p class="note"><b>Net outflow</b>: rentals minus returns, in bikes. Above 0, the station loses bikes; below 0, it gains them.<br>'
                    '<b>Empty share</b>: how often the station has zero bikes at 7, 8 or 9 am.</p>',
                    stat(f"{len(lose) / n_all:.0%}", f"of stations lose bikes every morning: net outflow above 0 ({len(lose):,} of {n_all:,})", "blue"),
-                   stat(f"{len(lose_out) / len(lose):.0%}", f"of those actually run out: empty in at least one in five readings from 7 to 9 am ({len(lose_out):,})", "red"),
+                   stat(f"{len(lose_out) / len(lose):.0%}", f"of those have empty share ≥20%: empty in at least one in five morning readings ({len(lose_out):,})", "red"),
                    note="Net outflow: 7 to 9 am, dry weekdays 2024 to 2025 (team table). Empty share: hourly stock, dry weekdays 2025."),
            f"We use two measures. The first is net outflow: rentals minus returns, counted in bikes. When it is positive, the station loses bikes; when "
            f"it is negative, it gains them. We compute it for the whole day and for the morning commute; a daily net outflow of plus 4 means the station "
-           f"ends every day four bikes short. Net outflow tells us where bikes leave. But our question is where they run out, so the second measure is the "
+           f"loses four bikes a day on average through user trips. Net outflow tells us where bikes leave. But our question is where they run out, so the second measure is the "
            f"empty share: how often the station has no bike at all at 7, 8 or 9 am. Each dot is one station. Everything right of the line loses bikes in the morning: "
            f"{len(lose) / n_all:.0%} of all stations. But only the red ones, above the dashed line, are empty in at least one in five readings, and that is "
-           f"just {len(lose_out) / len(lose):.0%} of the stations that lose bikes. Most blue stations lose bikes every morning and still never run out. "
-           "We keep both measures from here on. First: where do the bikes leave each morning?")
+           f"just {len(lose_out) / len(lose):.0%} of the stations that lose bikes. The blue stations have empty share below 20%; they can still run out, just less frequently. "
+           "We keep both measures from here on. We considered time of day, weather, terrain and distance to the subway. "
+           "First, we look at the usage patterns that help explain our choice of days and commute hours.")
 
 # ================= 2. subway: net outflow and empty share by quarter
 W, H = 1071, 600
@@ -287,6 +288,32 @@ s5 = slide("d_buffer", "FACTORS TOGETHER", "Flat stations lose bikes but keep a 
            "down never ride back up. Losing one or two is enough to empty it. Many stations lose bikes in the morning; only the hills cannot get them back.")
 
 
+# ================= slide "why": operating deficit motivates examining redistribution
+WHY = f"""<section id="why" data-transition="fade">
+<p class="eyebrow">WHY THIS MATTERS</p>
+<h2>A growing operating deficit led us to look at redistribution</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:64px">
+<div style="background:var(--tint);border-radius:24px;padding:40px">
+<p style="font-size:26px;color:var(--muted);margin:0 0 24px">Operating deficit · 2022 → 2025</p>
+<p style="font-size:68px;font-weight:700;line-height:1.15;letter-spacing:-1.5px;margin:0">₩9.4 bn → ₩17.6 bn</p>
+<p style="font-size:28px;line-height:1.4;color:var(--ink2);margin:24px 0 0">Nearly doubled in three years</p>
+</div>
+<div style="background:var(--tint);border-radius:24px;padding:40px">
+<p style="font-size:26px;color:var(--muted);margin:0 0 24px">Redistribution staff time</p>
+<p style="font-size:88px;font-weight:700;line-height:1;color:var(--blue);margin:0">53%</p>
+<p style="font-size:28px;line-height:1.4;color:var(--ink2);margin:24px 0 0">of operating cost, according to Bike Magazine</p>
+</div>
+</div>
+<p style="font-size:34px;line-height:1.5;margin:44px 0 0">Redistribution moves bicycles from stations with a surplus to those with shortages.</p>
+<p style="font-size:26px;line-height:1.5;color:var(--muted);margin:16px 0 0">Understanding these imbalances can help the city assess redistribution needs.</p>
+{FOOT}
+<aside>We began with the operating deficit. It grew from 9.4 billion won in 2022 to 17.6 billion won in 2025, nearly doubling in three years.
+This led us to look at the costs of running the service. According to Bike Magazine, 53% of operating cost is staff time spent redistributing bicycles.
+This is the work of moving bikes from stations with a surplus to stations with shortages. That made redistribution an important motivation for our study.
+We wanted to provide insights by understanding the factors associated with bicycle imbalances and shortages.</aside>
+</section>"""
+
+
 # ================= slide "scope" as DATA: the days, the stations and the sources (the measures are defined on d_measures)
 SCOPE = f"""<section id="scope" data-transition="fade">
 <p class="eyebrow">DATA</p>
@@ -310,7 +337,7 @@ many people ride. That leaves 2,843 stations with records on at least 50 of thos
 records of 2025. Next: what we measure on those days.</aside>
 </section>"""
 
-# ================= slide "intro": the four text cards become one strip (three steps with icons, two numbers); title without a colon
+# ================= slide "intro": the four text cards become a three-step strip; title without a colon
 def _icon(glyph):
     return (f'<svg width="84" height="84" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="42" fill="{BLUE}"/>{glyph}</svg>')
 
@@ -333,20 +360,11 @@ def _step(glyph, head, sub):
             f'<p style="font-size:20px;margin:0;color:var(--muted)">{sub}</p></div>')
 
 
-def _big(num, lab, color):
-    return (f'<div style="flex:1"><p style="font-size:64px;font-weight:700;line-height:1;margin:0;color:{color}">{num}</p>'
-            f'<p style="font-size:20px;line-height:1.4;margin:10px 0 0;color:var(--ink2)">{lab}</p></div>')
-
-
-INTRO_STRIP = ('<div style="display:flex;align-items:center;gap:14px;background:var(--tint);border-radius:24px;padding:26px 36px;margin-top:24px">'
-               + _step(_QR, "Scan the QR", "the app unlocks the bike") + _ARROW
-               + _step(_BIKE, "Ride", "1,000 won an hour") + _ARROW
-               + _step(_LOCK, "Lock at any station", "the return is logged")
-               + '<div style="width:2px;align-self:stretch;background:var(--line);margin:0 22px"></div>'
-               + '<div style="display:flex;gap:32px;flex:1">'
-               + _big("44%", "of weekday rides at 7–9 am and 5–7 pm", BLUE)
-               + _big("330", "stations the city watches at commute times, with 33 staff", RED)
-               + '</div></div>\n')
+INTRO_STRIP = ('<div style="display:flex;align-items:center;justify-content:center;gap:48px;background:var(--tint);border-radius:24px;padding:26px 36px;margin-top:24px">'
+               + _step(_QR, "Rent", "Scan the QR code in the app") + _ARROW
+               + _step(_BIKE, "Ride", "Travel to your destination") + _ARROW
+               + _step(_LOCK, "Return", "Lock the bike at any station")
+               + '</div>\n')
 INTRO_TITLE = "Rent a bike at one station, return it at any other"
 
 
@@ -372,4 +390,4 @@ NOTES = {
 WEATHER_LEAD = ("Next, weather, and for now only temperature.",
                 "Next, weather. Rain cuts rides sharply, which is why we keep dry days; here we look at temperature.")
 
-SLIDES = {"scope": SCOPE, "d_measures": s1, "d_subway": s2, "d_cop_subway": s3, "d_wx_elev": s4, "d_buffer": s5}
+SLIDES = {"why": WHY, "scope": SCOPE, "d_measures": s1, "d_subway": s2, "d_cop_subway": s3, "d_wx_elev": s4, "d_buffer": s5}

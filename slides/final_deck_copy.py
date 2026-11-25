@@ -29,12 +29,10 @@ SLIDES = {
                 "A day pass costs 1,000 won per hour. Season passes cover 7 to 365 days; when time runs out, return and rent again."),
                ("7–9 am and 5–7 pm carry 44% of weekday rides. The city already sends 33 staff to 330 crowded or empty stations.",
                 "The commute hours, 7–9 am and 5–7 pm, carry 44% of weekday rides. The city already sends 33 staff to 330 stations that run too full or too empty.")],
-        aside="First, a quick introduction for anyone who has not used Ddareungi. It started in October 2015, and today about 45,000 bikes "
-              "are spread over some 2,800 stations. You rent a bike with an app: scan the QR code and the lock opens. You can return it at any "
-              "station by locking the back wheel. A day pass costs 1,000 won an hour, and season passes are also available. The key point for us: "
-              "on weekdays, the morning and evening commute hours account for 44% of all rides. Because people pick up a bike at one station and "
-              "leave it at another, some stations run empty while others overflow. The city knows this already. At commute times it sends 33 staff "
-              "to 330 stations that are too full or too empty. That imbalance is what we studied."),
+        aside="First, a quick introduction for anyone who has not used Ddareungi. You rent a bike through the app by scanning its QR code. "
+              "Then you ride to your destination and return it by locking it at any station. "
+              "You do not have to return it to the station where you started. "
+              "This means bicycles move between stations as people travel around the city."),
 
     "why": dict(
         eyebrow="WHY THIS MATTERS",

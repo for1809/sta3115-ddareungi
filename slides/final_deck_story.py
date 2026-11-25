@@ -11,11 +11,11 @@ Numbers on the drafts: data/station_master.csv (empty share, stock, groups; 2025
 data/od_2024_2025/od/s0_station_daily.csv.gz (07-09 h net outflow, rentals minus returns, 2024-2025 dry weekdays).
 """
 
-ORDER = ["cover", "intro", "why", "cost", "scope", "d_measures", "gumap", "factors",
+ORDER = ["cover", "intro", "why", "cost", "scope", "d_measures",
          "hours", "weather", "elev", "stmap", "d_subway",
          "d_cop_subway", "d_wx_elev", "traits", "vec", "d_buffer",
          "hypo", "quad", "tmap", "g12", "when", "conclusion", "limits", "thanks",
-         "appendix", "a_pass", "a_inc"]
+         "appendix", "gumap", "factors", "a_pass", "a_inc"]
 
 EYEBROWS = {"scope": "DATA", "gumap": "WHERE BIKES LEAVE",
             "elev": "FACTOR 3. ELEVATION", "stmap": "FACTOR 3. ELEVATION",
@@ -23,11 +23,12 @@ EYEBROWS = {"scope": "DATA", "gumap": "WHERE BIKES LEAVE",
             "quad": "WHICH STATIONS NEED A TRUCK", "tmap": "WHICH STATIONS NEED A TRUCK", "g12": "WHICH STATIONS NEED A TRUCK",
             "when": "WHEN THE TRUCKS COME"}
 
-QUESTION = ('<p style="margin:0;font-size:72px;line-height:1.25;font-weight:700;letter-spacing:-1.5px;text-align:center;color:var(--ink)">'
-            'Many stations lose bikes every morning.<br>Why do only <span style="color:var(--blue)">some</span> run out?</p>')
-QUESTION_NOTE = ("Where does the money go? According to Bike Magazine, 53% of the operating cost is staff time spent redistributing bikes: "
-                 "the trucks you see on the street. Every weekday morning, many stations lose bikes. But only some of them actually run out. "
-                 "So our question is: why do only some stations run out? If we know that, the trucks can go to the right place at the right time.")
+QUESTION = ('<p style="margin:0;font-size:76px;line-height:1.25;font-weight:700;letter-spacing:-1.5px;text-align:left;color:var(--ink)">'
+            'What station characteristics are associated with <span style="color:var(--blue)">persistent bicycle imbalances,</span><br>'
+            'and why do some stations experience <span style="color:var(--blue)">shortages?</span></p>')
+QUESTION_NOTE = ("With this in mind, we wanted to understand what station characteristics are associated with persistent bicycle imbalances "
+                 "and why some stations experience shortages. We looked at both where bicycles tend to leave and where none are available. "
+                 "We hope these patterns can provide useful reference information when the city assesses redistribution needs.")
 
 FOOT = '<div class="foot"><p class="foot-l">STA3115 Exploratory Data Analysis, Group 1</p><p class="foot-r"></p></div>'
 PILL = ('<span style="display:inline-block;font-size:20px;font-weight:700;letter-spacing:.5px;color:var(--muted);'
