@@ -1,0 +1,66 @@
+<div id="opening-question-preview">
+  <style>
+    #opening-question-preview { font-family: Inter, Arial, sans-serif; color: #191f28; }
+    #opening-question-preview .slide { background: #fff; aspect-ratio: 16 / 9; padding: 5% 6%; box-sizing: border-box; display: flex; flex-direction: column; container-type: inline-size; position: relative; }
+    #opening-question-preview .eyebrow { font-size: clamp(11px, 1.6cqw, 16px); letter-spacing: .14em; font-weight: 600; color: #6b7684; margin: 0; }
+    #opening-question-preview .question { font-size: clamp(23px, 4.3cqw, 46px); line-height: 1.24; letter-spacing: -.035em; font-weight: 700; margin: 0; }
+    #opening-question-preview .question span { color: var(--question-blue, #3182f6); }
+    #opening-question-preview .hero { flex: 1; display: flex; align-items: center; padding: 4% 0 5%; }
+    #opening-question-preview .context { background: #f4f8ff; border-radius: 14px; padding: 3% 4%; display: grid; grid-template-columns: 1fr 1fr; gap: 6%; }
+    #opening-question-preview .label { font-size: clamp(11px, 1.5cqw, 16px); line-height: 1.4; color: #6b7684; margin: 0 0 6px; }
+    #opening-question-preview .value { font-size: clamp(16px, 2.5cqw, 27px); font-weight: 600; line-height: 1.3; margin: 0; }
+    #opening-question-preview .detail { font-size: clamp(11px, 1.45cqw, 15px); line-height: 1.4; color: #6b7684; margin: 5px 0 0; }
+    #opening-question-preview .footer { display: flex; justify-content: space-between; gap: 16px; font-size: 11px; color: #8b95a1; margin-top: 3%; }
+    #opening-question-preview .split { flex: 1; display: grid; grid-template-columns: 1fr 2.4fr; gap: 7%; align-items: center; padding: 5% 0; }
+    #opening-question-preview .sidebar { border-right: 1px solid #e5e8eb; padding-right: 16%; display: flex; flex-direction: column; gap: 25px; }
+    #opening-question-preview .split .question { font-size: clamp(23px, 4cqw, 42px); }
+    #opening-question-preview .purpose { font-size: clamp(12px, 1.8cqw, 19px); color: #6b7684; margin: 0; line-height: 1.45; }
+    @media (max-width: 480px) {
+      #opening-question-preview .slide { aspect-ratio: auto; min-height: 440px; padding: 26px 20px; }
+      #opening-question-preview .hero { padding: 30px 0; }
+      #opening-question-preview .context { padding: 18px 15px; gap: 15px; }
+      #opening-question-preview .split { grid-template-columns: 1fr; gap: 22px; padding: 26px 0; }
+      #opening-question-preview .sidebar { order: 2; border-right: 0; border-top: 1px solid #e5e8eb; padding: 18px 0 0; flex-direction: row; gap: 20px; }
+      #opening-question-preview .footer { margin-top: 18px; }
+    }
+  </style>
+  <div class="viz-carousel" aria-label="Research question slide designs">
+    <section data-variant="Question first" aria-label="Question first slide">
+      <div class="slide" aria-label="Question with supporting context below">
+        <p class="eyebrow">OUR QUESTION</p>
+        <div class="hero">
+          <h2 class="question">What station characteristics are associated with <span>persistent bicycle imbalances,</span><br>and why do some stations experience <span>shortages?</span></h2>
+        </div>
+        <div class="context">
+          <div><p class="label">Annual rides · 2023 → 2025</p><p class="value">44.9M → 37.4M</p></div>
+          <div><p class="label">Operating deficit · 2022 → 2025</p><p class="value">₩9.4B → ₩17.6B</p></div>
+        </div>
+        <div class="footer"><span>STA3115 Exploratory Data Analysis · Group 1</span><span>3</span></div>
+      </div>
+    </section>
+    <section data-variant="Context beside question" aria-label="Context beside question slide" hidden>
+      <div class="slide" aria-label="Small context column beside a large question">
+        <p class="eyebrow">UNDERSTANDING BICYCLE IMBALANCES</p>
+        <div class="split">
+          <div class="sidebar">
+            <div><p class="label">Annual rides</p><p class="value">44.9M<br>↓ 37.4M</p><p class="detail">2023 → 2025</p></div>
+            <div><p class="label">Operating deficit</p><p class="value">₩9.4B<br>↑ ₩17.6B</p><p class="detail">2022 → 2025</p></div>
+          </div>
+          <h2 class="question">What station characteristics are associated with <span>persistent bicycle imbalances,</span> and why do some stations experience <span>shortages?</span></h2>
+        </div>
+        <p class="purpose">Evidence to help assess redistribution needs.</p>
+        <div class="footer"><span>STA3115 Exploratory Data Analysis · Group 1</span><span>3</span></div>
+      </div>
+    </section>
+  </div>
+  <script>
+    const previewRoot = document.getElementById('opening-question-preview');
+    const previewDesign = { accent: '#3182f6' };
+    function renderQuestionAccent() { previewRoot.style.setProperty('--question-blue', previewDesign.accent); }
+    renderQuestionAccent();
+    if (globalThis.Tweak) {
+      const tweak = new Tweak({ container: previewRoot, onChange: renderQuestionAccent });
+      tweak.addColorPicker(previewDesign, 'accent', { label: 'Question emphasis', reference: '--question-blue' });
+    }
+  </script>
+</div>

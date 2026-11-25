@@ -11,6 +11,43 @@ cover_map()   the cover: Seoul's contours as a topographic map, instead of the d
 import math
 import re
 
+
+def map_only(html):
+    """Simplify the station map after the existing wording and units passes."""
+    section = re.search(r'<section\b[^>]*id="stmap".*?</section>', html, re.S)
+    assert section, "station map section not found"
+    old = section.group(0)
+    start = old.index('<div class="body">')
+    end = old.index('<div class="foot">', start)
+    content = ('<div style="display:flex;justify-content:center;margin-top:20px">'
+               '<div id="ix-stmap" style="position:relative;width:1664px;height:730px" '
+               'role="img" aria-label="Seoul terrain and stations with net daily bicycle losses or gains"></div>'
+               '</div>\n')
+    new = old[:start] + content + old[end:]
+    new = re.sub(r'<aside>.*?</aside>\s*', '', new, flags=re.S)
+    html = html[:section.start()] + new + html[section.end():]
+
+    start = html.index('  // ---------- station map: the hills first')
+    end = html.index('  // ----------', start + 10)
+    chart = html[start:end]
+    assert 'const W = 760' in chart
+    chart = chart.replace('const W = 760', 'const W = 820')
+    chart = chart.replace("    guLayer(svg,", "    svg.style.display = 'block'; svg.style.margin = '0 auto';\n    guLayer(svg,", 1)
+    chart = chart.replace('left:0;top:${Hh + 2}px', 'left:50%;transform:translateX(-50%);top:${Hh + 8}px')
+    chart = chart.replace("    guLabels(svg, 14);\n", '')
+    chart = re.sub(r'    const nL = .*?;\n', '', chart)
+    chart = chart.replace("loses over 1 bike a day (${nL.toLocaleString('en')})", "loses over 1 bike a day")
+    chart = chart.replace("gains over 1 (${nG.toLocaleString('en')})", "gains over 1 bike a day")
+    bars_start = chart.index("    const bars = document.getElementById('st-bars');")
+    bars_end = chart.index('    IX.stmap =', bars_start)
+    chart = chart[:bars_start] + chart[bars_end:]
+    chart = chart.replace(' On the right: the higher the station, the more of them end the day short.', '')
+    chart = chart.replace('        const show = [k >= 1, k >= 1, k >= 2, true];\n'
+                          '        side.forEach((n, j) => fade(n, show[j]));\n', '')
+    assert 'st-bars' not in chart and 'side.' not in chart
+    return html[:start] + chart + html[end:]
+
+
 STMAP_SIDE = """
 <div class="stat"><p class="stat-lab" style="margin:0 0 8px">Share of stations that end the day short of bikes, by station elevation</p><div id="st-bars"></div></div>
 <p class="note"><b style="color:var(--red)">Red on the hills</b><br>The northern foothills (Eunpyeong, Gangbuk, Dobong), Gwanak, and the hills of Seodaemun, Seongbuk and Jongno.</p>

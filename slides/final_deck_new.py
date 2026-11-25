@@ -163,16 +163,18 @@ for p, (a, b) in enumerate(px):
     for q in range(4):
         o.append(t(a + (q + .5) * bw, 478, QLAB[q].replace(" and over", "+"), 17, MUTED, "middle"))
     o.append(t((a + b) / 2, 512, "distance to the nearest subway station", 18, INK2, "middle"))
-c2 = svg(W, H, "Morning net outflow rises from minus 1.6 near the subway to plus 2.9 far from it, while the empty share only goes from 9.6 to 12.2 percent.", o)
+c2 = svg(W, H, f"Morning net outflow rises from {qnet[0]:.1f} near the subway to {qnet[3]:+.1f} far from it; empty share rises from {qemp[0]:.1%} to {qemp[3]:.1%}.", o)
 s2 = slide("d_subway", "FACTOR 4. DISTANCE TO THE NEAREST SUBWAY STATION",
-           "Far from the subway, stations lose the most bikes, yet they rarely run out", c2,
+           "Farther from the subway, more bikes leave", c2,
            sidebox(stat(f"{qnet[3]:+.1f}", f"bikes a morning at stations {cut[2]} m or more from the subway; {qnet[0]:+.1f} within {cut[0]} m".replace("-", "−"), "ink"),
-                   stat(f"{qemp[0]:.1%} → {qemp[3]:.1%}", "empty share from the nearest to the farthest quarter: almost the same"),
-                   '<p class="note">Subway distance tells us <b>where bikes leave</b>, not <b>where they run out</b>.</p>',
+                   stat(f"{qemp[0]:.1%} → {qemp[3]:.1%}", "morning empty share, nearest → farthest quarter"),
+                   '<p class="note">A clearer contrast in <b>net movement</b> than in <b>shortage frequency</b>.</p>',
                    note=f"{sum(len(v) for v in byq.values()):,} stations in four equal quarters of distance. Net outflow: trips, 2024–2025 clear weekdays; empty share: hourly stock, 2025 dry weekdays."),
-           f"Factor four is the distance to the nearest subway station. In the morning people ride to the subway, so stations within about {cut[0]} metres "
-           f"gain bikes and those more than {cut[2]} metres away lose almost three a morning. But the empty share barely moves, from {qemp[0]:.0%} to "
-           f"{qemp[3]:.0%}. The stations that lose the most bikes are not the ones that run out. Why? Keep that question for the next part.")
+           f"Next, we looked at subway distance. Stations within about {cut[0]} metres of the subway gain bikes on average in the morning, "
+           f"while those {cut[2]} metres or farther away lose almost three. This is consistent with people riding toward the subway. "
+           f"Empty share rises from {qemp[0]:.1%} to {qemp[3]:.1%}, a less pronounced contrast than we saw across elevation groups. "
+           "So the direction of bicycle movement and the frequency of shortages tell us different things. "
+           "We then compared the station characteristics together.")
 
 # ================= 3. coplot elevation x subway
 def lowess(xs, ys, grid, span=.75):
@@ -383,9 +385,10 @@ NOTES = {
     "factors": "What is it about a station? We listed four candidates. Time of day, because commuting and leisure trips look different. "
                "Weather: rain and temperature. Terrain, because pedalling uphill is hard. And transit, since many people ride to and from the subway. "
                "The first two explain the days we chose; the last two are possible reasons why some stations run out. We look at them one at a time, then together.",
-    "hours": "First, time of day. This chart shows the average number of rides started in each hour. On weekdays there are two sharp peaks, at 8 in "
-             "the morning and 6 in the evening: that is commuting. On weekends and holidays there is a single broad peak in the afternoon. This is why "
-             "we study weekdays, and especially the morning commute, from 7 to 9 am.",
+    "hours": "We first considered time of day and weather. On weekdays, usage peaks at 8 am and 6 pm, following the commuting hours. "
+             "Weekends and holidays have a broad afternoon peak instead. Weather also affects how much people ride. "
+             "We therefore focused on non-holiday weekdays with less than 1 mm of rainfall, especially the 7–9 am commute. "
+             "The detailed temperature findings are available in the appendix. Within this scope, we next looked at station characteristics.",
 }
 WEATHER_LEAD = ("Next, weather, and for now only temperature.",
                 "Next, weather. Rain cuts rides sharply, which is why we keep dry days; here we look at temperature.")

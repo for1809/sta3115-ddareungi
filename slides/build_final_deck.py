@@ -306,6 +306,11 @@ have["intro"] = NEW.intro(have["intro"])
 have["when"] = STORY.when_slide(ROOT.parent / "data" / "hourly_refill_2025.csv")   # hourly version of STEP 7 (analysis/hourly_refill.py)
 assert set(have) == set(STORY.ORDER) and len(STORY.ORDER) == len(set(STORY.ORDER)), set(have) ^ set(STORY.ORDER)
 out = out[:secs[0].start()] + "\n\n".join(have[i].strip() for i in STORY.ORDER) + out[secs[-1].end():]
+out = CH.map_only(out)
+yspec = importlib.util.spec_from_file_location("final_deck_yonsei", ROOT / "final_deck_yonsei.py")
+YONSEI = importlib.util.module_from_spec(yspec)
+yspec.loader.exec_module(YONSEI)
+out = YONSEI.apply(out)
 
 # page numbers: section n resets the counter to n - 1 (hidden slides do not count)
 def renumber(html):
