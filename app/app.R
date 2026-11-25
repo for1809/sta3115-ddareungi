@@ -37,16 +37,22 @@ g_lab <- c(G1 = "G1 Stays short", G2 = "G2 Refills by night", G3 = "G3 Collects 
 band_col <- c("Below 20 m" = blue, "20–40 m" = pink, "40 m and above" = red)
 theme_app <- function() {
   theme_minimal(base_size = 15) +
-    theme(text = element_text(colour = ink), axis.text = element_text(colour = muted), axis.title = element_text(colour = ink2),
-          panel.grid.minor = element_blank(), panel.grid.major = element_line(colour = grid_col, linewidth = 0.4),
-          legend.position = "top", legend.justification = "left", plot.caption = element_text(colour = muted, hjust = 0))
+    theme(text = element_text(colour = ink), axis.text = element_text(colour = muted, size = 12.5),
+          axis.title = element_text(colour = muted, size = 13), axis.title.x = element_text(margin = margin(t = 10)),
+          axis.title.y = element_text(margin = margin(r = 10)),
+          panel.grid.minor = element_blank(), panel.grid.major = element_line(colour = "#EEF1F4", linewidth = 0.5),
+          legend.position = "top", legend.justification = "left", legend.text = element_text(colour = ink2, size = 12.5),
+          strip.text = element_text(face = "bold", colour = ink, hjust = 0, size = 13),
+          plot.background = element_rect(fill = "white", colour = NA), plot.margin = margin(10, 16, 10, 10),
+          plot.caption = element_text(colour = muted, hjust = 0))
 }
 theme_ui <- bs_theme(
   version = 5, bg = "#ffffff", fg = ink, primary = blue, danger = red, secondary = "#f2f4f6",
   base_font = font_collection(font_link("Inter", "https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"),
                               font_link("Noto Sans KR", "https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"),
                               "sans-serif"),
-  "border-radius" = "16px", "card-border-color" = "#ffffff", "card-cap-bg" = "#ffffff")
+  "border-radius" = "16px", "card-border-color" = "#EEF1F4", "card-cap-bg" = "#ffffff", "body-bg" = "#F7F9FC",
+  "navbar-bg" = "#ffffff", "font-size-base" = "0.97rem")
 pct <- function(x, d = 0) paste0(formatC(100 * x, format = "f", digits = d), "%")
 sgn <- function(x, d = 1) sub("^-", "−", sprintf(paste0("%+.", d, "f"), x))
 num <- function(x) formatC(x, format = "d", big.mark = ",")
@@ -55,16 +61,39 @@ stat_box <- function(title, value, sub = NULL, colour = ink) {
       if (!is.null(sub)) div(class = "stat-sub", sub))
 }
 css <- "
-.stat-box { background:#f4f8ff; border-radius:16px; padding:14px 18px; height:100%; }
-.stat-title { color:#6b7684; font-size:.85rem; }
-.stat-value { font-size:1.9rem; font-weight:700; letter-spacing:-.5px; line-height:1.2; }
-.stat-sub { color:#6b7684; font-size:.8rem; }
-.lead-note { color:#4e5968; max-width:64rem; }
-.navbar-brand { font-weight:700; }
-.station-tip { background:#191f28; color:#fff; border-radius:12px; padding:10px 14px; min-height:3.2rem; }
-.station-tip b { font-size:1.05rem; }
-.tbl-or td, .tbl-or th { padding:6px 10px; }
+body { background:#F7F9FC; }
+.navbar { background:#ffffff !important; border-bottom:1px solid #E5E8EB; box-shadow:none; padding-top:10px; padding-bottom:10px; }
+.navbar-brand { font-weight:800; letter-spacing:-.4px; color:#191F28 !important; display:flex; align-items:center; gap:10px; }
+.navbar-brand::before { content:''; width:12px; height:12px; border-radius:50%; background:#3182F6; box-shadow:16px 0 0 #F04452; margin-right:18px; }
+.navbar .nav-link { color:#6B7684 !important; font-weight:600; font-size:.92rem; border-radius:999px; padding:.42rem .95rem !important; margin:0 2px; }
+.navbar .nav-link:hover { color:#191F28 !important; background:#F2F4F6; }
+.navbar .nav-link.active { color:#ffffff !important; background:#3182F6 !important; }
+.tab-content > .tab-pane { max-width:1340px; margin:0 auto; padding:6px 28px 56px; }
+.page-head { margin:30px 0 22px; }
+.page-eyebrow { color:#3182F6; font-weight:700; font-size:.78rem; letter-spacing:.09em; text-transform:uppercase; }
+.page-title { font-size:2.15rem; font-weight:800; letter-spacing:-.8px; color:#191F28; margin:.3rem 0 .55rem; }
+.page-lead { color:#4E5968; max-width:62rem; font-size:1.03rem; line-height:1.6; margin:0; }
+.card { border:1px solid #EEF1F4 !important; border-radius:20px !important; box-shadow:0 1px 2px rgba(16,24,40,.04); background:#ffffff; }
+.card-header { background:#ffffff !important; border-bottom:none !important; font-weight:700; color:#191F28; padding:18px 22px 4px !important; }
+.card-body { padding:14px 20px 18px; }
+.bslib-sidebar-layout { border:none !important; border-radius:20px !important; background:transparent !important; --_sidebar-bg:#ffffff; }
+.bslib-sidebar-layout > .sidebar { background:#ffffff !important; border:1px solid #EEF1F4 !important; border-radius:20px !important; }
+.bslib-sidebar-layout > .main { padding-top:0 !important; }
+.sidebar .form-label, .sidebar label { font-weight:600; color:#333D4B; }
+.stat-box { background:#ffffff; border:1px solid #EEF1F4; border-radius:20px; padding:18px 22px; height:100%; box-shadow:0 1px 2px rgba(16,24,40,.04); }
+.stat-title { color:#6B7684; font-size:.84rem; font-weight:600; }
+.stat-value { font-size:clamp(1.45rem, 2vw, 2.1rem); font-weight:800; letter-spacing:-1px; line-height:1.15; margin:4px 0 2px; }
+.stat-sub { color:#8B95A1; font-size:.8rem; line-height:1.4; }
+.lead-note { color:#4E5968; max-width:64rem; }
+.station-tip { background:#191F28; color:#ffffff; border-radius:14px; padding:12px 16px; min-height:3.2rem; margin-top:12px; font-size:.92rem; }
+.station-tip b { font-size:1.02rem; }
+.tbl-or td, .tbl-or th { padding:8px 12px; }
+.irs--shiny .irs-bar, .irs--shiny .irs-single { background:#3182F6; border-color:#3182F6; }
+.btn-check:checked + .btn, .form-check-input:checked { background-color:#3182F6; border-color:#3182F6; }
+.text-muted, .small.text-muted { color:#8B95A1 !important; }
 "
+page_head <- function(eyebrow, title, ...) div(class = "page-head", div(class = "page-eyebrow", eyebrow),
+                                                   div(class = "page-title", title), p(class = "page-lead", ...))
 # hover read-out under a scatter: the nearest station to the mouse
 tip <- function(h, d, xv, yv, fmt) {
   p0 <- if (!is.null(h)) nearPoints(d, h, xvar = xv, yvar = yv, maxpoints = 1, threshold = 8) else NULL
@@ -81,7 +110,7 @@ ui <- page_navbar(
   header = tags$head(tags$style(HTML(css))),
 
   nav_panel("1 Losing vs running out",
-    p(class = "lead-note mt-3", "Two measures. Net outflow: rentals minus returns between 7 and 9 am, in bikes; above 0 the station loses bikes.",
+    page_head("What we measure", "Losing bikes vs running out", "Two measures. Net outflow: rentals minus returns between 7 and 9 am, in bikes; above 0 the station loses bikes.",
       "Empty share: how often the station has no bike at all at 7, 8 or 9 am. Many stations lose bikes in the morning; far fewer run out."),
     layout_sidebar(
       sidebar = sidebar(width = 290,
@@ -95,7 +124,7 @@ ui <- page_navbar(
         "Stations beyond ±30 bikes are drawn at the edge."))),
 
   nav_panel("2 Elevation",
-    p(class = "lead-note mt-3", "Each dot is a station: elevation across, daily net outflow in bikes up. Low ground gains bikes, hill-tops lose them:",
+    page_head("Factor 3. Elevation", "Elevation and net outflow", "Each dot is a station: elevation across, daily net outflow in bikes up. Low ground gains bikes, hill-tops lose them:",
       "bikes ride downhill and are not ridden back up."),
     layout_sidebar(
       sidebar = sidebar(width = 290,
@@ -108,7 +137,7 @@ ui <- page_navbar(
       p(class = "small text-muted mt-2", "Daily net outflow: mean rentals minus returns, 2024–2025 clear weekdays. Stations beyond −20/+30 drawn at the edge."))),
 
   nav_panel("3 Map",
-    p(class = "lead-note mt-3", "Where bikes leave and where stations run out. Hover over a station for its name, click for its numbers."),
+    page_head("On the map", "Where bikes leave and where stations run out", "Each dot is a station. Hover over a station for its name, click for its numbers."),
     layout_sidebar(
       sidebar = sidebar(width = 290,
         radioButtons("m_by", "Colour stations by", c("Daily net outflow (bikes)" = "net", "Empty share, 7–9 am" = "empty",
@@ -118,7 +147,7 @@ ui <- page_navbar(
       card(full_screen = TRUE, leafletOutput("m_map", height = 640)))),
 
   nav_panel("4 Subway",
-    p(class = "lead-note mt-3", "Stations far from the subway lose the most bikes in the morning, but their empty share rises much less:",
+    page_head("Factor 4. Distance to the subway", "Outflow and empty share by subway distance", "Stations far from the subway lose the most bikes in the morning, but their empty share rises much less:",
       "net movement and running out tell different stories."),
     layout_sidebar(
       sidebar = sidebar(width = 290,
@@ -131,7 +160,7 @@ ui <- page_navbar(
       p(class = "small text-muted", textOutput("s_note", inline = TRUE)))),
 
   nav_panel("5 Model",
-    p(class = "lead-note mt-3", "Which station features go with running out? One logistic model with all three features, standardised.",
+    page_head("Factors together", "Station features and running out", "Which station features go with running out? One logistic model with all three features, standardised.",
       "Move the line that defines running out and see whether elevation still comes first."),
     layout_sidebar(
       sidebar = sidebar(width = 290,
@@ -144,7 +173,7 @@ ui <- page_navbar(
            p(class = "small text-muted", "ρ: Spearman correlation with the empty share, one feature at a time (does not depend on the line).")))),
 
   nav_panel("6 Starting stock",
-    p(class = "lead-note mt-3", "Flat stations lose bikes but keep a buffer; hill-top stations start the morning with few bikes, so one or two rentals empty them."),
+    page_head("Starting inventory", "Fewer bikes, more shortages", "Flat stations lose bikes but keep a buffer; hill-top stations start the morning with few bikes, so one or two rentals empty them."),
     layout_sidebar(
       sidebar = sidebar(width = 290,
         radioButtons("b_q", "Distance to the subway", setNames(c("3", "0", "1", "2", "all"),
@@ -158,7 +187,7 @@ ui <- page_navbar(
       layout_columns(col_widths = c(6, 6), uiOutput("b_b3"), uiOutput("b_b4")))),
 
   nav_panel("7 Groups",
-    p(class = "lead-note mt-3", "Two questions for every station: does it lose bikes in the morning (7–9 am net outflow > 0),",
+    page_head("Morning and full-day net flow", "Four station groups", "Two questions for every station: does it lose bikes in the morning (7–9 am net outflow > 0),",
       "and is it still short at the end of the day (full-day net outflow > 0)? Only the sign counts, so every station falls in one group."),
     layout_columns(col_widths = c(3, 3, 3, 3), uiOutput("t_b1"), uiOutput("t_b2"), uiOutput("t_b3"), uiOutput("t_b4")),
     layout_columns(col_widths = c(7, 5),
@@ -170,7 +199,7 @@ ui <- page_navbar(
          div(class = "station-tip", uiOutput("t_scatter_tip")))),
 
   nav_panel("8 Station",
-    p(class = "lead-note mt-3", "Look up any station: its terrain, how many bikes it loses, how often it is empty, and when bikes leave and arrive."),
+    page_head("Station", "Look up a station", "Look up any station: its terrain, how many bikes it loses, how often it is empty, and when bikes leave and arrive."),
     layout_sidebar(
       sidebar = sidebar(width = 330,
         selectizeInput("x_id", "Station", choices = NULL, options = list(placeholder = "Type a name or number")),
@@ -182,7 +211,7 @@ ui <- page_navbar(
         card(card_header("Station facts"), tableOutput("x_facts"))))),
 
   nav_panel("About",
-    div(class = "lead-note mt-3",
+    div(class = "lead-note", style = "margin-top:30px;max-width:56rem",
       h4("Where Do All the Ddareungi Go? Bikes roll downhill, and nobody rides them back up"),
       p("STA3115 Exploratory Data Analysis, Yonsei University, Fall 2026, Group 1. Final talk, 26 November 2026."),
       p("Slides: ", a("for1809.github.io/sta3115-ddareungi-deck", href = "https://for1809.github.io/sta3115-ddareungi-deck/", target = "_blank"),
@@ -208,6 +237,8 @@ ui <- page_navbar(
 
 # ---- server ----
 server <- function(input, output, session) {
+  pw <- function(id, floor = 520) function() { w <- session$clientData[[paste0("output_", id, "_width")]]
+    if (is.null(w) || is.na(w) || w < floor) floor else w }
   updateSelectizeInput(session, "x_id", choices = station_choices, selected = "ST-224", server = TRUE)
 
   # 1 Losing vs running out
@@ -237,7 +268,7 @@ server <- function(input, output, session) {
       scale_x_continuous(breaks = seq(-30, 30, 10), labels = function(v) sub("^-", "−", ifelse(v > 0, paste0("+", v), v))) +
       scale_y_continuous(labels = function(v) pct(v), limits = c(0, 1)) +
       labs(x = "Net outflow, 7–9 am: bikes lost per morning", y = "Empty share, 7–9 am") + theme_app()
-  }, res = 96)
+  }, res = 96, width = pw("l_plot"))
   output$l_tip <- renderUI(tip(input$l_plot_hover, l_data(), "x", "empty", function(p0)
     sprintf("<b>%s</b> &nbsp; %s &nbsp;|&nbsp; net outflow 7–9 am %s bikes &nbsp;|&nbsp; empty share %s",
             htmltools::htmlEscape(p0$name), p0$gu, sgn(p0$am_net_d), pct(p0$empty, 1))))
@@ -266,7 +297,7 @@ server <- function(input, output, session) {
     if (isTRUE(input$e_loess))
       p <- p + geom_line(data = filter(curves, curve == "elev_day_net"), aes(x, y), colour = ink, linewidth = 1.4, inherit.aes = FALSE)
     p
-  }, res = 96)
+  }, res = 96, width = pw("e_plot"))
   output$e_tip <- renderUI(tip(input$e_plot_hover, e_data(), "elev", "y", function(p0)
     sprintf("<b>%s</b> &nbsp; %s &nbsp;|&nbsp; elevation %.0f m &nbsp;|&nbsp; daily net outflow %s bikes &nbsp;|&nbsp; group %s",
             htmltools::htmlEscape(p0$name), p0$gu, p0$elev, sgn(p0$day_net), p0$group)))
@@ -331,7 +362,7 @@ server <- function(input, output, session) {
                                    paste("nearest quarter →", q_lab[4]), ink))
   output$s_b2 <- renderUI(stat_box("Empty share, 7–9 am", sprintf("%s → %s", pct(qs$emp[1], 1), pct(qs$emp[4], 1)),
                                    "nearest → farthest quarter: a much smaller contrast", red))
-  s_bars <- function(v, lab_fun, ylab) renderPlot({
+  s_bars <- function(v, lab_fun, ylab, oid) renderPlot({
     d <- s_sum() %>% mutate(val = .data[[v]])
     p <- if (isTRUE(input$s_split)) {
       ggplot(d, aes(q, val, fill = band)) + geom_col(position = position_dodge(0.8), width = 0.75) +
@@ -347,9 +378,9 @@ server <- function(input, output, session) {
       scale_y_continuous(labels = lab_fun, expand = expansion(mult = 0.15)) +
       scale_x_discrete(labels = function(v) sub(" m and over", " m\nand over", sub("^under ", "under\n", sub("–", "–\n", v)))) +
       labs(x = "Distance to the nearest subway station", y = ylab) + theme_app() + theme(panel.grid.major.x = element_blank())
-  }, res = 96)
-  output$s_net <- s_bars("net", function(v) sgn(v), "Bikes a morning")
-  output$s_emp <- s_bars("emp", function(v) pct(v, 1), "Empty share")
+  }, res = 96, width = pw(oid))
+  output$s_net <- s_bars("net", function(v) sgn(v), "Bikes a morning", "s_net")
+  output$s_emp <- s_bars("emp", function(v) pct(v, 1), "Empty share", "s_emp")
   output$s_note <- renderText(sprintf("%s stations in four equal quarters of distance. Net outflow: trips, 2024–2025 clear weekdays; empty share: hourly stock, 2025 dry weekdays.",
                                       num(nrow(s_base))))
 
@@ -385,7 +416,7 @@ server <- function(input, output, session) {
       geom_text(aes(label = sprintf("%.2f", or)), vjust = -1.2, colour = ink, size = 4.6) +
       scale_x_log10(breaks = c(0.5, 0.75, 1, 1.5, 2, 3, 4, 6)) +
       labs(x = "Odds ratio per 1 SD (log scale)", y = NULL) + theme_app()
-  }, res = 96)
+  }, res = 96, width = pw("g_plot"))
   output$g_table <- renderTable({
     g_fit()$tab %>% transmute(`Station feature` = var, `ρ` = sprintf("%.2f", rho),
                               `Odds ratio per 1 SD (95% CI)` = sprintf("%.2f (%.2f–%.2f)", or, lo, hi),
@@ -417,7 +448,7 @@ server <- function(input, output, session) {
       scale_x_continuous(breaks = seq(0, 23, 3), labels = paste0(seq(0, 23, 3), ":00")) +
       scale_y_continuous(limits = c(0, NA), expand = expansion(mult = c(0, 0.12))) +
       labs(x = NULL, y = "Bikes at the station", caption = "Shaded: 7–9 am. Mean hourly stock, 2025 dry weekdays.") + theme_app()
-  }, res = 96)
+  }, res = 96, width = pw("b_plot"))
   b_pts <- st %>% filter(!is.na(bikes8), !is.na(empty), !is.na(elev_bare)) %>%
     mutate(x = pmin(bikes8, 40), bd = factor(c(flat = "Below 20 m", mid = "20–40 m", hill = "40 m and above")[band], levels(st$ebd)))
   output$b_scatter <- renderPlot({
@@ -427,7 +458,7 @@ server <- function(input, output, session) {
       scale_y_continuous(labels = function(v) pct(v), limits = c(0, 1)) +
       labs(x = "Bikes at the station at 8 am, weekday mean (stations beyond 40 drawn at the edge)", y = "Empty share, 7–9 am",
            caption = paste(num(nrow(b_pts)), "stations. Line: LOESS (span 0.3), all stations. Bikes at 8 am: weekday mean, 2025.")) + theme_app()
-  }, res = 96)
+  }, res = 96, width = pw("b_scatter"))
   output$b_scatter_tip <- renderUI(tip(input$b_scatter_hover, b_pts, "x", "empty", function(p0)
     sprintf("<b>%s</b> &nbsp; %s &nbsp;|&nbsp; %.0f m &nbsp;|&nbsp; %.1f bikes at 8 am &nbsp;|&nbsp; empty share %s",
             htmltools::htmlEscape(p0$name), p0$gu, p0$elev_bare, p0$bikes8, pct(p0$empty, 1))))
@@ -459,7 +490,7 @@ server <- function(input, output, session) {
       scale_colour_manual(values = g_col, labels = g_lab, name = NULL) +
       scale_x_continuous(breaks = seq(0, 23, 3), labels = paste0(seq(0, 23, 3), ":00")) +
       labs(x = NULL, y = "Net outflow (bikes; above 0 = loses)", caption = "Shaded: 7–9 am and 5–8 pm. 2024–2025 clear weekdays.") + theme_app()
-  }, res = 96)
+  }, res = 96, width = pw("t_prof"))
   output$t_g12 <- renderUI({
     g <- trip %>% filter(group %in% c("G1", "G2")) %>% group_by(group) %>%
       summarise(n = n(), pm = -mean(pm_net), am = mean(am_net), elev = median(elev), sub = median(sub_dist, na.rm = TRUE))
@@ -483,7 +514,7 @@ server <- function(input, output, session) {
       scale_colour_manual(values = g_col, labels = g_lab, name = NULL) +
       labs(x = "Net outflow, 7–9 am (bikes)", y = "Net outflow, whole day (bikes)",
            caption = "Stations beyond ±30 bikes drawn at the edge. Hover over a dot to name the station.") + theme_app()
-  }, res = 96)
+  }, res = 96, width = pw("t_scatter"))
   output$t_scatter_tip <- renderUI(tip(input$t_scatter_hover, t_pts, "x", "y", function(p0)
     sprintf("<b>%s</b> &nbsp; %s &nbsp;|&nbsp; %s &nbsp;|&nbsp; 7–9 am %s, whole day %s bikes &nbsp;|&nbsp; %.0f m",
             htmltools::htmlEscape(p0$name), p0$gu, g_lab[[p0$group]], sgn(p0$am_net), sgn(p0$day_net), p0$elev)))
@@ -503,8 +534,10 @@ server <- function(input, output, session) {
              if (!is.na(s$empty) && s$empty >= 0.2) red else ink) })
   output$x_b4 <- renderUI({ s <- x_row()
     if (is.na(s$group)) return(stat_box("Group", "n/a", "too few days of trips"))
-    stat_box("Group", g_lab[[s$group]], sprintf("rank: loses more bikes a day than %s of stations", pct(mean(trip$day_net < s$day_net))),
-             g_col[[s$group]]) })
+    b <- stat_box("Group", g_lab[[s$group]], sprintf("rank: loses more bikes a day than %s of stations", pct(mean(trip$day_net < s$day_net))),
+                  g_col[[s$group]])
+    b$children[[2]] <- tagAppendAttributes(b$children[[2]], style = "font-size:1.55rem;white-space:nowrap")
+    b })
   output$x_plot <- renderPlot({
     d <- hr %>% filter(st_id == input$x_id)
     validate(need(nrow(d) > 0, "No trip records for this station."))
@@ -521,7 +554,7 @@ server <- function(input, output, session) {
         scale_colour_manual(values = c("Rentals (bikes leave)" = red, "Returns (bikes arrive)" = blue), name = NULL) +
         labs(x = NULL, y = "Trips per day", caption = "Shaded: 7–9 am.")
     }
-  }, res = 96)
+  }, res = 96, width = pw("x_plot"))
   output$x_facts <- renderTable({
     s <- x_row()
     f <- function(v, fmt) if (is.na(v)) "n/a" else sprintf(fmt, v)
