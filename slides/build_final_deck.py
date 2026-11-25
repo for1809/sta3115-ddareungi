@@ -15,8 +15,9 @@ Changes, all made here so the original stays as received:
   0. a "What is Ddareungi" slide after the cover
   10. storyline draft (slides/final_deck_story.py), only in deck_draft.html: the new question on slide 4, slide order in four acts, eyebrows, and
       text drafts (ids d_*) for the slides still to be drawn
+  9b. net outflow in bikes, no docks (slides/final_deck_nodocks.py)
 Run from the project root:  python slides/build_final_deck.py
-Output: slides/deck_final.html (steps 0-9) and slides/deck_draft.html (steps 0-10, the storyline draft)
+Output: slides/deck_final.html (steps 0-9b) and slides/deck_draft.html (steps 0-10, the storyline draft)
 """
 import base64
 import importlib.util
@@ -261,6 +262,14 @@ for a, b in COPY.JS:
     assert js.count(a) >= 1, a[:60]
     js = js.replace(a, b)
 out = out[:js0] + js + out[js1:]
+
+# ---- 9b. net outflow in bikes, no docks anywhere (slides/final_deck_nodocks.py; decision 2026-11-25):
+#      dock counts are not capacity, so station and district values are in bikes and the 2x2 groups use the sign only
+nspec = importlib.util.spec_from_file_location("final_deck_nodocks", ROOT / "final_deck_nodocks.py")
+NODOCK = importlib.util.module_from_spec(nspec)
+nspec.loader.exec_module(NODOCK)
+out, _ = NODOCK.apply(out)
+assert "dock" not in re.sub(r'<script[^>]*id="ixdata".*?</script>', "", out, flags=re.S).lower()
 
 # ---- 10. storyline draft (slides/final_deck_story.py), written to a separate file; deck_final.html stays as it was
 #      the new question, slide order, eyebrows, and text drafts for slides to come
