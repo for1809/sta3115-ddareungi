@@ -289,6 +289,56 @@ s5 = slide("d_buffer", "FACTORS TOGETHER", "Flat stations lose bikes but keep a 
            f"the subway has about {ff7:.0f} bikes, and after the rush it still has {ff9:.0f}. A hill-top station has about {h9:.0f}, because the bikes that went "
            "down never ride back up. Losing one or two is enough to empty it. Many stations lose bikes in the morning; only the hills cannot get them back.")
 
+# Keep the original four-group comparison available for questions.
+BUFFER_FULL = s5.replace('id="d_buffer"', 'id="a_buffer"', 1)
+BUFFER_FULL = re.sub(r'<aside>.*?</aside>',
+                    '<aside>Full four-group stock comparison, including stations near the subway. '
+                    'These are group means; stock changes include both trips and non-trip activity.</aside>',
+                    BUFFER_FULL, count=1, flags=re.S)
+
+W, H = 1664, 650
+plot_top, plot_bottom = 100, 390
+stock_y = lambda value: plot_bottom - value / 20 * (plot_bottom - plot_top)
+parts = [t(100, 77, 'Mean available bicycles', 22, MUTED)]
+for value in (0, 5, 10, 15, 20):
+    yy = stock_y(value)
+    parts.append(f'<line x1="100" x2="1570" y1="{yy}" y2="{yy}" stroke="{LINE}"/>'
+                 + t(80, yy + 7, value, 21, MUTED, 'end'))
+buffer_values = []
+for bnd, label, color, left in [('flat', 'Flat stations', BLUE, 280), ('hill', 'Hill stations', RED, 1050)]:
+    start, end = stock_of([bnd], [3], 7), stock_of([bnd], [3], 9)
+    empty = mean([stock_of([bnd], [3], hour, 'empty') for hour in (7, 8, 9)])
+    buffer_values.append((start, end, empty))
+    center = left + 166
+    parts.append(t(center, 38, label, 34, color, 'middle', 700))
+    for j, (value, hour) in enumerate([(start, '7 am'), (end, '9 am')]):
+        xx, yy = left + j * 200, stock_y(value)
+        parts.append(f'<rect x="{xx}" y="{yy:.1f}" width="132" height="{plot_bottom-yy:.1f}" '
+                     f'fill="{color}" fill-opacity="{.38 if j == 0 else 1}" rx="5"/>')
+        parts.append(t(xx + 66, yy - 14, f'{value:.1f}', 31, INK, 'middle', 700))
+        parts.append(t(xx + 66, 423, hour, 24, INK2, 'middle'))
+    parts.append(t(center, 465, f'Stock change: {end-start:+.1f} bikes'.replace('-', '−'), 24, MUTED, 'middle'))
+    parts.append(t(center, 548, f'{empty:.0%}', 68, color, 'middle', 700))
+    parts.append(t(center, 585, 'empty share', 25, INK2, 'middle'))
+parts.append(t(100, 637, 'Stock: group means. Empty share: zero-bike readings at 7, 8 and 9 am, 2025 dry weekdays.', 20, MUTED))
+buffer_chart = svg(W, H, 'Far from the subway: flat stations start with 19.0 bikes and end with 15.0, with 5% empty share; '
+                   'hill stations start with 5.9 and end with 5.4, with 28% empty share. Both groups use the same zero-baseline scale.', parts)
+flat_start, flat_end, flat_empty = buffer_values[0]
+hill_start, hill_end, hill_empty = buffer_values[1]
+s5 = f"""<section id="d_buffer" data-transition="fade">
+<p class="eyebrow">STARTING INVENTORY</p>
+<h2>Fewer bikes, more shortages</h2>
+<p style="font-size:26px;color:var(--muted);margin:16px 0 0">Both groups are far from the subway: the farthest distance quarter ({cut[2]} m and above).</p>
+<div style="margin-top:12px">{buffer_chart}</div>
+{FOOT}
+<aside>Bikes tend to move downhill. But movement alone does not tell us whether a station runs out—the number of bicycles available at the start also matters.
+Here, both groups are far from the subway. Flat stations start with {flat_start:.0f} bicycles and still have {flat_end:.0f} at 9 am.
+Hill stations start with about {hill_start:.0f}, and their empty share is {hill_empty:.0%}, compared with {flat_empty:.0%} on flat ground.
+Despite a smaller decline in average stock, hill stations are empty more frequently. These are group averages, and stock changes can include non-trip activity.
+Starting inventory helps us understand shortages. A separate question is whether the bicycles lost in the morning come back later.
+To explore that, we classified stations using morning and full-day net outflow.</aside>
+</section>"""
+
 
 # ================= slide "why": operating deficit motivates examining redistribution
 WHY = f"""<section id="why" data-transition="fade">
@@ -393,4 +443,4 @@ NOTES = {
 WEATHER_LEAD = ("Next, weather, and for now only temperature.",
                 "Next, weather. Rain cuts rides sharply, which is why we keep dry days; here we look at temperature.")
 
-SLIDES = {"why": WHY, "scope": SCOPE, "d_measures": s1, "d_subway": s2, "d_cop_subway": s3, "d_wx_elev": s4, "d_buffer": s5}
+SLIDES = {"why": WHY, "scope": SCOPE, "d_measures": s1, "d_subway": s2, "d_cop_subway": s3, "d_wx_elev": s4, "d_buffer": s5, "a_buffer": BUFFER_FULL}

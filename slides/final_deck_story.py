@@ -15,7 +15,7 @@ ORDER = ["cover", "intro", "why", "cost", "scope", "d_measures",
          "hours", "elev", "stmap", "d_subway",
          "traits", "vec", "d_buffer",
          "hypo", "quad", "tmap", "g12", "when", "conclusion", "limits", "thanks",
-         "appendix", "gumap", "factors", "weather", "d_cop_subway", "d_wx_elev", "a_pass", "a_inc"]
+         "appendix", "gumap", "factors", "weather", "d_cop_subway", "d_wx_elev", "a_buffer", "a_pass", "a_inc"]
 
 EYEBROWS = {"scope": "DATA", "gumap": "WHERE BIKES LEAVE",
             "elev": "FACTOR 3. ELEVATION", "stmap": "FACTOR 3. ELEVATION",
