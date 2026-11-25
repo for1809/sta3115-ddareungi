@@ -507,43 +507,23 @@ def intro(sec):
     return sec
 
 
-# ================= slide "cover": a drawn hill instead of the elevation map; no caption and no data line (the DATA slide has the sources)
-def _bike(x, y, s, col):
-    w = 3 * s
-    return (f'<g fill="none" stroke="{col}" stroke-width="{w:.1f}" stroke-linecap="round" stroke-linejoin="round">'
-            f'<circle cx="{x - 11 * s:.1f}" cy="{y:.1f}" r="{8 * s:.1f}"/><circle cx="{x + 11 * s:.1f}" cy="{y:.1f}" r="{8 * s:.1f}"/>'
-            f'<path d="M{x - 11 * s:.1f} {y:.1f} L{x - 4 * s:.1f} {y - 12 * s:.1f} H{x + 7 * s:.1f} L{x + 11 * s:.1f} {y:.1f} '
-            f'M{x - 4 * s:.1f} {y - 12 * s:.1f} L{x + 1 * s:.1f} {y:.1f} H{x - 11 * s:.1f} M{x + 4 * s:.1f} {y - 17 * s:.1f} H{x + 9 * s:.1f}"/></g>')
-
-
-def _pin(x, y, col, full):
-    inner = (f'<circle cx="{x}" cy="{y - 40}" r="9" fill="#fff"/>' if full else
-             f'<circle cx="{x}" cy="{y - 40}" r="9" fill="none" stroke="#fff" stroke-width="4"/>')
-    return (f'<path d="M{x} {y} C{x - 6} {y - 14} {x - 24} {y - 24} {x - 24} {y - 40} a24 24 0 0 1 48 0 C{x + 24} {y - 24} {x + 6} {y - 14} {x} {y} Z" fill="{col}"/>'
-            + inner)
-
-
-_cv = [
-    '<path d="M-128 470 H560 C780 470 880 320 1040 225 C1160 150 1250 112 1330 112 C1430 112 1540 200 1792 330 V560 H-128 Z" fill="#EEF4FF"/>',
-    '<path d="M620 560 C820 545 960 360 1110 270 C1200 220 1270 196 1330 196 C1410 196 1490 250 1600 330 L1792 420 V560 H620 Z" fill="#E1EBFD"/>',
-    '<path d="M880 560 C1040 535 1140 410 1230 350 C1270 330 1300 322 1330 322 C1390 322 1450 360 1540 420 L1792 560 H880 Z" fill="#D3E2FC"/>',
-    '<path d="M1290 92 C1150 120 1020 220 900 330 C800 420 700 448 600 452" fill="none" stroke="#B0B8C1" stroke-width="4" stroke-dasharray="2 16" stroke-linecap="round"/>',
-    '<path d="M612 440 L596 452 L614 462" fill="none" stroke="#B0B8C1" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>',
-    _bike(1120, 178, 1.6, BLUE), _bike(960, 282, 1.6, BLUE), _bike(780, 404, 1.6, BLUE),
-    _pin(1330, 104, RED, False),
-    _pin(315, 414, BLUE, True),
-    *[_bike(150 + 66 * i, 452, 1.5, INK2) for i in range(6)],
-]
-COVER_ART = ('<div style="position:absolute;left:0;top:520px;width:1920px">'
-             + svg(1920, 560, "A hill with an empty bike station at the top, bikes riding down the slope, and a station full of bikes at the bottom.", _cv)
-             + '</div>').replace('viewBox="0 0 1920 560"', 'viewBox="-128 0 1920 560"', 1)
+# ================= slide "cover": a Ddareungi photo on the right half, the title on the left; no caption and no data line
+# photo: "Bicycle-sharing station in Seoul 1", Sarang, public domain, Wikimedia Commons (slides/photos/CREDITS.md)
+import base64 as _b64
+_COVER_IMG = "data:image/jpeg;base64," + _b64.b64encode((R / "slides/photos/station_row_seoul_1.jpg").read_bytes()).decode("ascii")
 
 
 def cover(sec):
-    """The cover with the drawn hill in place of the elevation map, its caption and the data line."""
-    i = sec.index('<div style="position:absolute;right:128px;top:540px;width:570px">')
-    j = sec.index('<p class="eyebrow">', i)
-    return sec[:i] + COVER_ART + "\n" + sec[j:]
+    """The cover as photo + title; keeps the speaker note."""
+    note = re.search(r"<aside>.*?</aside>", sec, re.S).group(0)
+    return ('<section id="cover" class="dark" data-transition="fade">'
+            f'<img src="{_COVER_IMG}" alt="Seoul Bike bicycles in a row at a station on a sunny pavement." '
+            'style="position:absolute;right:0;top:0;width:900px;height:1080px;object-fit:cover;object-position:38% 50%">'
+            '<div style="position:absolute;left:128px;top:0;bottom:0;width:820px;display:flex;flex-direction:column;justify-content:center">'
+            '<p class="eyebrow">STA3115 EXPLORATORY DATA ANALYSIS, FINAL PROJECT</p>'
+            '<h1 style="max-width:800px">Exploring Bicycle Imbalances</h1>'
+            '<p class="byline">Group 1, November 26, 2026</p></div>'
+            + note + '</section>')
 
 
 # speaker notes of current slides that change with the order (data and measures now come before the factors)
