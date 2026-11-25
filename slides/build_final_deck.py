@@ -303,6 +303,9 @@ for sid, note in NEW.NOTES.items():
 assert have["weather"].count(NEW.WEATHER_LEAD[0]) == 1
 have["weather"] = have["weather"].replace(*NEW.WEATHER_LEAD)
 have["intro"] = NEW.intro(have["intro"])
+have["vec"] = NEW.vec(have["vec"])
+for sid in NEW.DROP:
+    have.pop(sid)
 have["when"] = STORY.when_slide(ROOT.parent / "data" / "hourly_refill_2025.csv")   # hourly version of STEP 7 (analysis/hourly_refill.py)
 for sid, title in NEW.TITLES.items():                    # short titles
     have[sid], k = re.subn(r"<h2([^>]*)>.*?</h2>", lambda m: f"<h2{m.group(1)}>{title}</h2>", have[sid], count=1, flags=re.S)
@@ -323,6 +326,8 @@ def renumber(html):
     return re.sub(r"<section\b[^>]*>", one, html), n
 
 
+out, k = re.subn(NEW.VEC_JS[0], NEW.VEC_JS[1], out, count=1)
+assert k == 1, "vec reveal"
 for html, path in ((out, OUT), (out, DRAFT)):        # the storyline is now the final deck; deck_draft.html is the same file
     html, n = renumber(html)
     path.write_text(html, encoding="utf-8")

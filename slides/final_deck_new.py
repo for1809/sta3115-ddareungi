@@ -169,15 +169,17 @@ for p, (a, b) in enumerate(px):
         o.append(t(a + (q + .5) * bw, 478, QLAB[q].replace(" and over", "+"), 17, MUTED, "middle"))
     o.append(t((a + b) / 2, 512, "distance to the nearest subway station", 18, INK2, "middle"))
 c2 = svg(W, H, "Morning net outflow rises from minus 1.6 near the subway to plus 2.9 far from it, while the empty share only goes from 9.6 to 12.2 percent.", o)
+_ff7, _ff9 = stock_of(["flat"], [3], 7), stock_of(["flat"], [3], 9)
 s2 = slide("d_subway", "FACTOR 4. DISTANCE TO THE NEAREST SUBWAY STATION",
            "Far from the subway, stations lose the most bikes, yet they rarely run out", c2,
            sidebox(stat(f"{qnet[3]:+.1f}", f"bikes a morning at stations {cut[2]} m or more from the subway; {qnet[0]:+.1f} within {cut[0]} m".replace("-", "−"), "ink"),
                    stat(f"{qemp[0]:.1%} → {qemp[3]:.1%}", "empty share from the nearest to the farthest quarter: almost the same"),
-                   '<p class="note">Subway distance tells us <b>where bikes leave</b>, not <b>where they run out</b>.</p>',
+                   stat(f"{_ff7:.0f} → {_ff9:.0f}", "bikes at a flat station far from the subway, 7 → 9 am: it loses the most but keeps a buffer", "blue"),
                    note=f"{sum(len(v) for v in byq.values()):,} stations in four equal quarters of distance. Net outflow: trips, 2024–2025 clear weekdays; empty share: hourly stock, 2025 dry weekdays."),
            f"Factor four is the distance to the nearest subway station. In the morning people ride to the subway, so stations within about {cut[0]} metres "
            f"gain bikes and those more than {cut[2]} metres away lose almost three a morning. But the empty share barely moves, from {qemp[0]:.0%} to "
-           f"{qemp[3]:.0%}. The stations that lose the most bikes are not the ones that run out. Why? Keep that question for the next part.")
+           f"{qemp[3]:.0%}. The stations that lose the most bikes are not the ones that run out. Why? Because they keep a buffer: a flat station far from "
+           f"the subway has about {_ff7:.0f} bikes at 7 am and still {_ff9:.0f} at 9 am. Subway distance tells us where bikes leave, not where they run out.")
 
 # ================= 3. coplot elevation x subway
 def lowess(xs, ys, grid, span=.75):
@@ -465,7 +467,6 @@ TITLES = {
     "d_wx_elev": "Elevation × morning temperature",
     "traits": "Station features and running out",
     "vec": "Downhill flow",
-    "d_buffer": "Morning stock buffer",
     "hypo": "Does every hill need a truck?",
     "quad": "Four station groups",
     "tmap": "The four groups on the map",
@@ -479,4 +480,66 @@ TITLES = {
     "a_inc": "District income and station use",
 }
 
-SLIDES = {"traits": TRAITS, "why": WHY, "scope": SCOPE, "d_measures": s1, "d_subway": s2, "d_cop_subway": s3, "d_wx_elev": s4, "d_buffer": s5}
+# ================= slide "vec" (downhill flow): add the hill-top stock as a fourth number (from the old d_buffer slide)
+_hill = [stock_of(["hill"], [0, 1, 2, 3], h) for h in range(24)]
+HILL_LO, HILL_HI = min(_hill), max(_hill)
+_VEC_STAT = (f'<div class="stat"><p class="stat-num">{HILL_LO:.0f}–{HILL_HI:.0f} bikes</p>'
+             f'<p class="stat-lab">at a hill-top station (40 m and above) all day, so one or two rentals empty it</p></div>\n')
+_VEC_NOTE = (f" That is why a hill-top station holds only about {HILL_LO:.0f} to {HILL_HI:.0f} bikes at any hour of the day, and one or two "
+             "rentals in the morning are enough to empty it.")
+# the fourth number shows with the third step
+VEC_JS = (r"(bar\.bar\.style\.pointerEvents = k >= 1 \? 'auto' : 'none';\s*)reveal\(side, k \+ 1\);", r"\1reveal(side, k >= 2 ? side.length : k + 1);")
+
+
+def vec(sec):
+    i = sec.index('<div class="side rowstats">'); j = sec.index('</div>\n<div class="foot">', i)
+    sec = sec[:j] + _VEC_STAT + sec[j:]
+    # four numbers in the row: narrower cards (the deck CSS gives each 520 px, room for three)
+    sec = sec.replace('<div class="side rowstats">', '<div class="side rowstats" style="gap:36px">', 1)
+    sec = sec.replace('<div class="stat">', '<div class="stat" style="width:388px">')
+    i = sec.index("</aside>")
+    return sec[:i] + _VEC_NOTE + sec[i:]
+
+
+# ================= appendix "a_buffer": bikes on hand at 8 am against the empty share, every station (replaces the old d_buffer slide)
+_pts = []
+for r in csv.DictReader(open(R / "data/station_master.csv", encoding="utf-8-sig")):
+    if r["parked_08_2025"] and r["am_empty_dry"] and r["elev_bare_m"]:
+        _pts.append((float(r["parked_08_2025"]), float(r["am_empty_dry"]), band(float(r["elev_bare_m"]))))
+W, H, L, RT, T, B = 1071, 600, 96, 24, 56, 78
+XM = 40
+x = lambda v: L + min(v, XM) / XM * (W - L - RT)
+y = lambda v: H - B - v * (H - T - B)
+o = []
+for v in (0, .2, .4, .6, .8, 1):
+    o.append(f'<line x1="{L}" x2="{W - RT}" y1="{y(v):.1f}" y2="{y(v):.1f}" stroke="{LINE}"/>' + t(L - 12, y(v) + 6, f"{v:.0%}", 18, MUTED, "end"))
+for v in range(0, XM + 1, 10):
+    o.append(t(x(v), H - B + 30, v, 18, MUTED, "middle"))
+o.append(t((L + W - RT) / 2, H - 14, f"Bikes at the station at 8 am, weekday mean (stations beyond {XM} drawn at the edge)", 19, INK2, "middle"))
+o.append(t(L, T - 18, "Empty share, 7–9 am", 20, INK, "start", 700))
+_col = {"flat": BLUE, "mid": "#F7A1A8", "hill": RED}
+for bnd in ("flat", "mid", "hill"):
+    for vx, vy, b in _pts:
+        if b == bnd:
+            o.append(f'<circle cx="{x(vx):.1f}" cy="{y(vy):.1f}" r="3.2" fill="{_col[b]}" fill-opacity=".45"/>')
+_g = np.linspace(0.5, 30, 60)
+_fit = np.clip(lowess([p[0] for p in _pts], [p[1] for p in _pts], _g, span=.3), 0, 1)
+o.append(f'<polyline points="{" ".join(f"{x(g):.1f},{y(v):.1f}" for g, v in zip(_g, _fit))}" fill="none" stroke="{INK}" stroke-width="4"/>')
+for i, (lab, bnd) in enumerate((("below 20 m", "flat"), ("20–40 m", "mid"), ("40 m and above", "hill"))):
+    o.append(f'<circle cx="{W - RT - 220}" cy="{T + 22 + i * 30}" r="7" fill="{_col[bnd]}"/>' + t(W - RT - 204, T + 28 + i * 30, lab, 18, INK2))
+o.append(t(W - RT - 228, T + 22 + 3 * 30 + 6, "line: LOESS, all stations", 16, MUTED))
+c6 = svg(W, H, "Each dot is a station: bikes at 8 am against the empty share. Stations with few bikes run out often, and the hill-top stations are the ones with few bikes.", o)
+_med = lambda bnd: float(np.median([p[0] for p in _pts if p[2] == bnd]))
+_few = [p[1] for p in _pts if p[0] < 5]; _many = [p[1] for p in _pts if p[0] >= 10]
+A_BUFFER = slide("a_buffer", "A3. BIKES ON HAND", "Bikes on hand and running out", c6,
+                 sidebox(stat(f"{np.mean(_few):.0%} vs {np.mean(_many):.0%}", "empty share at stations with fewer than 5 bikes at 8 am, against 10 or more", "red"),
+                         stat(f"{_med('hill'):.0f} vs {_med('flat'):.0f}", "median bikes at 8 am: hill-top (40 m and above) against flat ground (below 20 m)", "ink"),
+                         '<p class="note">Few bikes on hand means a station runs out; the hill-top stations are the ones with few bikes.</p>',
+                         note=f"{len(_pts):,} stations. Bikes at 8 am: weekday mean, 2025. Empty share: 7, 8 and 9 am readings, 2025 dry weekdays."),
+                 "Backup for the question why losing bikes is not the same as running out. Each dot is a station: how many bikes it has at 8 am "
+                 f"on a weekday, against how often it is empty in the morning. Stations with fewer than 5 bikes are empty in {np.mean(_few):.0%} of the "
+                 f"readings, those with 10 or more in {np.mean(_many):.0%}. The red hill-top stations sit on the left: a median of {_med('hill'):.0f} bikes "
+                 f"against {_med('flat'):.0f} on flat ground.")
+DROP = ("d_buffer",)                                # its numbers moved to d_subway and vec; its chart is the appendix a_buffer
+
+SLIDES = {"traits": TRAITS, "why": WHY, "scope": SCOPE, "d_measures": s1, "d_subway": s2, "d_cop_subway": s3, "d_wx_elev": s4, "a_buffer": A_BUFFER}
