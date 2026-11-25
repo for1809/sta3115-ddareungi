@@ -1,6 +1,7 @@
 """Slides of the storyline written here: five drawn from the data, and the DATA slide (read by slides/build_final_deck.py, step 10).
 
   scope         DATA: the days, the stations and the sources (text only)
+  traits        FACTORS TOGETHER: logistic model of running out (the 20% line) on elevation, relief and subway distance
 NOTES and WEATHER_LEAD: speaker notes of current slides that follow the new order.
 intro(): the "What is Ddareungi" slide with an icon strip in place of four text cards.
   d_measures    WHAT WE MEASURE: every station, morning net outflow against empty share (losing bikes is not running out)
@@ -11,7 +12,7 @@ intro(): the "What is Ddareungi" slide with an icon strip in place of four text 
 Net outflow in bikes (team table data/od_2024_2025/od/s0_station_daily.csv.gz, 2024-2025 clear weekdays, 07-09 h);
 empty share and hourly stock from 2025 dry weekdays (data/station_master.csv, data/story_numbers.json from analysis/story_numbers.py).
 """
-import csv, gzip, json, re
+import csv, gzip, json, math, re
 from collections import defaultdict
 from pathlib import Path
 import numpy as np
@@ -22,6 +23,9 @@ N = json.load(open(R / "data/story_numbers.json", encoding="utf-8"))
 RED, BLUE, GREY, MUTED, LINE, INK, INK2, TINT = "#F04452", "#3182F6", "#B0B8C1", "#6B7684", "#E5E8EB", "#191F28", "#333D4B", "#F4F8FF"
 NAVY = "#1B3A6B"
 FOOT = '<div class="foot"><p class="foot-l">STA3115 Exploratory Data Analysis, Group 1</p><p class="foot-r"></p></div>'
+
+
+RT_ = ' style="text-align:right"'
 
 
 def t(x, y, s, size=18, fill=MUTED, anchor="start", weight=None, extra=""):
@@ -288,6 +292,61 @@ s5 = slide("d_buffer", "FACTORS TOGETHER", "Flat stations lose bikes but keep a 
            "down never ride back up. Losing one or two is enough to empty it. Many stations lose bikes in the morning; only the hills cannot get them back.")
 
 
+# ================= slide "traits": which station features go with running out (logistic model, the 20% line of d_measures)
+def _logit(X, y, it=50):
+    A = np.column_stack([np.ones(len(y)), X]); b = np.zeros(A.shape[1])
+    for _ in range(it):
+        p = 1 / (1 + np.exp(-A @ b)); W = p * (1 - p)
+        step = np.linalg.solve(A.T @ (A * W[:, None]), A.T @ (y - p)); b += step
+        if np.abs(step).max() < 1e-10:
+            break
+    p = 1 / (1 + np.exp(-A @ b)); cov = np.linalg.inv(A.T @ (A * (p * (1 - p))[:, None]))
+    return b, np.sqrt(np.diag(cov)), p
+
+
+def _ranks(v):
+    v = np.asarray(v, float); o = np.argsort(v, kind="mergesort"); r = np.empty(len(v)); r[o] = np.arange(1, len(v) + 1)
+    for u in np.unique(v[np.r_[False, np.diff(v[o]) == 0][np.argsort(o)]] if len(v) else []):
+        k = v == u; r[k] = r[k].mean()
+    return r
+
+
+_emp = {r["station_id"]: float(r["am_empty_dry"]) for r in csv.DictReader(open(R / "data/station_master.csv", encoding="utf-8-sig")) if r["am_empty_dry"]}
+_rows = []
+for r in csv.DictReader(open(R / "data/od_2024_2025/od/s0_station_summary.csv", encoding="utf-8-sig")):
+    if r["enough_days"] == "True" and r["st_id"] in _emp and r["elevation_m"] and r["relief_300m"] and r["subway_dist_m"] and float(r["subway_dist_m"]) > 0:
+        _rows.append((float(r["elevation_m"]), float(r["relief_300m"]), float(np.log(float(r["subway_dist_m"]))), _emp[r["st_id"]]))
+_D = np.array(_rows); _X = _D[:, :3]; _share = _D[:, 3]; _y = (_share >= TH).astype(float)
+_Z = (_X - _X.mean(0)) / _X.std(0, ddof=1)
+_b, _se, _p = _logit(_Z, _y)
+_b10, _, _ = _logit(np.column_stack([_X[:, 0] / 10, _X[:, 1], _X[:, 2]]), _y)
+_rr = _ranks(_p); _n1 = _y.sum(); _n0 = len(_y) - _n1
+AUC16 = (_rr[_y == 1].sum() - _n1 * (_n1 + 1) / 2) / (_n1 * _n0)
+_rho = [float(np.corrcoef(_ranks(_X[:, k]), _ranks(_share))[0, 1]) for k in range(3)]
+_pv = [math.erfc(abs(b / e) / math.sqrt(2)) for b, e in zip(_b[1:], _se[1:])]
+_pf = lambda v: "&lt; 0.001" if v < 0.001 else f"{v:.2f}"
+_names = ["Elevation (m)", "Local relief within 300 m (m)", "Distance to nearest subway station (log)"]
+_trs = "".join(('<tr class="hl">' if k == 0 else "<tr>") + f"<td>{_names[k]}</td><td{RT_}>{_rho[k]:.2f}</td>"
+               f"<td{RT_}>{np.exp(_b[k + 1]):.2f} ({np.exp(_b[k + 1] - 1.96 * _se[k + 1]):.2f}–{np.exp(_b[k + 1] + 1.96 * _se[k + 1]):.2f})</td>"
+               f"<td{RT_}>{_pf(_pv[k])}</td></tr>\n" for k in range(3))
+OR10 = float(np.exp(_b10[1])); SD_E = float(_X[:, 0].std(ddof=1))
+TRAITS = f"""<section id="traits" data-transition="fade">
+<p class="eyebrow">FACTORS TOGETHER</p>
+<h2>Of the station features we tested, only elevation goes with running out</h2>
+<table class="tbl" style="margin-top:40px">
+<tr><th style="width:40%">Station feature</th><th style="width:20%;text-align:right">Rank correlation with empty share (ρ)</th><th style="width:26%;text-align:right">Odds ratio per 1 SD (95% CI)</th><th style="width:14%;text-align:right">p</th></tr>
+{_trs}</table>
+<p class="text muted" style="margin-top:28px">Outcome: runs out, empty in at least 20% of 7–9 am readings (2025 dry weekdays): {int(_n1):,} of {len(_y):,} stations. One logistic model with all three features, standardised. Elevation: odds ×{OR10:.2f} for every 10 m; AUC {AUC16:.2f}.</p>
+{FOOT}
+<aside>Which station features go with running out? We put three of them in one logistic model. The outcome is whether a station runs out, as we defined it
+earlier: empty in at least one in five readings between 7 and 9 am, which holds for {int(_n1):,} of {len(_y):,} stations. The first column is the rank
+correlation with the empty share, one feature at a time; the second is the odds ratio for one standard deviation, with all three features together.
+Only elevation matters. One standard deviation higher, about {SD_E:.0f} metres, multiplies the odds of running out by {np.exp(_b[1]):.1f}; that is
+{OR10:.1f} times for every 10 metres. Local relief goes with running out on its own, but not once elevation is in the model, and distance to the
+subway hardly matters. The model tells stations that run out from those that do not with an AUC of {AUC16:.2f}.</aside>
+</section>"""
+
+
 # ================= slide "why": operating deficit motivates examining redistribution
 WHY = f"""<section id="why" data-transition="fade">
 <p class="eyebrow">WHY THIS MATTERS</p>
@@ -390,4 +449,4 @@ NOTES = {
 WEATHER_LEAD = ("Next, weather, and for now only temperature.",
                 "Next, weather. Rain cuts rides sharply, which is why we keep dry days; here we look at temperature.")
 
-SLIDES = {"why": WHY, "scope": SCOPE, "d_measures": s1, "d_subway": s2, "d_cop_subway": s3, "d_wx_elev": s4, "d_buffer": s5}
+SLIDES = {"traits": TRAITS, "why": WHY, "scope": SCOPE, "d_measures": s1, "d_subway": s2, "d_cop_subway": s3, "d_wx_elev": s4, "d_buffer": s5}
