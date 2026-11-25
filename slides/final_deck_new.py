@@ -2,6 +2,7 @@
 
   scope         DATA: the days, the stations and the sources (text only)
 NOTES and WEATHER_LEAD: speaker notes of current slides that follow the new order.
+intro(): the "What is Ddareungi" slide with an icon strip in place of four text cards.
   d_measures    WHAT WE MEASURE: every station, morning net outflow against empty share (losing bikes is not running out)
   d_subway      FACTOR 4: net outflow and empty share by quarter of subway distance
   d_cop_subway  FACTORS TOGETHER: coplot of empty share on elevation, one panel per quarter of subway distance
@@ -10,7 +11,7 @@ NOTES and WEATHER_LEAD: speaker notes of current slides that follow the new orde
 Net outflow in bikes (team table data/od_2024_2025/od/s0_station_daily.csv.gz, 2024-2025 clear weekdays, 07-09 h);
 empty share and hourly stock from 2025 dry weekdays (data/station_master.csv, data/story_numbers.json from analysis/story_numbers.py).
 """
-import csv, gzip, json
+import csv, gzip, json, re
 from collections import defaultdict
 from pathlib import Path
 import numpy as np
@@ -308,6 +309,56 @@ have under 1 mm of rain: 378 days. Factors one and two will show why: weekends f
 many people ride. That leaves 2,843 stations with records on at least 50 of those days. For the stock at each station we also use the hourly
 records of 2025. Next: what we measure on those days.</aside>
 </section>"""
+
+# ================= slide "intro": the four text cards become one strip (three steps with icons, two numbers); title without a colon
+def _icon(glyph):
+    return (f'<svg width="84" height="84" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="42" fill="{BLUE}"/>{glyph}</svg>')
+
+
+_W = 'stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"'
+_QR = (f'<rect x="21" y="21" width="15" height="15" rx="2" {_W}/><rect x="48" y="21" width="15" height="15" rx="2" {_W}/>'
+       f'<rect x="21" y="48" width="15" height="15" rx="2" {_W}/><rect x="49" y="49" width="6" height="6" fill="#fff"/>'
+       f'<rect x="57" y="57" width="6" height="6" fill="#fff"/><rect x="57" y="47" width="5" height="5" fill="#fff"/><rect x="48" y="58" width="5" height="5" fill="#fff"/>')
+_BIKE = (f'<circle cx="27" cy="51" r="10" {_W}/><circle cx="58" cy="51" r="10" {_W}/>'
+         f'<path d="M27 51 L37 34 H52 L58 51 M37 34 L44 51 H27 M48 27 H55" {_W}/>')
+_LOCK = (f'<path d="M33 40 V33 a9 9 0 0 1 18 0 V40" {_W}/><rect x="27" y="40" width="30" height="23" rx="4" fill="#fff"/>'
+         f'<circle cx="42" cy="51" r="3.5" fill="{BLUE}"/>')
+_ARROW = ('<svg width="36" height="40" viewBox="0 0 36 40" aria-hidden="true" style="flex:0 0 auto;margin-bottom:58px">'
+          '<path d="M10 6 L26 20 L10 34" stroke="#B0B8C1" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>')
+
+
+def _step(glyph, head, sub):
+    return (f'<div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:250px;text-align:center">{_icon(glyph)}'
+            f'<p style="font-size:26px;font-weight:700;margin:6px 0 0;color:var(--ink)">{head}</p>'
+            f'<p style="font-size:20px;margin:0;color:var(--muted)">{sub}</p></div>')
+
+
+def _big(num, lab, color):
+    return (f'<div style="flex:1"><p style="font-size:64px;font-weight:700;line-height:1;margin:0;color:{color}">{num}</p>'
+            f'<p style="font-size:20px;line-height:1.4;margin:10px 0 0;color:var(--ink2)">{lab}</p></div>')
+
+
+INTRO_STRIP = ('<div style="display:flex;align-items:center;gap:14px;background:var(--tint);border-radius:24px;padding:26px 36px;margin-top:24px">'
+               + _step(_QR, "Scan the QR", "the app unlocks the bike") + _ARROW
+               + _step(_BIKE, "Ride", "1,000 won an hour") + _ARROW
+               + _step(_LOCK, "Lock at any station", "the return is logged")
+               + '<div style="width:2px;align-self:stretch;background:var(--line);margin:0 22px"></div>'
+               + '<div style="display:flex;gap:32px;flex:1">'
+               + _big("44%", "of weekday rides at 7–9 am and 5–7 pm", BLUE)
+               + _big("330", "stations the city watches at commute times, with 33 staff", RED)
+               + '</div></div>\n')
+INTRO_TITLE = "Rent a bike at one station, return it at any other"
+
+
+def intro(sec):
+    """The built intro slide with the strip in place of the four text cards and a title without a colon."""
+    i = sec.index('<div style="display:grid;grid-template-columns:repeat(4,1fr)')
+    j = sec.index('<p style="font-size:16px;color:var(--muted)', i)
+    sec = sec[:i] + INTRO_STRIP + sec[j:]
+    sec, k = re.subn(r"<h2>.*?</h2>", f"<h2>{INTRO_TITLE}</h2>", sec, count=1, flags=re.S)
+    assert k == 1
+    return sec
+
 
 # speaker notes of current slides that change with the order (data and measures now come before the factors)
 NOTES = {
