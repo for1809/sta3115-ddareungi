@@ -541,29 +541,122 @@ def final_fixes(html):
     # slide 9: ground 50 m and higher clipped to Seoul's outline
     rep("const hill = el('g', {}, svg);",
         "const hill = el('g', {}, svg); " + _CLIP % ("clip-stmap", "svg") + "hill.setAttribute('clip-path', 'url(#clip-stmap)');")
-    # slide 12: terrain clipped to Seoul; only downhill and uphill stand out; inset caption over the inset
-    rep("const tg = el('g', {}, left);",
-        "const tg = el('g', {}, left); " + _CLIP % ("clip-vec", "left") + "tg.setAttribute('clip-path', 'url(#clip-vec)');")
-    rep("const AC = { down: C.red, up: C.blue, side: '#8b95a1', flat: '#b0b8c1' };",
-        "const AC = { down: C.red, up: C.blue, side: '#d1d6db', flat: '#e5e8eb' };")
-    rep("[[C.red, 'Downhill'], [C.blue, 'Uphill'], ['#8b95a1', 'Across the slope / flat']]",
-        "[[C.red, 'Downhill'], [C.blue, 'Uphill'], ['#d1d6db', 'Across the slope / flat']]")
-    rep("{ x: MW + 100, y: 26,", "{ x: MW + (W - MW - ZWW) / 2, y: 26,")
-    # slide 12 bottom: the share of net flow on sloping ground as one 100% bar (whole day)
+    # slide 12: drawn here as static SVG (city map left; 69% and the Yonsei–Sinchon inset right); same steps, same note
     import json
     D = json.loads(re.search(r'<script[^>]*id="ixdata"[^>]*>(.*?)</script>', html, re.S).group(1))
-    sh = {r["cls"]: r["share"] for r in D["vshare"] if r["daytype"] == "day"}
-    am = {r["cls"]: r["share"] for r in D["vshare"] if r["daytype"] == "am"}
-    seg = lambda c, col, lab, fg: (f'<div style="flex:{sh[c]:.3f};background:{col};height:64px;display:flex;align-items:center;padding:0 18px;'
-                                   f'color:{fg};font-size:24px;font-weight:700;white-space:nowrap;overflow:hidden">{lab} {sh[c]:.0%}</div>')
-    bar = ('<div class="stat" style="width:1180px"><div style="display:flex;border-radius:14px;overflow:hidden">'
-           + seg("down", RED, "Downhill", "#fff") + seg("side", "#E5E8EB", "Across / flat", INK2) + seg("up", BLUE, "", "#fff")
-           + '</div><p class="stat-lab" style="margin-top:12px">Share of net flow on sloping ground, whole day: '
-           f'{sh["down"]:.0%} downhill, {sh["up"]:.0%} uphill (morning 7–9 am: {am["down"]:.0%} vs {am["up"]:.0%})</p></div>')
-    m = re.search(r'(<section[^>]*id="vec".*?<div class="side rowstats">)(.*?)(</div>\s*<div class="foot">)', html, re.S)
-    items = ('<div class="stat" style="width:400px"><p class="stat-num ink">Arrows</p><p class="stat-lab">net flow out of each 1 km cell</p></div>' + bar)
-    html = html[:m.start(2)] + items + html[m.end(2):]
+    m = re.search(r'<section\b[^>]*id="vec".*?</section>', html, re.S)
+    note = re.search(r"<aside>.*?</aside>", m.group(0), re.S).group(0)
+    html = html[:m.start()] + _vec_section(D, note) + html[m.end():]
+    a = html.index("  // ---------- flow field (whole city) and the zoom ----------")
+    b = html.index("  // ----------", a + 20)
+    html = html[:a] + _VEC_JS + html[b:]
     return html
+
+
+_RAMP = lambda e: "#f8fafc" if e < 20 else "#f1f0ea" if e < 40 else "#e7e1d3" if e < 70 else "#dbcfb8" if e < 120 else "#cdbb9a"
+
+
+def _city_arrow(a):
+    ln = min(30, 7 + 2.6 * math.sqrt(a["m"])); n = math.hypot(a["u"], a["v"]) or 1; ux, uy = a["u"] / n, a["v"] / n
+    x1, y1, x2, y2 = a["x"] - ux * ln / 2, a["y"] - uy * ln / 2, a["x"] + ux * ln / 2, a["y"] + uy * ln / 2
+    hx, hy, hl = -uy, ux, min(8, ln * .4)
+    return (f"M{x1:.1f},{y1:.1f}L{x2:.1f},{y2:.1f}M{x2 - ux * hl + hx * hl * .55:.1f},{y2 - uy * hl + hy * hl * .55:.1f}"
+            f"L{x2:.1f},{y2:.1f}L{x2 - ux * hl - hx * hl * .55:.1f},{y2 - uy * hl - hy * hl * .55:.1f}")
+
+
+def _vec_section(D, note):
+    F, Z = D["frame"], D["zoom"]
+    # ---- left: the city, ground clipped to its outline; grey arrows (step 1), coloured arrows (step 2 on)
+    city = ['<defs><clipPath id="vec-clip">' + "".join(f'<path d="{u["d"]}"/>' for u in D["gu"]) + "</clipPath></defs>",
+            '<g clip-path="url(#vec-clip)">' + "".join(
+                f'<rect x="{t["x"]}" y="{t["y"]}" width="{F["cell"] + .4}" height="{F["cell"] + .4}" fill="{_RAMP(t["e"])}"/>' for t in D["terrain"]) + "</g>",
+            "".join(f'<path d="{u["d"]}" fill="none" stroke="#fff" stroke-width="1.4" vector-effect="non-scaling-stroke"/>' for u in D["gu"])]
+    sw = lambda a: min(3.2, 1.1 + a["m"] / 40)
+    grey = "".join(f'<path d="{_city_arrow(a)}" stroke="#6b7684" stroke-width="{sw(a):.2f}"/>' for a in D["vec"]["day"])
+    colr = {"down": RED, "up": BLUE, "side": "#d1d6db", "flat": "#e5e8eb"}
+    order = sorted(D["vec"]["day"], key=lambda a: a["c"] in ("down", "up"))
+    col = "".join(f'<path d="{_city_arrow(a)}" stroke="{colr[a["c"]]}" stroke-width="{sw(a) + (.4 if a["c"] in ("down", "up") else 0):.2f}"/>' for a in order)
+    gattr = 'fill="none" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"'
+    city.append(f'<g class="v-grey" {gattr}>{grey}</g><g class="v-col" {gattr} style="opacity:0">{col}</g>')
+    CW = 780; CH = round(CW * F["h"] / 1000)
+    city_svg = (f'<svg width="{CW}" height="{CH}" viewBox="0 0 1000 {F["h"]}" role="img" aria-label="Net bicycle flow across Seoul, one arrow per 1 km cell, '
+                f'over the terrain; red arrows run downhill, blue uphill.">' + "".join(city) + "</svg>")
+    # ---- right bottom: Yonsei–Sinchon, the 30 strongest net connections between 500 m cells
+    zmax = max(a["net"] for a in Z["arrows"])
+    ins = ['<defs><clipPath id="vec-inset"><rect x="0" y="0" width="1000" height="%d" rx="40"/></clipPath></defs><g clip-path="url(#vec-inset)">' % Z["h"],
+           f'<rect x="0" y="0" width="1000" height="{Z["h"]}" fill="#fbfbf9"/>']
+    ins += [f'<rect x="{t["x"]}" y="{t["y"]}" width="{Z["cell"]}" height="{Z["cell"]}" fill="{_RAMP(t["e"])}" opacity=".55"/>' for t in Z["terrain"]
+            if -Z["cell"] < t["x"] < 1000 and -Z["cell"] < t["y"] < Z["h"]]
+    ins += [f'<path d="{c["d"]}" fill="none" stroke="#a08360" stroke-width="{1.4 if c["level"] == 50 else .8}" stroke-opacity=".35" vector-effect="non-scaling-stroke"/>'
+            for c in Z["contours"]]
+    halos, lines, heads = [], [], []
+    for a in reversed(Z["arrows"]):
+        dx, dy = a["x2"] - a["x1"], a["y2"] - a["y1"]; n = math.hypot(dx, dy)
+        if not n:
+            continue
+        ux, uy = dx / n, dy / n; hx, hy = -uy, ux
+        head = min(48, n * .3); half = head * .55
+        x1, y1 = a["x1"] + ux * 8, a["y1"] + uy * 8
+        tx, ty = a["x2"] - ux * 10, a["y2"] - uy * 10
+        bx, by = tx - ux * head, ty - uy * head
+        c = RED if a["c"] == "down" else BLUE if a["c"] == "up" else "#8b95a1"
+        w = 6 + 12 * a["net"] / zmax
+        halos.append(f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{bx:.1f}" y2="{by:.1f}" stroke="#fff" stroke-width="{w + 8:.1f}" stroke-linecap="round"/>')
+        lines.append(f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{bx:.1f}" y2="{by:.1f}" stroke="{c}" stroke-width="{w:.1f}" stroke-linecap="round"/>')
+        heads.append(f'<polygon points="{tx:.1f},{ty:.1f} {bx + hx * half:.1f},{by + hy * half:.1f} {bx - hx * half:.1f},{by - hy * half:.1f}" fill="{c}" stroke="#fff" stroke-width="3"/>')
+    ins += halos + lines + heads
+    ins += [f'<text x="{l["x"]}" y="{l["y"]}" text-anchor="middle" font-size="56" font-weight="700" fill="{INK2}" stroke="#fff" stroke-width="12" '
+            f'paint-order="stroke" stroke-linejoin="round">{l["en"]}</text>' for l in Z["labels"]]
+    ins.append("</g>" + f'<rect x="2" y="2" width="996" height="{Z["h"] - 4}" rx="40" fill="none" stroke="#e5e8eb" stroke-width="4"/>')
+    IH = 350; IW = round(IH * 1000 / Z["h"])
+    inset_svg = (f'<svg width="{IW}" height="{IH}" viewBox="0 0 1000 {Z["h"]}" style="flex:0 0 auto" role="img" aria-label="Yonsei–Sinchon: the 30 strongest net connections '
+                 f'between 500 m cells over the terrain; most strong ones run downhill.">' + "".join(ins) + "</svg>")
+    # ---- right top: the share of net flow on sloping ground (whole day)
+    sh = {r["cls"]: r["share"] for r in D["vshare"] if r["daytype"] == "day"}
+    seg = lambda c, colr_, lab, fg: (f'<div style="flex:{sh[c]:.3f};background:{colr_};height:46px;display:flex;align-items:center;padding:0 14px;'
+                                     f'color:{fg};font-size:20px;font-weight:700;white-space:nowrap;overflow:hidden">{lab}</div>')
+    leg = lambda c, s: f'<span style="display:inline-flex;align-items:center;gap:8px"><span style="width:26px;height:5px;border-radius:3px;background:{c}"></span>{s}</span>'
+    return f"""<section id="vec" data-transition="fade">
+<p class="eyebrow">FACTORS TOGETHER</p>
+<h2>Net bicycle flow runs downhill</h2>
+<div style="display:flex;gap:72px;margin-top:30px;align-items:flex-start">
+<div style="flex:0 0 {CW}px">
+<div style="display:flex;gap:26px;font-size:19px;color:var(--ink2);margin:0 0 8px">{leg(RED, "Downhill")}{leg(BLUE, "Uphill")}{leg("#d1d6db", "Across the slope / flat")}</div>
+{city_svg}
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:44px;padding-top:30px">
+<div class="v-s1" style="opacity:0">
+<p style="margin:0;font-size:104px;line-height:1;font-weight:700;color:var(--red)">{sh["down"]:.0%}</p>
+<p style="margin:10px 0 18px;font-size:24px;line-height:1.4;color:var(--ink2)">of net flow on sloping ground runs downhill; {sh["up"]:.0%} runs uphill</p>
+<div style="display:flex;border-radius:12px;overflow:hidden">{seg("down", RED, "Downhill", "#fff")}{seg("side", "#E5E8EB", "Across", INK2)}{seg("up", BLUE, "", "#fff")}</div>
+</div>
+<div class="v-s2" style="opacity:0;display:flex;gap:32px;align-items:flex-start">
+{inset_svg}
+<div style="padding-top:6px"><p style="margin:0;font-size:28px;font-weight:700;color:var(--ink)">Yonsei–Sinchon</p>
+<p style="margin:10px 0 0;font-size:21px;line-height:1.45;color:var(--muted)">The 30 strongest net connections between 500 m cells. Red runs downhill, blue uphill.</p></div>
+</div>
+</div>
+</div>
+{FOOT}
+{note}
+</section>"""
+
+
+_VEC_JS = """  // ---------- flow field: drawn as static SVG in slides/final_deck_new.py; only the steps here ----------
+  (function () {
+    const sec = document.getElementById('vec'); if (!sec) return;
+    const q = s => sec.querySelector(s);
+    const grey = q('.v-grey'), col = q('.v-col'), s1 = q('.v-s1'), s2 = q('.v-s2');
+    IX.vec = {
+      steps: 3,
+      cues: ['Each arrow is the net flow out of a 1 km cell, on an elevation map. Darker ground is higher.',
+             'Colour by direction against the terrain. Where the ground slopes, 69% of the flow runs downhill and 7% uphill.',
+             'Yonsei–Sinchon: the 30 strongest local net connections; many run downhill.'],
+      set(k) { fade(grey, k < 1); fade(col, k >= 1); fade(s1, k >= 1); fade(s2, k >= 2, 600); },
+    };
+  })();
+
+"""
 
 
 # speaker notes of current slides that change with the order (data and measures now come before the factors)
