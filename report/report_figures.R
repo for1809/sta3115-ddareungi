@@ -35,7 +35,7 @@ stations <- read_csv("../data/stations.csv", col_types = cols(station_no = col_c
   inner_join(dry %>% select(station_no, am_empty = am_empty_dry, climb_in_m), by = "station_no") %>%
   mutate(elev_band = cut(elev_m, c(0, 20, 40, Inf), labels = names(band_cols), right = FALSE))
 station_month <- read_csv("../data/station_month.csv", col_types = cols(station_no = col_character()), show_col_types = FALSE) %>%
-  inner_join(stations %>% select(station_no, elev_m, subway_m, univ_m, docks), by = "station_no") %>%
+  inner_join(stations %>% select(station_no, elev_m, subway_m, univ_m), by = "station_no") %>%
   filter(use_day > 0)
 monthly <- read_csv("../data/monthly_age.csv", show_col_types = FALSE)
 
@@ -93,9 +93,9 @@ save_fig(p3, "f3_coplot", h = 3.2)
 # F4. predicted probability from the logistic model with interaction
 lr <- stations %>% filter(!is.na(am_empty)) %>%
   mutate(gap = as.integer(am_empty >= 0.3), elev10 = elev_m / 10, l_sub = log2(subway_m), l_uni = log2(univ_m))
-fit2 <- glm(gap ~ elev10 * l_sub + l_uni + docks, family = binomial, data = lr)
+fit2 <- glm(gap ~ elev10 * l_sub + l_uni, family = binomial, data = lr)
 nd <- expand_grid(elev10 = seq(0.5, 8, by = 0.1), l_sub = log2(c(200, 800)),
-                  l_uni = median(lr$l_uni), docks = median(lr$docks)) %>%
+                  l_uni = median(lr$l_uni)) %>%
   mutate(p = predict(fit2, newdata = ., type = "response"),
          g = factor(ifelse(l_sub == log2(200), "역까지 200m", "역까지 800m")))
 p4 <- ggplot(nd, aes(elev10 * 10, p, colour = g)) +
@@ -109,7 +109,7 @@ save_fig(p4, "f4_logit", w = 5.2, h = 3.4)
 p5 <- station_month %>% filter(!is.na(am_empty)) %>%
   mutate(gap = as.integer(am_empty >= 0.3), elev10 = elev_m / 10, l_sub = log2(subway_m), l_uni = log2(univ_m)) %>%
   group_by(month) %>%
-  group_modify(~ tidy(glm(gap ~ elev10 + l_sub + l_uni + docks, family = binomial, data = .x),
+  group_modify(~ tidy(glm(gap ~ elev10 + l_sub + l_uni, family = binomial, data = .x),
                       exponentiate = TRUE, conf.int = TRUE)) %>%
   filter(term == "elev10") %>%
   ggplot(aes(month, estimate)) +
@@ -143,7 +143,7 @@ d7 <- stations %>% inner_join(terr %>% select(station_no, elev30_m, slope_r300),
 terms7 <- c("지형 변수 없음" = "1", "경사(주변 300m)" = "slope_r300", "고도(90m 격자)" = "elev_m",
             "고도(30m 격자)" = "elev30_m", "오르막" = "climb_in_m", "고도 + 오르막" = "elev30_m + climb_in_m")
 aic7 <- tibble(model = names(terms7), aic = map_dbl(terms7, function(v)
-  AIC(glm(as.formula(paste("gap ~ l_sub + l_uni + docks +", v)), family = binomial, data = d7)))) %>%
+  AIC(glm(as.formula(paste("gap ~ l_sub + l_uni +", v)), family = binomial, data = d7)))) %>%
   mutate(model = fct_reorder(model, -aic), best = aic == min(aic))
 p7 <- ggplot(aic7, aes(aic, model)) +
   geom_segment(aes(x = min(aic) - 40, xend = aic, yend = model), colour = grid_col, linewidth = 2.2) +

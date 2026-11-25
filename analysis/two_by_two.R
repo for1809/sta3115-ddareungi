@@ -4,7 +4,7 @@
 #   Rscript analysis/two_by_two.R > analysis/two_by_two_log.txt
 suppressPackageStartupMessages(library(tidyverse))
 rd <- function(f) read_csv(f, col_types = cols(station_no = col_character()), show_col_types = FALSE)
-st <- rd("data/stations.csv") %>% filter(use_day > 0) %>% select(station_no, name, gu, elev_m, use_day, docks) %>%
+st <- rd("data/stations.csv") %>% filter(use_day > 0) %>% select(station_no, name, gu, elev_m, use_day) %>%
   inner_join(rd("data/stations_dry.csv") %>% select(station_no, am_empty = am_empty_dry), by = "station_no") %>%
   inner_join(rd("data/station_terrain_bare.csv") %>% select(station_no), by = "station_no") %>%
   inner_join(rd("data/station_climb_bare.csv") %>% select(station_no), by = "station_no") %>%

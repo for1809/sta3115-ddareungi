@@ -11,11 +11,11 @@ s <- rd("data/stations.csv") %>% filter(months_active > 0) %>%
 cat("stations", nrow(s), "; shortage share (dry mornings)", round(mean(s$gap), 4), "\n\n")
 cat("mean dry-morning shortage by band:\n"); print(s %>% group_by(band) %>% summarise(n = n(), am_dry = round(mean(am_empty_dry), 4)))
 
-f1 <- glm(gap ~ elev10 + l_sub + l_uni + docks, family = binomial, data = s)
+f1 <- glm(gap ~ elev10 + l_sub + l_uni, family = binomial, data = s)
 cat("\nlogistic, no interaction (OR, 95% CI, p):\n")
 print(tidy(f1, exponentiate = TRUE, conf.int = TRUE, conf.method = "Wald") %>% mutate(across(where(is.numeric), ~ round(.x, 3))))
 ci <- exp(confint.default(f1)); cat("Wald CI:\n"); print(round(ci, 2))
-f2 <- glm(gap ~ elev10 * l_sub + l_uni + docks, family = binomial, data = s)
+f2 <- glm(gap ~ elev10 * l_sub + l_uni, family = binomial, data = s)
 cat("\ninteraction elev10:l_sub p =", signif(summary(f2)$coefficients["elev10:l_sub", 4], 3),
     " coef =", round(coef(f2)["elev10:l_sub"], 3), "\n")
 
@@ -36,8 +36,8 @@ cat("chi-square role x band:\n"); print(chisq.test(tab))
 
 cat("\nthreshold and rain-definition checks, OR per 10 m (90 m elevation):\n")
 for (t in c(0.2, 0.3, 0.4)) {
-  f <- glm(I(am_empty_dry >= t) ~ elev10 + l_sub + l_uni + docks, family = binomial, data = s)
+  f <- glm(I(am_empty_dry >= t) ~ elev10 + l_sub + l_uni, family = binomial, data = s)
   cat(sprintf("  dry mornings, threshold %.1f: OR %.2f\n", t, exp(coef(f)[2])))
 }
-f <- glm(I(am_empty_dryday >= 0.3) ~ elev10 + l_sub + l_uni + docks, family = binomial, data = s)
+f <- glm(I(am_empty_dryday >= 0.3) ~ elev10 + l_sub + l_uni, family = binomial, data = s)
 cat(sprintf("  dry = whole-day rain < 1 mm, threshold 0.3: OR %.2f\n", exp(coef(f)[2])))

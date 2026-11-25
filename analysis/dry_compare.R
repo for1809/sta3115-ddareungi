@@ -38,32 +38,32 @@ cat("spearman with am_empty_dry:\n")
 vars <- c("elev_m", "elev30_m", "slope_r300", "tpi_500", "climb_in_m", "drop_am_out_m")
 print(round(sapply(d[vars], function(v) cor(v, d$am_empty_dry, method = "spearman")), 3))
 cat("correlation among terrain variables:\n"); print(round(cor(d[vars]), 2))
-base <- "gap ~ l_sub + l_uni + docks"
+base <- "gap ~ l_sub + l_uni"
 for (v in vars) {
   f <- glm(as.formula(paste(base, "+ scale(", v, ")")), family = binomial, data = d)
-  ci <- exp(confint.default(f)[5, ])
-  cat(sprintf("%-14s AIC %.1f  OR per 1 SD %.2f (%.2f-%.2f)\n", v, AIC(f), exp(coef(f)[5]), ci[1], ci[2]))
+  ci <- exp(confint.default(f)[4, ])
+  cat(sprintf("%-14s AIC %.1f  OR per 1 SD %.2f (%.2f-%.2f)\n", v, AIC(f), exp(coef(f)[4]), ci[1], ci[2]))
 }
 f0 <- glm(as.formula(base), family = binomial, data = d); cat(sprintf("%-14s AIC %.1f\n", "(no terrain)", AIC(f0)))
 for (pair in list(c("elev30_m", "climb_in_m"), c("elev30_m", "drop_am_out_m"), c("elev30_m", "slope_r300"))) {
   f <- glm(as.formula(paste(base, "+ scale(", pair[1], ") + scale(", pair[2], ")")), family = binomial, data = d)
-  o <- exp(cbind(coef(f), confint.default(f)))[5:6, ]
+  o <- exp(cbind(coef(f), confint.default(f)))[4:5, ]
   cat(sprintf("\n%s + %s: AIC %.1f\n", pair[1], pair[2], AIC(f))); print(round(o, 2))
 }
 cat("\nthreshold check, elev30 OR per 10 m on dry mornings:\n")
 for (t in c(0.2, 0.3, 0.4)) {
-  f <- glm(I(am_empty_dry >= t) ~ I(elev30_m / 10) + l_sub + l_uni + docks, family = binomial, data = d)
+  f <- glm(I(am_empty_dry >= t) ~ I(elev30_m / 10) + l_sub + l_uni, family = binomial, data = d)
   cat(sprintf("  threshold %.1f: share %.3f  OR %.2f\n", t, mean(d$am_empty_dry >= t), exp(coef(f)[2])))
 }
-f <- glm(I(am_empty_dryday >= 0.3) ~ I(elev30_m / 10) + l_sub + l_uni + docks, family = binomial, data = d)
+f <- glm(I(am_empty_dryday >= 0.3) ~ I(elev30_m / 10) + l_sub + l_uni, family = binomial, data = d)
 cat(sprintf("  dry by whole-day rain < 1 mm instead: OR %.2f\n", exp(coef(f)[2])))
-f <- glm(gap ~ I(elev_m / 10) + l_sub + l_uni + docks, family = binomial, data = d)
+f <- glm(gap ~ I(elev_m / 10) + l_sub + l_uni, family = binomial, data = d)
 cat(sprintf("  same model as the report (90 m elevation): OR %.2f (%.2f-%.2f)\n", exp(coef(f)[2]),
             exp(confint.default(f)[2, 1]), exp(confint.default(f)[2, 2])))
 
 cat("\n== 4. evening shortage (17-19 h, dry evenings) ==\n")
 cat("spearman with pm_empty_dry:\n")
-print(round(sapply(d[c(vars, "l_sub", "l_uni", "docks", "commute_share")], function(v) cor(v, d$pm_empty_dry, method = "spearman", use = "complete")), 3))
+print(round(sapply(d[c(vars, "l_sub", "l_uni", "commute_share")], function(v) cor(v, d$pm_empty_dry, method = "spearman", use = "complete")), 3))
 cat("share with pm_empty_dry >= 0.3:", round(mean(d$pm_empty_dry >= 0.3, na.rm = TRUE), 4), "\n")
 cat("top 10 evening-shortage districts (mean pm_empty_dry):\n")
 print(d %>% group_by(gu) %>% summarise(pm = mean(pm_empty_dry, na.rm = TRUE), am = mean(am_empty_dry, na.rm = TRUE)) %>% arrange(desc(pm)) %>% head(10))

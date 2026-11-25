@@ -6,7 +6,7 @@
 suppressPackageStartupMessages(library(tidyverse))
 rd <- function(f) read_csv(f, col_types = cols(station_no = col_character()), show_col_types = FALSE)
 
-st <- rd("data/stations.csv") %>% select(station_no, name, gu, lat, lon, docks, months_active, elev_m) %>%
+st <- rd("data/stations.csv") %>% select(station_no, name, gu, lat, lon, months_active, elev_m) %>%
   left_join(rd("data/station_terrain.csv") %>% select(station_no, elev30_m), by = "station_no") %>%
   left_join(rd("data/station_terrain_bare.csv") %>% select(station_no, elev_bare_m, slope_bare_r300), by = "station_no") %>%
   mutate(active_2025 = months_active > 0)

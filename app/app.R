@@ -302,9 +302,9 @@ server <- function(input, output, session) {
   output$s_facts <- renderTable({
     s <- s_row()
     q20 <- sort(st$use_day)[floor(nrow(st) * 0.2) + 1]
-    data.frame(Item = c("Station", "District", "Docks", "Nearest subway", "Nearest other bike station", "Merge candidate (20%, 300 m)",
+    data.frame(Item = c("Station", "District", "Nearest subway", "Nearest other bike station", "Merge candidate (20%, 300 m)",
                         "Often empty (30% or more)"),
-               Value = c(paste(s$name, s$station_no), paste0(s$gu_en, "-gu"), s$docks, sprintf("%s, %d m", s$subway_name, s$subway_m),
+               Value = c(paste(s$name, s$station_no), paste0(s$gu_en, "-gu"), sprintf("%s, %d m", s$subway_name, s$subway_m),
                          paste(s$nearest_station_m, "m"), ifelse(s$use_day <= q20 & s$nearest_station_m <= 300, "yes", "no"),
                          ifelse(s$am_empty >= 0.3, "yes", "no")))
   }, colnames = FALSE, striped = FALSE, width = "100%")

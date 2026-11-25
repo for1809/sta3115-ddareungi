@@ -91,42 +91,42 @@ slope_r300      0.64     0.61       1.00   -0.59       0.54          0.57
 tpi_500        -0.39    -0.31      -0.59    1.00      -0.10         -0.16
 climb_in_m      0.77     0.82       0.54   -0.10       1.00          0.94
 drop_am_out_m   0.79     0.83       0.57   -0.16       0.94          1.00
-elev_m         AIC 1384.4  OR per 1 SD 2.91 (2.54-3.32)
-elev30_m       AIC 1364.9  OR per 1 SD 3.08 (2.68-3.54)
-slope_r300     AIC 1580.0  OR per 1 SD 1.82 (1.63-2.03)
-tpi_500        AIC 1689.4  OR per 1 SD 0.91 (0.81-1.03)
-climb_in_m     AIC 1352.2  OR per 1 SD 2.94 (2.58-3.35)
-drop_am_out_m  AIC 1384.3  OR per 1 SD 2.75 (2.42-3.12)
-(no terrain)   AIC 1689.6
+elev_m         AIC 1394.9  OR per 1 SD 3.04 (2.67-3.47)
+elev30_m       AIC 1375.4  OR per 1 SD 3.22 (2.80-3.69)
+slope_r300     AIC 1612.1  OR per 1 SD 1.89 (1.69-2.10)
+tpi_500        AIC 1735.5  OR per 1 SD 0.88 (0.78-0.99)
+climb_in_m     AIC 1370.9  OR per 1 SD 3.05 (2.68-3.47)
+drop_am_out_m  AIC 1401.1  OR per 1 SD 2.86 (2.52-3.25)
+(no terrain)   AIC 1738.1
 
-elev30_m + climb_in_m: AIC 1335.6
+elev30_m + climb_in_m: AIC 1348.3
                        2.5 % 97.5 %
-scale(elev30_m)   1.71  1.34   2.19
-scale(climb_in_m) 1.91  1.51   2.40
+scale(elev30_m)   1.84  1.44   2.34
+scale(climb_in_m) 1.86  1.48   2.34
 
-elev30_m + drop_am_out_m: AIC 1354.4
+elev30_m + drop_am_out_m: AIC 1365.4
                           2.5 % 97.5 %
-scale(elev30_m)      2.08  1.61   2.68
-scale(drop_am_out_m) 1.52  1.20   1.93
+scale(elev30_m)      2.19  1.70   2.83
+scale(drop_am_out_m) 1.51  1.19   1.91
 
-elev30_m + slope_r300: AIC 1365.2
+elev30_m + slope_r300: AIC 1375.8
                        2.5 % 97.5 %
-scale(elev30_m)   3.31  2.77   3.96
-scale(slope_r300) 0.90  0.77   1.05
+scale(elev30_m)   3.45  2.90   4.12
+scale(slope_r300) 0.90  0.77   1.06
 
 threshold check, elev30 OR per 10 m on dry mornings:
-  threshold 0.2: share 0.176  OR 2.47
-  threshold 0.3: share 0.098  OR 2.28
-  threshold 0.4: share 0.058  OR 2.26
-  dry by whole-day rain < 1 mm instead: OR 2.26
-  same model as the report (90 m elevation): OR 2.10 (1.91-2.30)
+  threshold 0.2: share 0.176  OR 2.54
+  threshold 0.3: share 0.098  OR 2.35
+  threshold 0.4: share 0.058  OR 2.33
+  dry by whole-day rain < 1 mm instead: OR 2.33
+  same model as the report (90 m elevation): OR 2.16 (1.97-2.37)
 
 == 4. evening shortage (17-19 h, dry evenings) ==
 spearman with pm_empty_dry:
        elev_m      elev30_m    slope_r300       tpi_500    climb_in_m 
         0.521         0.523         0.353        -0.058         0.524 
-drop_am_out_m         l_sub         l_uni         docks commute_share 
-        0.494         0.074        -0.148        -0.225        -0.062 
+drop_am_out_m         l_sub         l_uni commute_share 
+        0.494         0.074        -0.148        -0.062 
 share with pm_empty_dry >= 0.3: 0.0612 
 top 10 evening-shortage districts (mean pm_empty_dry):
 # A tibble: 10 × 3

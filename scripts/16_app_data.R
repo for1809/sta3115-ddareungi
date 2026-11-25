@@ -11,7 +11,7 @@ gu_en <- c(강남 = "Gangnam", 강동 = "Gangdong", 강북 = "Gangbuk", 강서 =
 
 st <- rd("data/stations.csv") %>%
   filter(use_day > 0) %>%
-  select(station_no, name, gu, lat, lon, docks, elev_m, subway_m, subway_name, univ_m, nearest_station_m, use_day, net_day) %>%
+  select(station_no, name, gu, lat, lon, elev_m, subway_m, subway_name, univ_m, nearest_station_m, use_day, net_day) %>%
   inner_join(rd("data/stations_dry.csv") %>% select(station_no, am_empty = am_empty_dry, am_empty_all), by = "station_no") %>%
   inner_join(rd("data/station_terrain_bare.csv") %>% select(station_no, slope = slope_bare_r300), by = "station_no") %>%
   inner_join(rd("data/station_climb_bare.csv") %>% select(station_no, climb = climb_bare_all), by = "station_no") %>%

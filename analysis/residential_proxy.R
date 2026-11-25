@@ -23,7 +23,7 @@ cat("by bare elevation band:\n")
 print(d %>% mutate(band = cut(elev_bare_m, c(-Inf, 20, 40, Inf), right = FALSE)) %>% group_by(band) %>%
         summarise(n = n(), home_share = round(mean(home_share), 3), work_share = round(mean(work_share), 3),
                   am_empty = round(mean(am_empty_dry), 3)))
-base <- "gap ~ l_sub + l_uni + docks"
+base <- "gap ~ l_sub + l_uni"
 show <- function(rhs) {
   f <- glm(as.formula(paste(base, "+", rhs)), family = binomial, data = d)
   k <- grep("scale", names(coef(f)))
@@ -36,10 +36,10 @@ show("scale(elev_bare_m) + scale(home_share) + scale(work_share)")
 show("scale(elev_bare_m) + scale(climb_bare_all) + scale(home_share) + scale(work_share)")
 cat("\nwithin the most residential third of stations (home_share top tercile):\n")
 top <- filter(d, home_share >= quantile(home_share, 2 / 3))
-f <- glm(gap ~ I(elev_bare_m / 10) + l_sub + l_uni + docks, family = binomial, data = top)
+f <- glm(gap ~ I(elev_bare_m / 10) + l_sub + l_uni, family = binomial, data = top)
 cat(sprintf("  n %d, elevation OR per 10 m %.2f (%.2f-%.2f)\n", nrow(top), exp(coef(f)[2]),
             exp(confint.default(f)[2, 1]), exp(confint.default(f)[2, 2])))
 low <- filter(d, home_share <= quantile(home_share, 1 / 3))
-f <- glm(gap ~ I(elev_bare_m / 10) + l_sub + l_uni + docks, family = binomial, data = low)
+f <- glm(gap ~ I(elev_bare_m / 10) + l_sub + l_uni, family = binomial, data = low)
 cat(sprintf("  least residential third: n %d, elevation OR per 10 m %.2f (%.2f-%.2f)\n", nrow(low), exp(coef(f)[2]),
             exp(confint.default(f)[2, 1]), exp(confint.default(f)[2, 2])))

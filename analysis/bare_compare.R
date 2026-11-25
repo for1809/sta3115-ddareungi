@@ -39,22 +39,22 @@ cat("\n== dry-morning shortage by bare-earth elevation band ==\n")
 print(d %>% mutate(band = cut(elev_bare_m, c(-Inf, 20, 40, Inf), right = FALSE)) %>% group_by(band) %>%
         summarise(n = n(), am = round(mean(am_empty_dry), 4), pm = round(mean(pm_empty_dry, na.rm = TRUE), 4)))
 
-cat("\n== one terrain variable at a time (controls: subway, university, docks) ==\n")
-base <- "gap ~ l_sub + l_uni + docks"
+cat("\n== one terrain variable at a time (controls: subway, university) ==\n")
+base <- "gap ~ l_sub + l_uni"
 cat(sprintf("%-26s AIC %.1f\n", "(no terrain)", AIC(glm(as.formula(base), family = binomial, data = d))))
 lab <- c(elev_m = "elevation 90 m (Open-Meteo)", elev30_m = "elevation Copernicus 30 m", elev_bare_m = "elevation bare (contours)",
          slope_r300 = "slope r300 Copernicus", slope_bare_r300 = "slope r300 bare",
          climb_in_m = "climb Copernicus (+round)", climb_bare_all = "climb bare (+round)", climb_bare = "climb bare (no round)")
 for (v in vars) {
   f <- glm(as.formula(paste(base, "+ scale(", v, ")")), family = binomial, data = d)
-  ci <- exp(confint.default(f)[5, ])
-  cat(sprintf("%-26s AIC %.1f  OR per 1 SD %.2f (%.2f-%.2f)\n", lab[v], AIC(f), exp(coef(f)[5]), ci[1], ci[2]))
+  ci <- exp(confint.default(f)[4, ])
+  cat(sprintf("%-26s AIC %.1f  OR per 1 SD %.2f (%.2f-%.2f)\n", lab[v], AIC(f), exp(coef(f)[4]), ci[1], ci[2]))
 }
 for (pair in list(c("elev_bare_m", "slope_bare_r300"), c("elev_bare_m", "climb_bare"), c("elev30_m", "climb_in_m"))) {
   f <- glm(as.formula(paste(base, "+ scale(", pair[1], ") + scale(", pair[2], ")")), family = binomial, data = d)
   cat(sprintf("\n%s + %s: AIC %.1f\n", pair[1], pair[2], AIC(f)))
-  print(round(exp(cbind(OR = coef(f), confint.default(f)))[5:6, ], 2))
+  print(round(exp(cbind(OR = coef(f), confint.default(f)))[4:5, ], 2))
 }
-f <- glm(gap ~ I(elev_bare_m / 10) + l_sub + l_uni + docks, family = binomial, data = d)
+f <- glm(gap ~ I(elev_bare_m / 10) + l_sub + l_uni, family = binomial, data = d)
 cat(sprintf("\nbare elevation, OR per 10 m: %.2f (%.2f-%.2f)\n", exp(coef(f)[2]), exp(confint.default(f)[2, 1]), exp(confint.default(f)[2, 2])))
 write_csv(d %>% select(station_no, climb_bare, climb_bare_all), "data/station_climb_bare.csv")

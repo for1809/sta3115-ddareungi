@@ -33,8 +33,8 @@ print(d %>% mutate(band = cut(elev_bare_m, c(-Inf, 20, 40, Inf), right = FALSE))
         summarise(n = n(), res_index = round(median(res_index), 3), am_empty = round(mean(am_empty_dry), 3)))
 cat("spearman res_index vs dry-morning shortage:", round(cor(d$res_index, d$am_empty_dry, method = "spearman"), 3), "\n")
 
-cat("\n== logistic models (controls: subway, university, docks) ==\n")
-base <- "gap ~ l_sub + l_uni + docks"
+cat("\n== logistic models (controls: subway, university) ==\n")
+base <- "gap ~ l_sub + l_uni"
 show <- function(rhs) {
   f <- glm(as.formula(paste(base, "+", rhs)), family = binomial, data = d)
   k <- grep("scale", names(coef(f)))
@@ -51,7 +51,7 @@ d <- d %>% mutate(res_group = cut(res_index, quantile(res_index, c(0, 1/3, 2/3, 
                                   labels = c("least residential", "middle", "most residential")))
 for (g in levels(d$res_group)) {
   x <- filter(d, res_group == g)
-  f <- glm(gap ~ I(elev_bare_m / 10) + l_sub + l_uni + docks, family = binomial, data = x)
+  f <- glm(gap ~ I(elev_bare_m / 10) + l_sub + l_uni, family = binomial, data = x)
   cat(sprintf("  %-17s n %4d  res_index %.2f-%.2f  shortage share %.3f  elevation OR per 10 m %.2f (%.2f-%.2f)\n",
               g, nrow(x), min(x$res_index), max(x$res_index), mean(x$gap), exp(coef(f)[2]),
               exp(confint.default(f)[2, 1]), exp(confint.default(f)[2, 2])))

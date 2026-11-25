@@ -48,16 +48,16 @@ spearman with am_empty:
     elev_m   elev30_m   slope_pt slope_r100 slope_r300    tpi_500 
      0.491      0.497      0.142      0.243      0.307     -0.032 
 
-logistic, one terrain variable + l_sub + l_uni + docks (lower AIC = better):
-elev_m      AIC 1368.3  OR per 1 SD 2.86
-elev30_m    AIC 1350.3  OR per 1 SD 3.02
-slope_pt    AIC 1628.3  OR per 1 SD 1.41
-slope_r100  AIC 1570.6  OR per 1 SD 1.74
-slope_r300  AIC 1549.5  OR per 1 SD 1.84
-tpi_500     AIC 1661.7  OR per 1 SD 0.91
+logistic, one terrain variable + l_sub + l_uni (lower AIC = better):
+elev_m      AIC 1378.2  OR per 1 SD 2.99
+elev30_m    AIC 1360.2  OR per 1 SD 3.15
+slope_pt    AIC 1670.8  OR per 1 SD 1.43
+slope_r100  AIC 1606.5  OR per 1 SD 1.78
+slope_r300  AIC 1579.6  OR per 1 SD 1.91
+tpi_500     AIC 1705.8  OR per 1 SD 0.88
 
 elev_m and slope_r300 together (OR per 1 SD):
                     OR 2.5 % 97.5 %
-scale(elev_m)     3.01  2.53   3.58
+scale(elev_m)     3.15  2.65   3.74
 scale(slope_r300) 0.93  0.79   1.09
-AIC 1369.5 
+AIC 1379.3 

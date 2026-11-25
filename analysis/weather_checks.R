@@ -6,7 +6,7 @@ suppressPackageStartupMessages(library(tidyverse))
 rd <- function(f, ...) read_csv(f, show_col_types = FALSE, ...)
 st <- rd("data/stations.csv", col_types = cols(station_no = col_character())) %>% filter(months_active > 0)
 wet <- rd("data/stations_wet.csv", col_types = cols(station_no = col_character()))
-s <- st %>% select(station_no, name, gu, elev_m, subway_m, univ_m, docks) %>% inner_join(wet, by = "station_no") %>%
+s <- st %>% select(station_no, name, gu, elev_m, subway_m, univ_m) %>% inner_join(wet, by = "station_no") %>%
   mutate(band = cut(elev_m, c(0, 20, 40, Inf), labels = c("20m 미만", "20~40m", "40m 이상"), right = FALSE),
          l_sub = log2(subway_m), l_uni = log2(univ_m))
 
@@ -27,7 +27,7 @@ cat("\nelevation odds ratio per 10 m (shortage >= 30%), wet vs dry mornings, sta
 d <- filter(s, n_wet >= 30)
 for (g in c("dry", "wet", "dry_after_wet", "dry_after_dry")) {
   y <- d[[paste0("am_empty_", g)]] >= 0.3
-  f <- glm(y ~ I(elev_m / 10) + l_sub + l_uni + docks, family = binomial, data = d)
+  f <- glm(y ~ I(elev_m / 10) + l_sub + l_uni, family = binomial, data = d)
   ci <- exp(confint.default(f)[2, ])
   cat(sprintf("  %-14s share %.3f  OR %.2f (%.2f-%.2f)\n", g, mean(y, na.rm = TRUE), exp(coef(f)[2]), ci[1], ci[2]))
 }

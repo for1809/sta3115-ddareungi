@@ -17,10 +17,10 @@ paired difference wet - dry per station (mean, 95% CI) by band:
   40m 이상 n= 477  mean -0.0427  (-0.0514 to -0.0339)
 
 elevation odds ratio per 10 m (shortage >= 30%), wet vs dry mornings, stations with >= 30 wet snapshots:
-  dry            share 0.098  OR 2.10 (1.91-2.31)
-  wet            share 0.082  OR 1.87 (1.71-2.05)
-  dry_after_wet  share 0.110  OR 2.10 (1.92-2.30)
-  dry_after_dry  share 0.099  OR 2.09 (1.91-2.30)
+  dry            share 0.098  OR 2.17 (1.98-2.38)
+  wet            share 0.082  OR 1.94 (1.77-2.12)
+  dry_after_wet  share 0.110  OR 2.17 (1.98-2.37)
+  dry_after_dry  share 0.099  OR 2.17 (1.98-2.37)
 correlation of station shortage, wet vs dry mornings: 0.833 
 
 == B. weather and weekday rentals (zone = bike stations sharing the nearest AWS station) ==
