@@ -131,8 +131,7 @@ s1 = slide("d_measures", "WHAT WE MEASURE", "Losing bikes is not the same as run
            sidebox('<p class="note"><b>Net outflow</b>: rentals minus returns, in bikes. Above 0, the station loses bikes; below 0, it gains them.<br>'
                    '<b>Empty share</b>: how often the station has zero bikes at 7, 8 or 9 am.</p>',
                    stat(f"{len(lose) / n_all:.0%}", f"of stations lose bikes every morning: net outflow above 0 ({len(lose):,} of {n_all:,})", "blue"),
-                   stat(f"{len(lose_out) / len(lose):.0%}", f"of those have empty share ≥20%: empty in at least one in five morning readings ({len(lose_out):,})", "red"),
-                   note="Net outflow: 7 to 9 am, dry weekdays 2024 to 2025 (team table). Empty share: hourly stock, dry weekdays 2025."),
+                   stat(f"{len(lose_out) / len(lose):.0%}", f"of those have empty share ≥20%: empty in at least one in five morning readings ({len(lose_out):,})", "red")),
            f"We use two measures. The first is net outflow: rentals minus returns, counted in bikes. When it is positive, the station loses bikes; when "
            f"it is negative, it gains them. We compute it for the whole day and for the morning commute; a daily net outflow of plus 4 means the station "
            f"loses four bikes a day on average through user trips. Net outflow tells us where bikes leave. But our question is where they run out, so the second measure is the "
