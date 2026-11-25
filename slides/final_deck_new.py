@@ -608,29 +608,21 @@ def _vec_section(D, note):
         lines.append(f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{bx:.1f}" y2="{by:.1f}" stroke="{c}" stroke-width="{w:.1f}" stroke-linecap="round"/>')
         heads.append(f'<polygon points="{tx:.1f},{ty:.1f} {bx + hx * half:.1f},{by + hy * half:.1f} {bx - hx * half:.1f},{by - hy * half:.1f}" fill="{c}" stroke="#fff" stroke-width="3"/>')
     ins += halos + lines + heads
-    # the campus as a soft dashed area (smooth closed curve through the outline points), drawn under the arrows
-    P = Z["campus"]; k = len(P)
-    seg_ = []
-    for i in range(k):
-        p0, p1, p2, p3 = P[i - 1], P[i], P[(i + 1) % k], P[(i + 2) % k]
-        c1 = (p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6)
-        c2 = (p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6)
-        seg_.append(f"C{c1[0]:.1f},{c1[1]:.1f} {c2[0]:.1f},{c2[1]:.1f} {p2[0]:.1f},{p2[1]:.1f}")
-    campus_d = f"M{P[0][0]:.1f},{P[0][1]:.1f}" + "".join(seg_) + "Z"
-    campus_el = (f'<path d="{campus_d}" fill="#fff" fill-opacity=".28" stroke="{INK}" stroke-width="6" stroke-opacity=".55" '
-                 f'stroke-dasharray="20 14" stroke-linejoin="round"/>')
-    ins.insert(ins.index(halos[0]) if halos else len(ins), campus_el)
+    lab = lambda x, y, name, sub, anchor="middle": (
+        f'<text x="{x}" y="{y}" text-anchor="{anchor}" font-size="58" font-weight="700" fill="{INK}" stroke="#fff" stroke-width="14" '
+        f'paint-order="stroke" stroke-linejoin="round">{name}<tspan x="{x}" dy="62" font-size="48" font-weight="600" fill="{INK2}">{sub}</tspan></text>')
     for l in Z["labels"]:
-        e = near(l["x"], l["y"])
-        if l["en"].startswith("Sinchon"):
-            # the station as a dot, the name beside it
+        if l["en"].startswith("Sinchon"):          # the station as a dot, the name beside it
             ins.append(f'<circle cx="{l["x"]}" cy="{l["y"]}" r="22" fill="{INK}" stroke="#fff" stroke-width="9"/>')
-            tx, anchor = l["x"] + 40, "start"
-            ins.append(f'<text x="{tx}" y="{l["y"] + 18}" text-anchor="{anchor}" font-size="58" font-weight="700" fill="{INK}" stroke="#fff" stroke-width="14" '
-                       f'paint-order="stroke" stroke-linejoin="round">{l["en"]}<tspan x="{tx}" dy="62" font-size="48" font-weight="600" fill="{INK2}">{e} m</tspan></text>')
-        else:
-            ins.append(f'<text x="{l["x"]}" y="{l["y"]}" text-anchor="middle" font-size="58" font-weight="700" fill="{INK}" stroke="#fff" stroke-width="14" '
-                       f'paint-order="stroke" stroke-linejoin="round">{l["en"]}<tspan x="{l["x"]}" dy="62" font-size="48" font-weight="600" fill="{INK2}">{e} m</tspan></text>')
+            ins.append(lab(l["x"] + 40, l["y"] + 18, l["en"], f'{near(l["x"], l["y"])} m', "start"))
+        elif l["en"].startswith("Ewha"):           # where the strongest flows start
+            for cx, cy in l["cells"]:
+                ins.append(f'<circle cx="{cx}" cy="{cy}" r="18" fill="{RED}" stroke="#fff" stroke-width="8"/>')
+            top = min(cy for _, cy in l["cells"])
+            ins.append(lab(975, top - 92, l["en"], f'{l["e"]} m', "end"))   # right-aligned, clear of the Yonsei name
+        else:                                       # Yonsei: a place name only (no station on campus)
+            ins.append(f'<text x="{l["x"]}" y="{l["y"]}" text-anchor="middle" font-size="46" font-weight="600" fill="{MUTED}" stroke="#fff" '
+                       f'stroke-width="12" paint-order="stroke" stroke-linejoin="round">{l["en"]}</text>')
     ins.append("</g>" + f'<rect x="2" y="{Y0 + 2}" width="996" height="{ZH - 4}" rx="36" fill="none" stroke="#d1d6db" stroke-width="4"/>')
     IH = 380; IW = round(IH * 1000 / ZH)
     inset_svg = (f'<svg width="{IW}" height="{IH}" viewBox="0 {Y0} 1000 {ZH}" style="flex:0 0 auto" role="img" aria-label="Yonsei–Sinchon: the 30 strongest net '
