@@ -1,10 +1,17 @@
-stations 2713 ; with wet mornings >= 30: 2684 ; with rider/other split: 2705 
-band means (dry):
-# A tibble: 3 × 3
-  band         n shortage
-  <fct>    <int>    <dbl>
-1 [0,20)     944   0.0478
-2 [20,40)   1290   0.0953
-3 [40,Inf)   479   0.251 
-merge candidates (bottom 20%, within 300 m): 427 ; often empty among them: 128 
-wrote app/data/stations.csv ( 2713 rows ) and app/data/station_hour.csv ( 130224 rows )
+stations written 2,879; trip-data stations 2,843; with empty share 2,714
+hourly rows 68,901; stock rows 288
+d_measures: 2,713 stations; lose bikes 1,697 (63%); of those run out 402 (24%)
+elev [0,20): n 1209, mean -1.5 bikes a day, losing 38%
+elev [20,40): n 1271, mean +0.6 bikes a day, losing 56%
+elev [40,1000000000.0): n 363, mean +4.3 bikes a day, losing 91%
+subway q0: n 677, am net -1.5, empty 9.6%
+subway q1: n 679, am net -0.8, empty 9.9%
+subway q2: n 678, am net +0.1, empty 10.9%
+subway q3: n 680, am net +2.9, empty 12.2%
+G1: 1,005; 5-8 pm net gain +1.2; median elevation 29 m
+G2: 766; 5-8 pm net gain +5.3; median elevation 19 m
+G3: 574; 5-8 pm net gain -5.9; median elevation 16 m
+G4: 498; 5-8 pm net gain -5.1; median elevation 22 m
+stock flat, q3: 19.0 -> 15.0, empty 5%
+stock hill, q3: 5.9 -> 5.4, empty 28%
+logistic inputs: 2,695 stations, 476 run out at 20%
