@@ -12,10 +12,10 @@ data/od_2024_2025/od/s0_station_daily.csv.gz (07-09 h net outflow, rentals minus
 """
 
 ORDER = ["cover", "intro", "why", "cost", "scope", "d_measures",
-         "hours", "weather", "elev", "stmap", "d_subway",
-         "d_cop_subway", "d_wx_elev", "traits", "vec",
-         "hypo", "quad", "tmap", "g12", "when", "conclusion", "limits", "thanks",
-         "appendix", "a_buffer", "gumap", "factors", "a_pass", "a_inc"]
+         "hours", "elev", "stmap", "d_subway",
+         "traits", "vec", "d_buffer",
+         "hypo", "quad", "g12", "conclusion", "limits", "thanks",
+         "appendix", "gumap", "factors", "weather", "d_cop_subway", "d_wx_elev", "tmap", "a_buffer", "when", "a_pass", "a_inc"]
 
 EYEBROWS = {"scope": "DATA", "gumap": "WHERE BIKES LEAVE",
             "elev": "FACTOR 3. ELEVATION", "stmap": "FACTOR 3. ELEVATION",
@@ -31,6 +31,34 @@ QUESTION_NOTE = ("With this in mind, we wanted to understand what station charac
                  "We hope these patterns can provide useful reference information when the city assesses redistribution needs.")
 
 FOOT = '<div class="foot"><p class="foot-l">STA3115 Exploratory Data Analysis, Group 1</p><p class="foot-r"></p></div>'
+CONCLUSION = f"""<section id="conclusion" class="accent" data-transition="fade">
+<p class="eyebrow">CONCLUSION</p>
+<h2>Insights for redistribution</h2>
+<div class="take">
+<p class="take-line soft">Elevation is associated with persistent bicycle imbalances.</p>
+<p class="take-line soft">Net movement tends downhill, and G1 stations show weaker evening recovery.</p>
+<p class="take-line soft">Hill stations have smaller starting inventories and more frequent shortages.</p>
+<p class="take-line"><b>Assess both which stations need redistribution and whether bikes are available before the morning commute.</b></p>
+</div>
+{FOOT}
+<aside>Our findings point to three connected patterns. Elevation is associated with persistent bicycle imbalances.
+Net movement tends downhill, and stations in G1 receive fewer net returns in the evening than G2.
+Hill stations also start with fewer bicycles and are empty more frequently. Together, these patterns can help the city assess redistribution needs.
+That assessment should consider both which stations need redistribution and whether bicycles are available before the morning commute.</aside>
+</section>"""
+LIMITATIONS = f"""<section id="limits" class="alt compact" data-transition="fade">
+<p class="eyebrow">LIMITATIONS</p>
+<h2>Key limitations</h2>
+<div class="qlist">
+<div class="q"><p class="q-num">1</p><p class="q-text"><b>Unmeasured confounding.</b><br>Other station and neighborhood factors may explain part of the associations. We cannot establish causation.</p></div>
+<div class="q"><p class="q-num">2</p><p class="q-text"><b>Unmet demand is unobserved.</b><br>We cannot count people who wanted a bicycle but found none.</p></div>
+<div class="q"><p class="q-num">3</p><p class="q-text"><b>Hourly readings miss short shortages.</b><br>Empty share describes snapshots, not continuous availability.</p></div>
+</div>
+{FOOT}
+<aside>Three limitations matter most. First, unmeasured factors, such as land use, trip purposes or cycling infrastructure, may contribute to the associations.
+We cannot establish causation. Second, trip records do not capture people who wanted to rent but found no bicycle, so actual demand is not fully observed.
+Third, hourly stock readings can miss shortages between snapshots. Our empty share therefore describes recorded availability, not the exact proportion of time a station is empty.</aside>
+</section>"""
 PILL = ('<span style="display:inline-block;font-size:20px;font-weight:700;letter-spacing:.5px;color:var(--muted);'
         'border:2px dashed var(--line);border-radius:999px;padding:4px 14px;margin-left:16px;vertical-align:middle">DRAFT</span>')
 BOX = "flex:1;border:3px dashed var(--line);border-radius:28px;padding:36px 40px;display:flex;flex-direction:column;gap:18px"
@@ -133,6 +161,30 @@ DRAFTS = {
         "that went down never come back up. Losing one or two is enough to empty it. Many stations lose bikes in the morning; only the hills "
         "cannot get them back."),
 }
+
+
+def appendix_slide():
+    """Describe the retained backups with slide references derived from ORDER."""
+    groups = [
+        ('Maps and station features', [('gumap', 'District usage'), ('factors', 'Candidate factors'), ('tmap', 'G1–G4 station map')]),
+        ('Supporting comparisons', [('weather', 'Temperature and rentals'), ('d_cop_subway', 'Elevation × subway distance'),
+                                    ('d_wx_elev', 'Temperature × elevation'), ('a_buffer', 'Bikes on hand and empty share')]),
+        ('Redistribution and usage', [('when', 'Inferred refill timing'), ('a_pass', 'Pass types and usage patterns'), ('a_inc', 'District income and usage')]),
+    ]
+    cards = []
+    for heading, items in groups:
+        rows = ''.join(f'<div style="display:flex;justify-content:space-between;gap:16px;margin-top:24px">'
+                       f'<span style="font-size:25px;line-height:1.4">{label}</span>'
+                       f'<span style="font-size:25px;color:var(--muted)">{ORDER.index(sid)+1}</span></div>'
+                       for sid, label in items)
+        cards.append(f'<div style="flex:1;background:var(--tint);border-radius:24px;padding:32px">'
+                     f'<h3 style="font-size:29px;line-height:1.3">{heading}</h3>{rows}</div>')
+    return ('<section id="appendix" class="dark" data-transition="fade">'
+            '<p class="eyebrow">APPENDIX</p><h2>Supporting analyses</h2>'
+            '<p style="font-size:28px;color:var(--muted);margin:20px 0 0">Additional evidence for discussion · slide numbers shown below</p>'
+            '<div style="display:flex;gap:24px;margin-top:48px;align-items:stretch">' + ''.join(cards) + '</div>'
+            + FOOT + '<aside>These backup slides contain additional maps, supporting comparisons, and context on redistribution and usage. '
+            'We can refer to them when discussing questions.</aside></section>')
 
 
 # ---- STEP "WHEN", redrawn from the hourly stock (analysis/hourly_refill.py -> data/hourly_refill_2025.csv):

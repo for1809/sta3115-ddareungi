@@ -10,6 +10,135 @@ cover_map()   the cover: Seoul's contours as a topographic map, instead of the d
 
 import math
 import re
+import json
+
+
+def classification_wording(html):
+    """Describe user-flow signs without inferring empty stock or truck needs."""
+    data = json.loads(re.search(r'<script[^>]*id="ixdata"[^>]*>(.*?)</script>', html, re.S)[1])
+    count = {r['ty']: r['N'] for r in data['tcount']}
+    morning = count['G1'] + count['G2']
+    section = re.search(r'<section\b[^>]*id="quad".*?</section>', html, re.S)
+    revised = section[0]
+    pairs = [
+        ('WHICH STATIONS NEED A TRUCK', 'MORNING AND FULL-DAY NET FLOW'),
+        ('emptied 7–9 am? still short at night? (net outflow above zero or not, in bikes)',
+         'Morning net outflow > 0? Full-day net outflow > 0?'),
+        ('G1 stays short and needs a truck; G2 refills by night and does not',
+         'G1: morning loss remains over the full day. G2: later net returns offset it.'),
+        ('stations are emptied in the morning. Why do fewer than half of them recover?',
+         'stations have positive mean morning net outflow. Do later net returns offset it?'),
+    ]
+    for old, new in pairs:
+        assert revised.count(old) == 1, old
+        revised = revised.replace(old, new)
+    note = (f'We classify stations using two signs: average net outflow during 7–9 am, and average net outflow over the full day. '
+            f'Positive means rentals exceed returns. G1 and G2 both lose bikes in the morning. '
+            f'For G1, full-day net outflow remains positive; for G2, later net returns offset the morning loss, so the full-day total is zero or negative. '
+            f'G3 has no net loss in either window; G4 has no morning net loss but has positive full-day net outflow. '
+            f'We focus on G1 and G2: {count["G1"]:,} and {count["G2"]:,} stations. '
+            'These groups describe average user flow, not whether a station is empty or needs a truck.')
+    revised = re.sub(r'<aside>.*?</aside>', lambda _: f'<aside>{note}</aside>', revised, count=1, flags=re.S)
+    html = html[:section.start()] + revised + html[section.end():]
+    start = html.index('  // ---------- the 2x2 as four tiles')
+    end = html.index('  // ----------', start + 10)
+    chart = html[start:end]
+    pairs = [
+        ('Not emptied in the morning', 'No morning net loss (≤0)'),
+        ('Emptied in the morning (7–9 am)', 'Morning net loss (>0)'),
+        ("[['Still short', 'at night', 0], ['Back to normal', 'by night', 1]]",
+         "[['Net loss', 'over full day', 0], ['No net loss', 'over full day', 1]]"),
+        ('fills in the morning, empties during the day', 'no morning net loss; full-day net loss'),
+        ('drained in the morning, never refilled', 'morning net loss; full-day net loss'),
+        ('gains bikes over the whole day', 'no morning net loss; no full-day net loss'),
+        ('drained in the morning, back by evening', 'morning net loss; no full-day net loss'),
+        ('txt(TYL[t],', 'txt(t,'),
+        ('a typical day: ↑ bikes leave, ↓ bikes arrive', 'hourly mean net outflow: + loss, − gain'),
+        ('stations are emptied every morning:', 'have morning net loss:'),
+        ('recover by night,', 'offset the loss by day end;'),
+        ('Two questions for every station: is it emptied during the 7–9 am commute (columns), and is it still short at the end of the day (rows)?',
+         'Is average morning net outflow positive (columns)? Is average full-day net outflow positive (rows)?'),
+        ('Each tile shows a typical day for its group: up means bikes leave, down means bikes arrive. The blue band is 7–9 am.',
+         'Each tile shows mean hourly net outflow: positive means net loss and negative means net gain. The blue band marks the morning window.'),
+        (f'The right column is the {morning:,} stations emptied every morning. {count["G2"]:,} recover by night; {count["G1"]:,} never do. Why?',
+         f'The right column has {morning:,} stations with morning net loss. For {count["G2"]:,}, later net returns offset it; for {count["G1"]:,}, they do not.'),
+    ]
+    for old, new in pairs:
+        assert chart.count(old) == 1, old
+        chart = chart.replace(old, new)
+    return html[:start] + chart + html[end:]
+
+
+def recovery_wording(html):
+    """Keep the recovery charts while distinguishing association from cause."""
+    data = json.loads(re.search(r'<script[^>]*id="ixdata"[^>]*>(.*?)</script>', html, re.S)[1])
+    groups = {r['ty']: r for r in data['g12']}
+    g1, g2 = groups['G1'], groups['G2']
+    section = re.search(r'<section\b[^>]*id="g12".*?</section>', html, re.S)
+    revised = section[0].replace('WHICH STATIONS NEED A TRUCK', 'EVENING RECOVERY')
+    revised = re.sub(r'<h2>.*?</h2>', '<h2>Different evening recovery</h2>', revised, count=1, flags=re.S)
+    for group in [g2, g1]:
+        old = f'−{-group["pm"]:.1f} bikes'
+        assert revised.count(old) == 1, old
+        revised = revised.replace(old, f'+{-group["pm"]:.1f} bikes')
+    revised = revised.replace('net return to a G2 station in the evening commute, 5–8 pm',
+                              'mean net gain at a G2 station, 5–8 pm')
+    revised = revised.replace('net return to a G1 station: few people ride back up',
+                              'mean net gain at a G1 station, 5–8 pm')
+    note = (f'Both groups lose bikes in the morning, but G2 receives more net returns in the evening. '
+            f'From 5 to 8 pm, G2 gains an average of {-g2["pm"]:.1f} bikes per station, compared with {-g1["pm"]:.1f} for G1. '
+            f'G1 stations also have higher median elevation: {g1["elev"]:.0f} metres versus {g2["elev"]:.0f} for G2. '
+            f'Their median subway distances are similar, about {round(g1["sub"], -1):.0f} and {round(g2["sub"], -1):.0f} metres. '
+            'This links weaker evening recovery with higher elevation, but does not establish that elevation causes the difference. '
+            'The chart describes user net flow; recovery does not mean the station is full or never empty.')
+    revised = re.sub(r'<aside>.*?</aside>', lambda _: f'<aside>{note}</aside>', revised, count=1, flags=re.S)
+    html = html[:section.start()] + revised + html[section.end():]
+    start = html.index('  // ---------- G1 vs G2:')
+    end = html.index('  // ----------', start + 10)
+    chart = html[start:end]
+    cues = [f'G2 loses bikes in the morning and gains {-g2["pm"]:.1f} bikes per station during 5–8 pm.',
+            f'G1 also loses bikes in the morning, but gains only {-g1["pm"]:.1f} bikes per station during 5–8 pm.',
+            f'Median elevation is {g1["elev"]:.0f} m for G1 and {g2["elev"]:.0f} m for G2; subway distances are similar. This is an association.']
+    chart, count = re.subn(r'cues: \[.*?\],', lambda _: 'cues: ' + json.dumps(cues) + ',', chart, count=1, flags=re.S)
+    assert count == 1
+    return html[:start] + chart + html[end:]
+
+
+def map_only(html):
+    """Simplify the station map after the existing wording and units passes."""
+    section = re.search(r'<section\b[^>]*id="stmap".*?</section>', html, re.S)
+    assert section, "station map section not found"
+    old = section.group(0)
+    start = old.index('<div class="body">')
+    end = old.index('<div class="foot">', start)
+    content = ('<div style="display:flex;justify-content:center;margin-top:20px">'
+               '<div id="ix-stmap" style="position:relative;width:1664px;height:730px" '
+               'role="img" aria-label="Seoul terrain and stations with net daily bicycle losses or gains"></div>'
+               '</div>\n')
+    new = old[:start] + content + old[end:]
+    new = re.sub(r'<aside>.*?</aside>\s*', '', new, flags=re.S)
+    html = html[:section.start()] + new + html[section.end():]
+
+    start = html.index('  // ---------- station map: the hills first')
+    end = html.index('  // ----------', start + 10)
+    chart = html[start:end]
+    assert 'const W = 760' in chart
+    chart = chart.replace('const W = 760', 'const W = 820')
+    chart = chart.replace("    guLayer(svg,", "    svg.style.display = 'block'; svg.style.margin = '0 auto';\n    guLayer(svg,", 1)
+    chart = chart.replace('left:0;top:${Hh + 2}px', 'left:50%;transform:translateX(-50%);top:${Hh + 8}px')
+    chart = chart.replace("    guLabels(svg, 14);\n", '')
+    chart = re.sub(r'    const nL = .*?;\n', '', chart)
+    chart = chart.replace("loses over 1 bike a day (${nL.toLocaleString('en')})", "loses over 1 bike a day")
+    chart = chart.replace("gains over 1 (${nG.toLocaleString('en')})", "gains over 1 bike a day")
+    bars_start = chart.index("    const bars = document.getElementById('st-bars');")
+    bars_end = chart.index('    IX.stmap =', bars_start)
+    chart = chart[:bars_start] + chart[bars_end:]
+    chart = chart.replace(' On the right: the higher the station, the more of them end the day short.', '')
+    chart = chart.replace('        const show = [k >= 1, k >= 1, k >= 2, true];\n'
+                          '        side.forEach((n, j) => fade(n, show[j]));\n', '')
+    assert 'st-bars' not in chart and 'side.' not in chart
+    return html[:start] + chart + html[end:]
+
 
 STMAP_SIDE = """
 <div class="stat"><p class="stat-lab" style="margin:0 0 8px">Share of stations that end the day short of bikes, by station elevation</p><div id="st-bars"></div></div>
