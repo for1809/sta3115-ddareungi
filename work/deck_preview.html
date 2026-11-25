@@ -297,16 +297,21 @@ records of 2025. Next: what we measure on those days.</aside>
 
 <section style="counter-reset: page 10" id="traits" data-transition="fade">
 <p class="eyebrow">FACTORS TOGETHER</p>
-<h2>Of the station features we tested, elevation matters most</h2>
+<h2>Of the station features we tested, only elevation goes with running out</h2>
 <table class="tbl" style="margin-top:40px">
-<tr><th style="width:40%">Station feature</th><th style="width:20%;text-align:right">Rank correlation (ρ)</th><th style="width:22%;text-align:right">Standardised coefficient (β)</th><th style="width:18%;text-align:right">p</th></tr>
-<tr class="hl"><td>Elevation (m)</td><td style="text-align:right">0.39</td><td style="text-align:right">0.30</td><td style="text-align:right">&lt; 0.001</td></tr>
-<tr><td>Local relief within 300 m (m)</td><td style="text-align:right">0.30</td><td style="text-align:right">0.05</td><td style="text-align:right">0.02</td></tr>
-<tr><td>Distance to nearest subway station (log)</td><td style="text-align:right">0.07</td><td style="text-align:right">0.04</td><td style="text-align:right">0.03</td></tr>
+<tr><th style="width:40%">Station feature</th><th style="width:20%;text-align:right">Rank correlation with empty share (ρ)</th><th style="width:26%;text-align:right">Odds ratio per 1 SD (95% CI)</th><th style="width:14%;text-align:right">p</th></tr>
+<tr class="hl"><td>Elevation (m)</td><td style="text-align:right">0.50</td><td style="text-align:right">3.53 (3.04–4.12)</td><td style="text-align:right">&lt; 0.001</td></tr>
+<tr><td>Local relief within 300 m (m)</td><td style="text-align:right">0.32</td><td style="text-align:right">0.98 (0.85–1.12)</td><td style="text-align:right">0.72</td></tr>
+<tr><td>Distance to nearest subway station (log)</td><td style="text-align:right">0.09</td><td style="text-align:right">0.90 (0.81–1.00)</td><td style="text-align:right">0.06</td></tr>
 </table>
-<p class="text muted" style="margin-top:28px">Outcome: daily net outflow (bikes), 2,843 stations. ρ: Spearman correlation, one feature at a time. β: all three features in one linear model on standardised variables (R² = 0.12). The model ranks the features; it is not meant to predict.</p>
+<p class="text muted" style="margin-top:28px">Outcome: runs out, empty in at least 20% of 7–9 am readings (2025 dry weekdays): 476 of 2,695 stations. One logistic model with all three features, standardised. Elevation: odds ×2.61 for every 10 m; AUC 0.83.</p>
 <div class="foot"><p class="foot-l">STA3115 Exploratory Data Analysis, Group 1</p><p class="foot-r"></p></div>
-<aside>To see which station features go with losing bikes, we compared three candidates. The first column is the rank correlation with daily net outflow, one feature at a time. The second is the coefficient when all three enter one linear model on a standardised scale. Elevation comes first on both: a correlation of 0.39 and a coefficient of 0.30, several times larger than any other. Distance to the subway hardly matters. The model explains only 12% of the variation, so we use it to rank the features, not to predict. Let us look at elevation directly.</aside>
+<aside>Which station features go with running out? We put three of them in one logistic model. The outcome is whether a station runs out, as we defined it
+earlier: empty in at least one in five readings between 7 and 9 am, which holds for 476 of 2,695 stations. The first column is the rank
+correlation with the empty share, one feature at a time; the second is the odds ratio for one standard deviation, with all three features together.
+Only elevation matters. One standard deviation higher, about 13 metres, multiplies the odds of running out by 3.5; that is
+2.6 times for every 10 metres. Local relief goes with running out on its own, but not once elevation is in the model, and distance to the
+subway hardly matters. The model tells stations that run out from those that do not with an AUC of 0.83.</aside>
 </section>
 
 <section style="counter-reset: page 11" id="vec" data-transition="fade">
