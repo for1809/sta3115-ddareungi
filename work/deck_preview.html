@@ -372,18 +372,18 @@ To explore that, we classified stations using morning and full-day net outflow.<
 </section>
 
 <section style="counter-reset: page 15" id="g12" data-transition="fade">
-<p class="eyebrow">WHICH STATIONS NEED A TRUCK</p>
-<h2>Same morning, different evening: the difference is the hill</h2>
+<p class="eyebrow">EVENING RECOVERY</p>
+<h2>Different evening recovery</h2>
 <div class="body" style="margin-top:16px">
 <div class="figcard" style="padding:0"><div id="ix-g12" style="position:relative;width:1664px;height:560px"></div></div>
 </div>
 <div class="side rowstats">
-<div class="stat"><p class="stat-num" style="color:#ff9f1c">−5.3 bikes</p><p class="stat-lab">net return to a G2 station in the evening commute, 5–8 pm</p></div>
-<div class="stat"><p class="stat-num">−1.2 bikes</p><p class="stat-lab">net return to a G1 station: few people ride back up</p></div>
+<div class="stat"><p class="stat-num" style="color:#ff9f1c">+5.3 bikes</p><p class="stat-lab">mean net gain at a G2 station, 5–8 pm</p></div>
+<div class="stat"><p class="stat-num">+1.2 bikes</p><p class="stat-lab">mean net gain at a G1 station, 5–8 pm</p></div>
 <div class="stat"><p class="stat-num ink">29 m vs 19 m</p><p class="stat-lab">median elevation of G1 and G2; distance to the subway is similar (480 m vs 460 m)</p></div>
 </div>
 <div class="foot"><p class="foot-l">STA3115 Exploratory Data Analysis, Group 1</p><p class="foot-r"></p></div>
-<aside>To see why, we compare the two groups hour by hour. G2, in orange: bikes leave in the morning and the evening commute brings them back, so by night the station is full again. G1, in red: the same morning drain, but only a trickle comes back in the evening, about 1.2 bikes per station against 5.3 for G2. What separates them? Elevation. G1 stations sit at a median of 29 metres, G2 stations at 19. Distance to the subway is almost the same, 480 against 460 metres. People ride down to the station in the morning, and in the evening few of them ride back up the hill.</aside>
+<aside>Both groups lose bikes in the morning, but G2 receives more net returns in the evening. From 5 to 8 pm, G2 gains an average of 5.3 bikes per station, compared with 1.2 for G1. G1 stations also have higher median elevation: 29 metres versus 19 for G2. Their median subway distances are similar, about 480 and 460 metres. This links weaker evening recovery with higher elevation, but does not establish that elevation causes the difference. The chart describes user net flow; recovery does not mean the station is full or never empty.</aside>
 </section>
 
 <section style="counter-reset: page 16" id="when" data-transition="fade">
@@ -1119,9 +1119,7 @@ To explore that, we classified stations using morning and full-day net outflow.<
     const side = sideItems('g12');
     IX.g12 = {
       steps: 3,
-      cues: ['G2, refills by night: bikes leave in the morning, and the evening commute brings them back.',
-             'G1, stays short: the same morning drain, but only a trickle comes back in the evening.',
-             'What separates them? Elevation: G1 stations sit a median 29 m up, G2 at 19 m. Distance to the subway is almost the same.'],
+      cues: ["G2 loses bikes in the morning and gains 5.3 bikes per station during 5\u20138 pm.", "G1 also loses bikes in the morning, but gains only 1.2 bikes per station during 5\u20138 pm.", "Median elevation is 29 m for G1 and 19 m for G2; subway distances are similar. This is an association."],
       set(k) {
         last = k; fade(l2, true); fade(l1, k >= 1); fade(rg, k >= 2, 600);
         fade(bar.bar, k >= 2); bar.bar.style.pointerEvents = k >= 2 ? 'auto' : 'none'; bar.pick(which);

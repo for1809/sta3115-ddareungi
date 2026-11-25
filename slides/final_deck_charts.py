@@ -69,6 +69,41 @@ def classification_wording(html):
     return html[:start] + chart + html[end:]
 
 
+def recovery_wording(html):
+    """Keep the recovery charts while distinguishing association from cause."""
+    data = json.loads(re.search(r'<script[^>]*id="ixdata"[^>]*>(.*?)</script>', html, re.S)[1])
+    groups = {r['ty']: r for r in data['g12']}
+    g1, g2 = groups['G1'], groups['G2']
+    section = re.search(r'<section\b[^>]*id="g12".*?</section>', html, re.S)
+    revised = section[0].replace('WHICH STATIONS NEED A TRUCK', 'EVENING RECOVERY')
+    revised = re.sub(r'<h2>.*?</h2>', '<h2>Different evening recovery</h2>', revised, count=1, flags=re.S)
+    for group in [g2, g1]:
+        old = f'−{-group["pm"]:.1f} bikes'
+        assert revised.count(old) == 1, old
+        revised = revised.replace(old, f'+{-group["pm"]:.1f} bikes')
+    revised = revised.replace('net return to a G2 station in the evening commute, 5–8 pm',
+                              'mean net gain at a G2 station, 5–8 pm')
+    revised = revised.replace('net return to a G1 station: few people ride back up',
+                              'mean net gain at a G1 station, 5–8 pm')
+    note = (f'Both groups lose bikes in the morning, but G2 receives more net returns in the evening. '
+            f'From 5 to 8 pm, G2 gains an average of {-g2["pm"]:.1f} bikes per station, compared with {-g1["pm"]:.1f} for G1. '
+            f'G1 stations also have higher median elevation: {g1["elev"]:.0f} metres versus {g2["elev"]:.0f} for G2. '
+            f'Their median subway distances are similar, about {round(g1["sub"], -1):.0f} and {round(g2["sub"], -1):.0f} metres. '
+            'This links weaker evening recovery with higher elevation, but does not establish that elevation causes the difference. '
+            'The chart describes user net flow; recovery does not mean the station is full or never empty.')
+    revised = re.sub(r'<aside>.*?</aside>', lambda _: f'<aside>{note}</aside>', revised, count=1, flags=re.S)
+    html = html[:section.start()] + revised + html[section.end():]
+    start = html.index('  // ---------- G1 vs G2:')
+    end = html.index('  // ----------', start + 10)
+    chart = html[start:end]
+    cues = [f'G2 loses bikes in the morning and gains {-g2["pm"]:.1f} bikes per station during 5–8 pm.',
+            f'G1 also loses bikes in the morning, but gains only {-g1["pm"]:.1f} bikes per station during 5–8 pm.',
+            f'Median elevation is {g1["elev"]:.0f} m for G1 and {g2["elev"]:.0f} m for G2; subway distances are similar. This is an association.']
+    chart, count = re.subn(r'cues: \[.*?\],', lambda _: 'cues: ' + json.dumps(cues) + ',', chart, count=1, flags=re.S)
+    assert count == 1
+    return html[:start] + chart + html[end:]
+
+
 def map_only(html):
     """Simplify the station map after the existing wording and units passes."""
     section = re.search(r'<section\b[^>]*id="stmap".*?</section>', html, re.S)
