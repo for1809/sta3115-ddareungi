@@ -13,11 +13,11 @@ Changes, all made here so the original stays as received:
   6. slide "weather": every station's mean rentals by 5 C band of its local daily maximum, 2024-2025 weekdays (data/station_tmax_band.csv)
   7. slide "gumap": the hourly-use map in green, so it is not confused with the blue of the net-flow maps
   0. a "What is Ddareungi" slide after the cover
-  10. storyline draft (slides/final_deck_story.py), only in deck_draft.html: the new question on slide 4, slide order in four acts, eyebrows, and
-      text drafts (ids d_*) for the slides still to be drawn
+  10. storyline (slides/final_deck_story.py, slides/final_deck_new.py): the new question on slide 4, slide order in four acts, eyebrows, and
+      five new slides drawn from the data (ids d_*)
   9b. net outflow in bikes, no docks (slides/final_deck_nodocks.py)
 Run from the project root:  python slides/build_final_deck.py
-Output: slides/deck_final.html (steps 0-9b) and slides/deck_draft.html (steps 0-10, the storyline draft)
+Output: slides/deck_final.html (steps 0-10); slides/deck_draft.html is written as the same file
 """
 import base64
 import importlib.util
@@ -28,7 +28,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 SRC = ROOT / "team" / "deck_ddareungi_teammate.html"
 OUT = ROOT / "deck_final.html"
-DRAFT = ROOT / "deck_draft.html"   # storyline draft (step 10), kept apart from the final deck
+DRAFT = ROOT / "deck_draft.html"   # same file as deck_final.html, kept for links to the draft
 FIG = ROOT / "figures_en" / "10b_rebalance_bare.png"   # bare-earth elevation bands, as in the teammate deck
 
 t = SRC.read_text(encoding="utf-8")
@@ -271,9 +271,8 @@ nspec.loader.exec_module(NODOCK)
 out, _ = NODOCK.apply(out)
 assert "dock" not in re.sub(r'<script[^>]*id="ixdata".*?</script>', "", out, flags=re.S).lower()
 
-# ---- 10. storyline draft (slides/final_deck_story.py), written to a separate file; deck_final.html stays as it was
+# ---- 10. storyline (slides/final_deck_story.py, slides/final_deck_new.py): the final deck since 2026-11-25
 #      the new question, slide order, eyebrows, and text drafts for slides to come
-final = out
 sspec = importlib.util.spec_from_file_location("final_deck_story", ROOT / "final_deck_story.py")
 STORY = importlib.util.module_from_spec(sspec)
 sspec.loader.exec_module(STORY)
@@ -294,6 +293,10 @@ for a, b in zip(secs, secs[1:]):
     assert not out[a.end():b.start()].strip(), "text between sections"
 have = {re.search(r'id="([^"]+)"', m.group(0)).group(1): m.group(0) for m in secs}
 have.update(STORY.DRAFTS)
+nspec2 = importlib.util.spec_from_file_location("final_deck_new", ROOT / "final_deck_new.py")
+NEW = importlib.util.module_from_spec(nspec2)
+nspec2.loader.exec_module(NEW)
+have.update(NEW.SLIDES)                                   # the five new slides drawn from the data
 have["when"] = STORY.when_slide(ROOT.parent / "data" / "hourly_refill_2025.csv")   # hourly version of STEP 7 (analysis/hourly_refill.py)
 assert set(have) == set(STORY.ORDER) and len(STORY.ORDER) == len(set(STORY.ORDER)), set(have) ^ set(STORY.ORDER)
 out = out[:secs[0].start()] + "\n\n".join(have[i].strip() for i in STORY.ORDER) + out[secs[-1].end():]
@@ -311,7 +314,7 @@ def renumber(html):
     return re.sub(r"<section\b[^>]*>", one, html), n
 
 
-for html, path in ((final, OUT), (out, DRAFT)):
+for html, path in ((out, OUT), (out, DRAFT)):        # the storyline is now the final deck; deck_draft.html is the same file
     html, n = renumber(html)
     path.write_text(html, encoding="utf-8")
     print(n, "slides ->", path, round(path.stat().st_size / 1e6, 2), "MB")
